@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite failures="0" time="0.029" errors="0" skipped="0" tests="1" name="org.wso2.carbon.AppTest">
+  <properties>
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
+    <property name="sun.boot.library.path" value="/home/krishantha/software/java/jdk1.6.0_25/jre/lib/amd64"/>
+    <property name="java.vm.version" value="20.0-b11"/>
+    <property name="java.vm.vendor" value="Sun Microsystems Inc."/>
+    <property name="java.vendor.url" value="http://java.sun.com/"/>
+    <property name="path.separator" value=":"/>
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
+    <property name="file.encoding.pkg" value="sun.io"/>
+    <property name="user.country" value="US"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="sun.os.patch.level" value="unknown"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="user.dir" value="/home/krishantha/git/carbon-platform-integration-utils/common-test-clients"/>
+    <property name="java.runtime.version" value="1.6.0_25-b06"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment"/>
+    <property name="basedir" value="/home/krishantha/git/carbon-platform-integration-utils/common-test-clients"/>
+    <property name="java.endorsed.dirs" value="/home/krishantha/software/java/jdk1.6.0_25/jre/lib/endorsed"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="surefire.real.class.path" value="/home/krishantha/git/carbon-platform-integration-utils/common-test-clients/target/surefire/surefirebooter1270684007516997502.jar"/>
+    <property name="java.io.tmpdir" value="/tmp"/>
+    <property name="line.separator" value="
+"/>
+    <property name="java.vm.specification.vendor" value="Sun Microsystems Inc."/>
+    <property name="os.name" value="Linux"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="/home/krishantha/software/java/jdk1.6.0_25/jre/lib/amd64/server:/home/krishantha/software/java/jdk1.6.0_25/jre/lib/amd64:/home/krishantha/software/java/jdk1.6.0_25/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib"/>
+    <property name="surefire.test.class.path" value="/home/krishantha/git/carbon-platform-integration-utils/common-test-clients/target/test-classes:/home/krishantha/git/carbon-platform-integration-utils/common-test-clients/target/classes:/home/krishantha/.m2git/junit/junit/3.8.1/junit-3.8.1.jar:"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.class.version" value="50.0"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="os.version" value="3.8.0-30-generic"/>
+    <property name="user.home" value="/home/krishantha"/>
+    <property name="user.timezone" value=""/>
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.specification.version" value="1.6"/>
+    <property name="user.name" value="krishantha"/>
+    <property name="java.class.path" value="/home/krishantha/git/carbon-platform-integration-utils/common-test-clients/target/test-classes:/home/krishantha/git/carbon-platform-integration-utils/common-test-clients/target/classes:/home/krishantha/.m2git/junit/junit/3.8.1/junit-3.8.1.jar:"/>
+    <property name="java.vm.specification.version" value="1.0"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.home" value="/home/krishantha/software/java/jdk1.6.0_25/jre"/>
+    <property name="sun.java.command" value="/home/krishantha/git/carbon-platform-integration-utils/common-test-clients/target/surefire/surefirebooter1270684007516997502.jar /home/krishantha/git/carbon-platform-integration-utils/common-test-clients/target/surefire/surefire1131834653608168440tmp /home/krishantha/git/carbon-platform-integration-utils/common-test-clients/target/surefire/surefire5128634460919906962tmp"/>
+    <property name="java.specification.vendor" value="Sun Microsystems Inc."/>
+    <property name="user.language" value="en"/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="java.version" value="1.6.0_25"/>
+    <property name="java.ext.dirs" value="/home/krishantha/software/java/jdk1.6.0_25/jre/lib/ext:/usr/java/packages/lib/ext"/>
+    <property name="sun.boot.class.path" value="/home/krishantha/software/java/jdk1.6.0_25/jre/lib/resources.jar:/home/krishantha/software/java/jdk1.6.0_25/jre/lib/rt.jar:/home/krishantha/software/java/jdk1.6.0_25/jre/lib/sunrsasign.jar:/home/krishantha/software/java/jdk1.6.0_25/jre/lib/jsse.jar:/home/krishantha/software/java/jdk1.6.0_25/jre/lib/jce.jar:/home/krishantha/software/java/jdk1.6.0_25/jre/lib/charsets.jar:/home/krishantha/software/java/jdk1.6.0_25/jre/lib/modules/jdk.boot.jar:/home/krishantha/software/java/jdk1.6.0_25/jre/classes"/>
+    <property name="java.vendor" value="Sun Microsystems Inc."/>
+    <property name="localRepository" value="/home/krishantha/.m2git"/>
+    <property name="file.separator" value="/"/>
+    <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="sun.desktop" value="gnome"/>
+    <property name="sun.cpu.isalist" value=""/>
+  </properties>
+  <testcase time="0.001" classname="org.wso2.carbon.AppTest" name="testApp"/>
+</testsuite>
