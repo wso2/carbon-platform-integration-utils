@@ -23,7 +23,6 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.server.admin.stub</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
@@ -58,8 +57,4 @@
         </dependency>
     </dependencies>
 
-    <properties>
-        <!-- Carbon platform version comes here-->
-        <carbon.platform.version>4.3.0-SNAPSHOT</carbon.platform.version>
-    </properties>
 </project>
