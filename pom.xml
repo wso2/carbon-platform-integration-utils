@@ -7,12 +7,13 @@
     <artifactId>carbon-platform-integration-utils</artifactId>
     <packaging>pom</packaging>
     <version>4.3.0-SNAPSHOT</version>
-    <name>WSO2 Carbon - Platform Integration Utils Aggregator POM</name>
+    <name>WSO2 Carbon Platform Integration Utils - Aggregator POM</name>
     <url>http://wso2.org</url>
 
     <modules>
         <module>common-admin-clients</module>
         <module>common-framework-extensions</module>
+        <module>common-framework-tests</module>
     </modules>
 
     <dependencyManagement>
@@ -20,6 +21,11 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.ndatasource.stub</artifactId>
+                <version>${carbon.stub.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.logging.view.stub</artifactId>
                 <version>${carbon.stub.version}</version>
             </dependency>
             <dependency>
@@ -68,6 +74,11 @@
                 <version>${test.framwork.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.integration.common.extensions</artifactId>
+                <version>${carbon.platform.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>net.lingala.zip4j</groupId>
                 <artifactId>zip4j</artifactId>
                 <version>${zip4j.version}</version>
@@ -82,6 +93,16 @@
                 <artifactId>org.wso2.carbon.integration.common.admin.client</artifactId>
                 <version>${carbon.platform.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.htmlparser</groupId>
+                <artifactId>htmlparser</artifactId>
+                <version>2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>${commons-net.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -92,6 +113,8 @@
         <test.framwork.version>4.3.1-SNAPSHOT</test.framwork.version>
         <zip4j.version>1.2.3</zip4j.version>
         <commons-lang3>3.0</commons-lang3>
+        <htmlparser.version>2.1</htmlparser.version>
+        <commons-net.version>3.2</commons-net.version>
     </properties>
 
     <build>

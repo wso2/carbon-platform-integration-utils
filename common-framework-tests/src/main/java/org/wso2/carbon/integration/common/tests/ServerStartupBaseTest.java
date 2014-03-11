@@ -1,4 +1,4 @@
-package org.wso2.carbon.integration.common.tests;/*
+/*
 *Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *WSO2 Inc. licenses this file to you under the Apache License,
@@ -16,5 +16,69 @@ package org.wso2.carbon.integration.common.tests;/*
 *under the License.
 */
 
-public class ServerStartupBaseTest {
+package org.wso2.carbon.integration.common.tests;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Test;
+import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
+import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
+import org.wso2.carbon.automation.engine.context.AutomationContext;
+import org.wso2.carbon.integration.common.admin.client.LogViewerClient;
+import org.wso2.carbon.logging.view.stub.types.carbon.LogEvent;
+
+import java.rmi.RemoteException;
+
+import static org.testng.Assert.assertFalse;
+
+public abstract class ServerStartupBaseTest {
+    private LogViewerClient logViewerClient;
+    private static final Log log = LogFactory.getLog(ServerStartupBaseTest.class);
+    private static final String SERVER_START_LINE = "Starting WSO2 Carbon";
+    private static final String MANAGEMENT_CONSOLE_URL = "Mgt Console URL";
+    public String productName;
+
+    @BeforeSuite(alwaysRun = true)
+    public void initialize() throws Exception {
+        AutomationContext autoContext = new AutomationContext();
+        logViewerClient = new LogViewerClient(autoContext.getContextUrls().getBackEndUrl(),
+                autoContext.getSuperTenant().getTenantAdmin().getUserName(),
+                autoContext.getSuperTenant().getTenantAdmin().getPassword());
+    }
+
+    @Test(groups = "wso2.all", description = "verify server startup errors")
+    @SetEnvironment(executionEnvironments = {ExecutionEnvironment.STANDALONE})
+    public void testVerifyLogs() throws RemoteException {
+        boolean status = false;
+        int startLine = 0;
+        int stopLine = 0;
+        LogEvent[] logEvents = logViewerClient.getAllSystemLogs();
+        if (logEvents.length > 0) {
+            for (int i = 0; i < logEvents.length; i++) {
+                if (logEvents[i] != null) {
+                    if (logEvents[i].getMessage().contains(SERVER_START_LINE)) {
+                        stopLine = i;
+                        log.info("Server started message found - " + logEvents[i].getMessage());
+                    }
+                    if (logEvents[i].getMessage().contains(MANAGEMENT_CONSOLE_URL)) {
+                        startLine = i;
+                        log.info("Server stopped message found - " + logEvents[i].getMessage());
+                    }
+                }
+                if (startLine != 0 && stopLine != 0) {
+                    break;
+                }
+            }
+            while (startLine <= stopLine) {
+                if (logEvents[startLine].getPriority().contains("ERROR")) {
+                    log.error("Startup contain errors - " + logEvents[startLine].getMessage());
+                    status = true;
+                    break;
+                }
+                startLine++;
+            }
+        }
+        assertFalse(status, "Server started with errors");
+    }
 }

@@ -1,4 +1,4 @@
-package org.wso2.carbon.integration.common.tests;/*
+/*
 *Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *WSO2 Inc. licenses this file to you under the Apache License,
@@ -16,5 +16,36 @@ package org.wso2.carbon.integration.common.tests;/*
 *under the License.
 */
 
-public class CarbonTestServerManager {
+package org.wso2.carbon.integration.common.tests;
+
+import org.wso2.carbon.automation.engine.context.AutomationContext;
+import org.wso2.carbon.integration.common.extensions.carbonserver.TestServerManager;
+
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.util.HashMap;
+
+public class CarbonTestServerManager extends TestServerManager {
+    public CarbonTestServerManager(AutomationContext autoCtx, String carbonZip, HashMap<String,
+            String> startupParameterMap) {
+        super(autoCtx, carbonZip, startupParameterMap);
+    }
+
+    public CarbonTestServerManager(AutomationContext autoCtx, int portOffset) {
+        super(autoCtx, portOffset);
+    }
+
+    public String startServer() throws IOException, XPathExpressionException {
+        String carbonHome = super.startServer();
+        System.setProperty("carbon.home", carbonHome);
+        return carbonHome;
+    }
+
+    public void stopServer() throws Exception {
+        super.stopServer();
+    }
+
+    protected void copyArtifacts(String carbonHome) throws IOException {
+    }
 }
+

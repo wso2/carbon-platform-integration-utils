@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
  * This class contains set of util methods which can be used with DistributionValidationTest class.
  */
 public class DistributionValidationTestUtils {
-    private static final Log log = LogFactory.getLog(DistributionValidationUtils.class);
+    private static final Log log = LogFactory.getLog(DistributionValidationTestUtils.class);
     private static final String TEMP_DIRECTORY = "temp";
 
     public static void readLicenseFile(String productPath, HashSet<String> licenceJarList,

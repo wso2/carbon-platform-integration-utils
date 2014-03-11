@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.integration.common.extensions</artifactId>
     <packaging>jar</packaging>
-    <name>WSO2 Carbon Platform Integration - Common Test Framework Extensions</name>
+    <name>WSO2 Carbon Platform Integration Utils - Common Test Framework Extensions</name>
     <url>http://wso2.org</url>
 
     <dependencies>
