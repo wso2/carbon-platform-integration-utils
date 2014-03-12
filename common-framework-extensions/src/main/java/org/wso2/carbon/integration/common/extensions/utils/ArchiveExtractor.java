@@ -49,7 +49,7 @@ public class ArchiveExtractor {
                 if (zipentry.isDirectory()) {
                     if (!newFile.exists()) {
                         boolean status = newFile.mkdirs();
-                        if (status) {
+                        if (!status) {
                             throw new IOException("couldn't create the directory");
                         }
                     }
