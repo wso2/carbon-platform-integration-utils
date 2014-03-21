@@ -9,7 +9,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.integration.common.admin.client</artifactId>
+        <artifactId>org.wso2.carbon.integration.common.admin.client</artifactId>
     <packaging>jar</packaging>
     <name>WSO2 Carbon Platform Integration Utils - Common Test Admin Clients</name>
     <url>http://wso2.org</url>

@@ -150,9 +150,10 @@ public class UserPopulator {
     }
 
     protected String login(String userName, String domain, String password, String backendUrl,
-                           String hostName)
-            throws RemoteException, LoginAuthenticationExceptionException, XPathExpressionException {
+                           String hostName) throws RemoteException, LoginAuthenticationExceptionException,
+                           XPathExpressionException {
         AuthenticatorClient loginClient = new AuthenticatorClient(backendUrl);
+
         if (!domain.equals(AutomationConfiguration.getConfigurationValue(ExtensionCommonConstants.SUPER_TENANT_DOMAIN_NAME))) {
             userName += "@" + domain;
         }

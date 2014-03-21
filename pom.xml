@@ -13,6 +13,7 @@
     <modules>
         <module>common-admin-clients</module>
         <module>common-framework-extensions</module>
+        <module>common-framework-utils</module>
         <module>common-framework-tests</module>
     </modules>
 
@@ -281,9 +282,14 @@
                 <version>${carbon.platform.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon.automation</groupId>
+                <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
+                <version>${test.framwork.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.htmlparser</groupId>
                 <artifactId>htmlparser</artifactId>
-                <version>2.1</version>
+                <version>${htmlparser.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-net</groupId>
@@ -302,6 +308,7 @@
         <commons-lang3>3.0</commons-lang3>
         <htmlparser.version>2.1</htmlparser.version>
         <commons-net.version>3.2</commons-net.version>
+        <htmlparser.version>2.1</htmlparser.version>
     </properties>
 
 </project>

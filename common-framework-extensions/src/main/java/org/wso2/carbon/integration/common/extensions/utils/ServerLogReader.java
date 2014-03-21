@@ -54,7 +54,7 @@ public class ServerLogReader implements Runnable {
     public void run() {
         InputStreamReader inputStreamReader = null;
         try {
-            inputStreamReader = new InputStreamReader(inputStream, "ISO-8859-1");
+            inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             while (running) {
                 if (bufferedReader.ready()) {
