@@ -15,13 +15,14 @@
 *specific language governing permissions and limitations
 *under the License.
 */
-package org.wso2.carbon.integration.common.extensions.carbonserver;
+package org.wso2.carbon.integration.common.extensions.utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.authenticator.stub.LogoutAuthenticationExceptionException;
-import org.wso2.carbon.automation.engine.adminclients.AuthenticationAdminClient;
+import org.wso2.carbon.integration.common.admin.client.AuthenticatorClient;
+import org.wso2.carbon.integration.common.extensions.carbonserver.ClientConnectionUtil;
 import org.xml.sax.SAXException;
 
 import javax.xml.stream.XMLStreamException;
@@ -61,15 +62,15 @@ public final class LoginLogoutUtil {
             SAXException, XPathExpressionException {
         // ExtensionUtills.setKeyStoreProperties();
         ClientConnectionUtil.waitForPort(port, hostName);
-        AuthenticationAdminClient loginClient = new AuthenticationAdminClient(backendURL);
-        return loginClient.login(domain, userName, password, hostName);
+        AuthenticatorClient loginClient = new AuthenticatorClient(backendURL);
+        return loginClient.login(userName, password, hostName);
     }
 
     /**
      * Log out from carbon server
      */
     public void logout() throws LogoutAuthenticationExceptionException, RemoteException {
-        AuthenticationAdminClient logoutClient = new AuthenticationAdminClient(hostName);
+        AuthenticatorClient logoutClient = new AuthenticatorClient(hostName);
         logoutClient.logOut();
     }
 }

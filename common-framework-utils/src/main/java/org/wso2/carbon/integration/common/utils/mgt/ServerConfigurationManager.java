@@ -25,15 +25,17 @@ import org.wso2.carbon.automation.engine.frameworkutils.CodeCoverageUtils;
 import org.wso2.carbon.automation.test.utils.common.FileManager;
 import org.wso2.carbon.integration.common.admin.client.ServerAdminClient;
 import org.wso2.carbon.integration.common.extensions.carbonserver.ClientConnectionUtil;
+import org.wso2.carbon.integration.common.extensions.utils.LoginLogoutUtil;
 import org.wso2.carbon.utils.ServerConstants;
+import org.xml.sax.SAXException;
 
+import javax.xml.stream.XMLStreamException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
-import java.rmi.RemoteException;
 
 /**
  * This class can be used to configure server by  replacing axis2.xml or carbon.xml
@@ -57,9 +59,13 @@ public class ServerConfigurationManager {
      * @throws MalformedURLException - if backend url is invalid
      */
     public ServerConfigurationManager(String productGroup, TestUserMode userMode)
-            throws RemoteException, MalformedURLException, XPathExpressionException, LoginAuthenticationExceptionException {
+            throws IOException, XPathExpressionException, LoginAuthenticationExceptionException, URISyntaxException,
+            SAXException, XMLStreamException {
         autoCtx = new AutomationContext(productGroup, userMode);
-        sessionCookie = autoCtx.login();
+        LoginLogoutUtil loginLogoutUtil = new LoginLogoutUtil(autoCtx.getContextUrls().getBackEndUrl());
+        sessionCookie = loginLogoutUtil.login(autoCtx.getTenant().getDomain(),
+                autoCtx.getUser().getUserName(),autoCtx.getUser().getPassword());
+
         URL serverUrl = new URL(autoCtx.getContextUrls().getServiceUrl());
         this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
         port = serverUrl.getPort();

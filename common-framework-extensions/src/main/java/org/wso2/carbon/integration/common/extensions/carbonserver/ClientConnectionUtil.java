@@ -20,6 +20,7 @@ package org.wso2.carbon.integration.common.extensions.carbonserver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
+import org.wso2.carbon.integration.common.extensions.utils.LoginLogoutUtil;
 
 import java.io.IOException;
 import java.net.InetAddress;
