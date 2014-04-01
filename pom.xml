@@ -12,8 +12,8 @@
 
     <modules>
         <module>common-admin-clients</module>
-        <module>common-framework-extensions</module>
         <module>common-framework-utils</module>
+        <module>common-framework-extensions</module>
         <module>common-framework-tests</module>
     </modules>
 
@@ -266,6 +266,12 @@
                 <artifactId>org.wso2.carbon.integration.common.extensions</artifactId>
                 <version>${carbon.platform.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.integration.common.utils</artifactId>
+                <version>${carbon.platform.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>net.lingala.zip4j</groupId>
                 <artifactId>zip4j</artifactId>

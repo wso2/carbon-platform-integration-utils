@@ -15,12 +15,12 @@
 *specific language governing permissions and limitations
 *under the License.
 */
-package org.wso2.carbon.integration.common.extensions.carbonserver;
+package org.wso2.carbon.integration.common.utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
-import org.wso2.carbon.integration.common.extensions.utils.LoginLogoutUtil;
+import org.wso2.carbon.automation.engine.context.AutomationContext;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -34,14 +34,14 @@ public class ClientConnectionUtil {
     /**
      * Wait for sometime until it is possible to login to the Carbon server
      */
-    public static void waitForLogin(String backendURL, String domain, String username, String password)
+    public static void waitForLogin(AutomationContext context)
             throws MalformedURLException, LoginAuthenticationExceptionException {
         long startTime = System.currentTimeMillis();
         boolean loginFailed = true;
         while (((System.currentTimeMillis() - startTime) < TIMEOUT) && loginFailed) {
             log.info("Waiting to login  user...");
             try {
-                new LoginLogoutUtil(backendURL).login(domain, username, password);
+                new LoginLogoutClient(context).login();
                 loginFailed = false;
             } catch (Exception e) {
                 if (log.isDebugEnabled()) {

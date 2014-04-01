@@ -22,10 +22,10 @@ import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.automation.engine.frameworkutils.CodeCoverageUtils;
-import org.wso2.carbon.automation.test.utils.common.FileManager;
 import org.wso2.carbon.integration.common.admin.client.ServerAdminClient;
-import org.wso2.carbon.integration.common.extensions.carbonserver.ClientConnectionUtil;
-import org.wso2.carbon.integration.common.extensions.utils.LoginLogoutUtil;
+import org.wso2.carbon.integration.common.utils.ClientConnectionUtil;
+import org.wso2.carbon.integration.common.utils.FileManager;
+import org.wso2.carbon.integration.common.utils.LoginLogoutClient;
 import org.wso2.carbon.utils.ServerConstants;
 import org.xml.sax.SAXException;
 
@@ -62,9 +62,8 @@ public class ServerConfigurationManager {
             throws IOException, XPathExpressionException, LoginAuthenticationExceptionException, URISyntaxException,
             SAXException, XMLStreamException {
         autoCtx = new AutomationContext(productGroup, userMode);
-        LoginLogoutUtil loginLogoutUtil = new LoginLogoutUtil(autoCtx.getContextUrls().getBackEndUrl());
-        sessionCookie = loginLogoutUtil.login(autoCtx.getTenant().getDomain(),
-                autoCtx.getUser().getUserName(),autoCtx.getUser().getPassword());
+        LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(autoCtx);
+        sessionCookie = loginLogoutUtil.login();
 
         URL serverUrl = new URL(autoCtx.getContextUrls().getServiceUrl());
         this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
@@ -222,8 +221,7 @@ public class ServerConfigurationManager {
         CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
         Thread.sleep(20000); //forceful wait until emma dump coverage data file.
         ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
-        ClientConnectionUtil.waitForLogin(String.valueOf(port), autoCtx.getSuperTenant().getDomain(),
-                autoCtx.getSuperTenant().getTenantAdmin().getUserName(), autoCtx.getSuperTenant().getTenantAdmin().getPassword());
+        ClientConnectionUtil.waitForLogin(autoCtx);
     }
 
     /**
@@ -239,8 +237,7 @@ public class ServerConfigurationManager {
         CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
         Thread.sleep(20000); //forceful wait until emma dump coverage data file.
         ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
-        ClientConnectionUtil.waitForLogin(String.valueOf(port), autoCtx.getSuperTenant().getDomain(),
-                autoCtx.getSuperTenant().getTenantAdmin().getUserName(), autoCtx.getSuperTenant().getTenantAdmin().getPassword());
+        ClientConnectionUtil.waitForLogin(autoCtx);
     }
 
     /**
