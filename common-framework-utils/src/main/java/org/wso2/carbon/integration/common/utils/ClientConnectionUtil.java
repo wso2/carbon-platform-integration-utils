@@ -41,7 +41,8 @@ public class ClientConnectionUtil {
         while (((System.currentTimeMillis() - startTime) < TIMEOUT) && loginFailed) {
             log.info("Waiting to login  user...");
             try {
-                new LoginLogoutClient(context).login();
+                LoginLogoutClient loginClient = new LoginLogoutClient(context);
+                loginClient.login();
                 loginFailed = false;
             } catch (Exception e) {
                 if (log.isDebugEnabled()) {

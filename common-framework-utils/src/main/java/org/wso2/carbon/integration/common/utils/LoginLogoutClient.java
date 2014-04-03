@@ -48,9 +48,10 @@ public class LoginLogoutClient {
 
     public LoginLogoutClient(AutomationContext context) throws MalformedURLException, XPathExpressionException, AxisFault {
         URL backend = new URL(context.getContextUrls().getBackEndUrl());
+        backendURL = context.getContextUrls().getBackEndUrl();
         this.port = backend.getPort();
         this.hostName = backend.getHost();
-        automationContext=context;
+        automationContext = context;
         loginClient = new AuthenticatorClient(backendURL);
     }
 
@@ -64,7 +65,7 @@ public class LoginLogoutClient {
             SAXException, XPathExpressionException {
 
         return loginClient.login(automationContext.getUser().getUserName(), automationContext.getUser().getPassword()
-                ,automationContext.getInstance().getHosts().get("default"));
+                , automationContext.getInstance().getHosts().get("default"));
     }
 
     /**
@@ -73,7 +74,6 @@ public class LoginLogoutClient {
     public void logout() throws LogoutAuthenticationExceptionException, RemoteException {
         loginClient.logOut();
     }
-
 
 
 }
