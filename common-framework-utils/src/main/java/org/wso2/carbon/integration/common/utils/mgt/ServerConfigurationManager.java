@@ -71,6 +71,19 @@ public class ServerConfigurationManager {
         hostname = serverUrl.getHost();
     }
 
+    public ServerConfigurationManager(AutomationContext autoCtx)
+            throws IOException, XPathExpressionException, LoginAuthenticationExceptionException, URISyntaxException,
+            SAXException, XMLStreamException {
+        LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(autoCtx);
+        sessionCookie = loginLogoutUtil.login();
+
+        URL serverUrl = new URL(autoCtx.getContextUrls().getServiceUrl());
+        this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
+        port = serverUrl.getPort();
+        hostname = serverUrl.getHost();
+    }
+
+
     /**
      * backup the current server configuration file
      *
