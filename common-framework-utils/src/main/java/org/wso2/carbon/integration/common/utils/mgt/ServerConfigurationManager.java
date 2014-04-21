@@ -216,7 +216,7 @@ public class ServerConfigurationManager {
         CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
         Thread.sleep(20000); //forceful wait until emma dump coverage data file.
         ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
-        ClientConnectionUtil.waitForLogin(String.valueOf(port), autoCtx.getSuperTenant().getDomain(),
+        ClientConnectionUtil.waitForLogin(backEndUrl, autoCtx.getSuperTenant().getDomain(),
                 autoCtx.getSuperTenant().getTenantAdmin().getUserName(), autoCtx.getSuperTenant().getTenantAdmin().getPassword());
     }
 
@@ -233,7 +233,7 @@ public class ServerConfigurationManager {
         CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
         Thread.sleep(20000); //forceful wait until emma dump coverage data file.
         ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
-        ClientConnectionUtil.waitForLogin(String.valueOf(port), autoCtx.getSuperTenant().getDomain(),
+        ClientConnectionUtil.waitForLogin(backEndUrl, autoCtx.getSuperTenant().getDomain(),
                 autoCtx.getSuperTenant().getTenantAdmin().getUserName(), autoCtx.getSuperTenant().getTenantAdmin().getPassword());
     }
 
