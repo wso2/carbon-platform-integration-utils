@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
+import org.wso2.carbon.integration.common.utils.ClientConnectionUtil;
 import org.wso2.carbon.automation.engine.frameworkutils.CodeCoverageUtils;
 import org.wso2.carbon.integration.common.admin.client.ServerAdminClient;
 import org.wso2.carbon.integration.common.extensions.utils.ArchiveExtractor;
@@ -32,7 +33,10 @@ import org.wso2.carbon.utils.ServerConstants;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A set of utility methods such as starting & stopping a Carbon server.
@@ -131,10 +135,7 @@ public class CarbonServerManager {
                     System.currentTimeMillis() < time) {
                 // wait until server startup is completed
             }
-            ClientConnectionUtil.waitForLogin(automationContext.getContextUrls().getBackEndUrl(),
-                    automationContext.getTenant().getDomain(),
-                    automationContext.getUser().getUserName(),
-                    automationContext.getUser().getPassword());
+            ClientConnectionUtil.waitForLogin(automationContext);
             log.info("Server started successfully.");
         } catch (IOException e) {
             throw new RuntimeException("Unable to start server", e);
@@ -227,9 +228,7 @@ public class CarbonServerManager {
         }
         ClientConnectionUtil.waitForPort(Integer.parseInt(automationContext.getInstance().getPorts().get("https")),
                 automationContext.getInstance().getHosts().get("default"));
-        ClientConnectionUtil.waitForLogin(automationContext.getContextUrls().getBackEndUrl(),
-                automationContext.getTenant().getDomain(), automationContext.getUser().getUserName(),
-                automationContext.getUser().getPassword());
+        ClientConnectionUtil.waitForLogin(automationContext);
     }
 
     private String[] expandServerStartupCommandList(Map<String, String> commandMap) {

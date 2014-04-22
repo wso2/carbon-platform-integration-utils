@@ -22,18 +22,20 @@ import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.automation.engine.frameworkutils.CodeCoverageUtils;
-import org.wso2.carbon.automation.test.utils.common.FileManager;
 import org.wso2.carbon.integration.common.admin.client.ServerAdminClient;
-import org.wso2.carbon.integration.common.extensions.carbonserver.ClientConnectionUtil;
+import org.wso2.carbon.integration.common.utils.ClientConnectionUtil;
+import org.wso2.carbon.integration.common.utils.FileManager;
+import org.wso2.carbon.integration.common.utils.LoginLogoutClient;
 import org.wso2.carbon.utils.ServerConstants;
+import org.xml.sax.SAXException;
 
+import javax.xml.stream.XMLStreamException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
-import java.rmi.RemoteException;
 
 /**
  * This class can be used to configure server by  replacing axis2.xml or carbon.xml
@@ -57,14 +59,30 @@ public class ServerConfigurationManager {
      * @throws MalformedURLException - if backend url is invalid
      */
     public ServerConfigurationManager(String productGroup, TestUserMode userMode)
-            throws RemoteException, MalformedURLException, XPathExpressionException, LoginAuthenticationExceptionException {
+            throws IOException, XPathExpressionException, LoginAuthenticationExceptionException, URISyntaxException,
+            SAXException, XMLStreamException {
         autoCtx = new AutomationContext(productGroup, userMode);
-        sessionCookie = autoCtx.login();
+        LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(autoCtx);
+        sessionCookie = loginLogoutUtil.login();
+
         URL serverUrl = new URL(autoCtx.getContextUrls().getServiceUrl());
         this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
         port = serverUrl.getPort();
         hostname = serverUrl.getHost();
     }
+
+    public ServerConfigurationManager(AutomationContext autoCtx)
+            throws IOException, XPathExpressionException, LoginAuthenticationExceptionException, URISyntaxException,
+            SAXException, XMLStreamException {
+        LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(autoCtx);
+        sessionCookie = loginLogoutUtil.login();
+
+        URL serverUrl = new URL(autoCtx.getContextUrls().getServiceUrl());
+        this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
+        port = serverUrl.getPort();
+        hostname = serverUrl.getHost();
+    }
+
 
     /**
      * backup the current server configuration file
@@ -216,8 +234,7 @@ public class ServerConfigurationManager {
         CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
         Thread.sleep(20000); //forceful wait until emma dump coverage data file.
         ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
-        ClientConnectionUtil.waitForLogin(backEndUrl, autoCtx.getSuperTenant().getDomain(),
-                autoCtx.getSuperTenant().getTenantAdmin().getUserName(), autoCtx.getSuperTenant().getTenantAdmin().getPassword());
+        ClientConnectionUtil.waitForLogin(autoCtx);
     }
 
     /**
@@ -233,8 +250,7 @@ public class ServerConfigurationManager {
         CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
         Thread.sleep(20000); //forceful wait until emma dump coverage data file.
         ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
-        ClientConnectionUtil.waitForLogin(backEndUrl, autoCtx.getSuperTenant().getDomain(),
-                autoCtx.getSuperTenant().getTenantAdmin().getUserName(), autoCtx.getSuperTenant().getTenantAdmin().getPassword());
+        ClientConnectionUtil.waitForLogin(autoCtx);
     }
 
     /**

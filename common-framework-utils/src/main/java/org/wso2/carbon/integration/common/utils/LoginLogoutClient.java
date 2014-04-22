@@ -15,13 +15,15 @@
 *specific language governing permissions and limitations
 *under the License.
 */
-package org.wso2.carbon.integration.common.extensions.carbonserver;
+package org.wso2.carbon.integration.common.utils;
 
+import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.authenticator.stub.LogoutAuthenticationExceptionException;
-import org.wso2.carbon.automation.engine.adminclients.AuthenticationAdminClient;
+import org.wso2.carbon.automation.engine.context.AutomationContext;
+import org.wso2.carbon.integration.common.admin.client.AuthenticatorClient;
 import org.xml.sax.SAXException;
 
 import javax.xml.stream.XMLStreamException;
@@ -35,42 +37,44 @@ import java.rmi.RemoteException;
 /**
  * A utility for logging into & logging out of Carbon servers
  */
-public final class LoginLogoutUtil {
-    private static final Log log = LogFactory.getLog(LoginLogoutUtil.class);
+public class LoginLogoutClient {
+    private static final Log log = LogFactory.getLog(LoginLogoutClient.class);
     private String sessionCookie;
     private int port;
     private String hostName;
     private String backendURL;
+    private AutomationContext automationContext;
+    AuthenticatorClient loginClient;
 
-    public LoginLogoutUtil(String backendURL) throws MalformedURLException {
-        URL backend = new URL(backendURL);
-        this.backendURL = backendURL;
+    public LoginLogoutClient(AutomationContext context) throws MalformedURLException, XPathExpressionException, AxisFault {
+        URL backend = new URL(context.getContextUrls().getBackEndUrl());
+        backendURL = context.getContextUrls().getBackEndUrl();
         this.port = backend.getPort();
         this.hostName = backend.getHost();
+        automationContext = context;
+        loginClient = new AuthenticatorClient(backendURL);
     }
 
     /**
      * Log in to a Carbon server
      *
-     * @param userName - login user name
-     * @param password - login password
      * @return The session cookie on successful login
      */
-    public String login(String domain, String userName, String password)
+    public String login()
             throws LoginAuthenticationExceptionException, IOException, XMLStreamException, URISyntaxException,
             SAXException, XPathExpressionException {
-        // ExtensionUtills.setKeyStoreProperties();
-        ClientConnectionUtil.waitForPort(port, hostName);
-        AuthenticationAdminClient loginClient = new AuthenticationAdminClient(backendURL);
-        return loginClient.login(domain, userName, password, hostName);
+
+        return loginClient.login(automationContext.getUser().getUserName(), automationContext.getUser().getPassword()
+                , automationContext.getInstance().getHosts().get("default"));
     }
 
     /**
      * Log out from carbon server
      */
     public void logout() throws LogoutAuthenticationExceptionException, RemoteException {
-        AuthenticationAdminClient logoutClient = new AuthenticationAdminClient(hostName);
-        logoutClient.logOut();
+        loginClient.logOut();
     }
+
+
 }
 

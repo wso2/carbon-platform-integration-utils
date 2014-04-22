@@ -30,6 +30,7 @@ import org.wso2.carbon.integration.common.admin.client.TenantManagementServiceCl
 import org.wso2.carbon.integration.common.admin.client.UserManagementClient;
 import org.wso2.carbon.integration.common.extensions.utils.AutomationXpathConstants;
 import org.wso2.carbon.integration.common.extensions.utils.ExtensionCommonConstants;
+import org.wso2.carbon.integration.common.utils.LoginLogoutClient;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.rmi.RemoteException;
@@ -61,7 +62,8 @@ public class UserPopulator {
         AutomationContext automationContext = new AutomationContext(productGroupName, instanceName,
                 TestUserMode.SUPER_TENANT_ADMIN);
         backendURL = automationContext.getContextUrls().getBackEndUrl();
-        sessionCookie = automationContext.login();
+        LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(automationContext);
+        sessionCookie = loginLogoutUtil.login();
         tenantStub = new TenantManagementServiceClient(backendURL, sessionCookie);
         //tenants is the domain of the tenants elements
         for (String tenants : tenantsList) {
