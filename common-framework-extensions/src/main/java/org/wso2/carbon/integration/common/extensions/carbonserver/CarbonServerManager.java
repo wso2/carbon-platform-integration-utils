@@ -15,23 +15,25 @@
  */
 package org.wso2.carbon.integration.common.extensions.carbonserver;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
-import org.wso2.carbon.integration.common.utils.ClientConnectionUtil;
 import org.wso2.carbon.automation.engine.frameworkutils.CodeCoverageUtils;
 import org.wso2.carbon.integration.common.admin.client.ServerAdminClient;
 import org.wso2.carbon.integration.common.extensions.utils.ArchiveExtractor;
 import org.wso2.carbon.integration.common.extensions.utils.ExtensionCommonConstants;
 import org.wso2.carbon.integration.common.extensions.utils.InputStreamHandler;
 import org.wso2.carbon.integration.common.extensions.utils.ServerLogReader;
+import org.wso2.carbon.integration.common.utils.ClientConnectionUtil;
 import org.wso2.carbon.utils.FileManipulator;
 import org.wso2.carbon.utils.ServerConstants;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +61,7 @@ public class CarbonServerManager {
     }
 
     public synchronized void startServerUsingCarbonHome(String carbonHome,
-                                                        Map<String, String> commandMap) throws XPathExpressionException {
+                                                        Map<String, String> commandMap) throws Exception {
         if (process != null) { // An instance of the server is running
             return;
         }
@@ -82,7 +84,7 @@ public class CarbonServerManager {
             }
             File commandDir = new File(carbonHome);
             log.info("Starting server............. ");
-            String scriptName = ExtensionCommonConstants.SEVER_STARTUP_SCRIPT_NAME;
+            String scriptName = getStartupScriptFileName();
             final int portOffset = getPortOffsetFromCommandMap(commandMap);
             String[] parameters = expandServerStartupCommandList(commandMap);
             if (System.getProperty("os.name").toLowerCase().contains("windows")) {
@@ -186,12 +188,9 @@ public class CarbonServerManager {
                 int httpsPort = defaultHttpsPort + portOffset;
                 String url = automationContext.getContextUrls().getBackEndUrl();
                 String backendURL = url.replaceAll("(:\\d+)", ":" + httpsPort);
-
-
                 ServerAdminClient serverAdminServiceClient = new ServerAdminClient(backendURL,
                         automationContext.getAdminUser().getUserName(),
                         automationContext.getAdminUser().getPassword());
-
                 serverAdminServiceClient.shutdown();
                 long time = System.currentTimeMillis() + DEFAULT_START_STOP_WAIT_MS;
                 while (!inputStreamHandler.getOutput().contains(SERVER_SHUTDOWN_MESSAGE) &&
@@ -263,5 +262,27 @@ public class CarbonServerManager {
 
     private String[] mergerArrays(String[] array1, String[] array2) {
         return ArrayUtils.addAll(array1, array2);
+    }
+
+    /**
+     * Filter start up script name from extracted distribution.
+     */
+    private String getStartupScriptFileName() throws FileNotFoundException {
+        File[] allScripts = new File(carbonHome + File.separator + "bin").listFiles();
+        String scriptName = null;
+        if (allScripts != null) {
+            for (File scriptFileName : allScripts) {
+                if (scriptFileName.getName().contains(ExtensionCommonConstants.SEVER_STARTUP_SCRIPT_NAME)) {
+                    scriptName = scriptFileName.getAbsoluteFile().getName();
+                    break;
+                } else if (scriptFileName.getName().contains("server")) {
+                    scriptName = scriptFileName.getName();
+                    break;
+                }
+            }
+        } else {
+            throw new FileNotFoundException("Server startup script not found at " + carbonHome + File.separator + "bin");
+        }
+        return FilenameUtils.removeExtension(scriptName);
     }
 }

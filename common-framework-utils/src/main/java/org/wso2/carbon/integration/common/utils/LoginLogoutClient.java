@@ -46,7 +46,8 @@ public class LoginLogoutClient {
     private AutomationContext automationContext;
     AuthenticatorClient loginClient;
 
-    public LoginLogoutClient(AutomationContext context) throws MalformedURLException, XPathExpressionException, AxisFault {
+    public LoginLogoutClient(AutomationContext context) throws MalformedURLException,
+            XPathExpressionException, AxisFault {
         URL backend = new URL(context.getContextUrls().getBackEndUrl());
         backendURL = context.getContextUrls().getBackEndUrl();
         this.port = backend.getPort();
@@ -60,9 +61,8 @@ public class LoginLogoutClient {
      *
      * @return The session cookie on successful login
      */
-    public String login()
-            throws LoginAuthenticationExceptionException, IOException, XMLStreamException, URISyntaxException,
-            SAXException, XPathExpressionException {
+    public String login() throws LoginAuthenticationExceptionException, IOException, XMLStreamException,
+            URISyntaxException, SAXException, XPathExpressionException {
 
         return loginClient.login(automationContext.getUser().getUserName(), automationContext.getUser().getPassword()
                 , automationContext.getInstance().getHosts().get("default"));
@@ -74,7 +74,5 @@ public class LoginLogoutClient {
     public void logout() throws LogoutAuthenticationExceptionException, RemoteException {
         loginClient.logOut();
     }
-
-
 }
 

@@ -35,7 +35,7 @@ public class CarbonTestServerManager extends TestServerManager {
         super(autoCtx, portOffset);
     }
 
-    public String startServer() throws IOException, XPathExpressionException {
+    public String startServer() throws Exception {
         String carbonHome = super.startServer();
         System.setProperty("carbon.home", carbonHome);
         return carbonHome;

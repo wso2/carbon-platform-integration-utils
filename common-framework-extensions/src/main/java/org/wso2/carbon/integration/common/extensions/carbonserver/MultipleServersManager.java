@@ -43,7 +43,7 @@ public class MultipleServersManager {
      * @param serverManagers vararg which specifies a TestServerManager instance per Carbon server
      * @throws java.io.IOException If an error occurs while copying deployment artifacts into Carbon servers
      */
-    public void startServers(TestServerManager... serverManagers) throws IOException, XPathExpressionException {
+    public void startServers(TestServerManager... serverManagers) throws Exception {
         for (TestServerManager zip : serverManagers) {
             String carbonHome = zip.startServer();
             servers.put(carbonHome, zip);
