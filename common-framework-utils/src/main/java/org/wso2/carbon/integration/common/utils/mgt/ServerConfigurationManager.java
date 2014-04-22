@@ -65,10 +65,9 @@ public class ServerConfigurationManager {
         LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(autoCtx);
         sessionCookie = loginLogoutUtil.login();
 
-        URL serverUrl = new URL(autoCtx.getContextUrls().getServiceUrl());
         this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
-        port = serverUrl.getPort();
-        hostname = serverUrl.getHost();
+        port = new URL(backEndUrl).getPort();
+        hostname = new URL(backEndUrl).getHost();
     }
 
     public ServerConfigurationManager(AutomationContext autoCtx)
@@ -76,11 +75,10 @@ public class ServerConfigurationManager {
             SAXException, XMLStreamException {
         LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(autoCtx);
         sessionCookie = loginLogoutUtil.login();
-
-        URL serverUrl = new URL(autoCtx.getContextUrls().getServiceUrl());
+        this.autoCtx = autoCtx;
         this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
-        port = serverUrl.getPort();
-        hostname = serverUrl.getHost();
+        port = new URL(backEndUrl).getPort();
+        hostname = new URL(backEndUrl).getHost();
     }
 
 
