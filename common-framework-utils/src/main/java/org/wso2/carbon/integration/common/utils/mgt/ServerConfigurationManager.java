@@ -64,7 +64,6 @@ public class ServerConfigurationManager {
         autoCtx = new AutomationContext(productGroup, userMode);
         LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(autoCtx);
         sessionCookie = loginLogoutUtil.login();
-
         this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
         port = new URL(backEndUrl).getPort();
         hostname = new URL(backEndUrl).getHost();
@@ -232,6 +231,7 @@ public class ServerConfigurationManager {
         CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
         Thread.sleep(20000); //forceful wait until emma dump coverage data file.
         ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
+        Thread.sleep(5000); //forceful wait until server is ready to be served
         ClientConnectionUtil.waitForLogin(autoCtx);
     }
 
@@ -248,6 +248,7 @@ public class ServerConfigurationManager {
         CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
         Thread.sleep(20000); //forceful wait until emma dump coverage data file.
         ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
+        Thread.sleep(5000); //forceful wait until server is ready to be served
         ClientConnectionUtil.waitForLogin(autoCtx);
     }
 
