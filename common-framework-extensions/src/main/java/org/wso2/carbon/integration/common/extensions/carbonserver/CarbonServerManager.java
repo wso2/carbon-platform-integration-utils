@@ -31,7 +31,6 @@ import org.wso2.carbon.integration.common.utils.ClientConnectionUtil;
 import org.wso2.carbon.utils.FileManipulator;
 import org.wso2.carbon.utils.ServerConstants;
 
-import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -47,7 +46,6 @@ public class CarbonServerManager {
     private static final Log log = LogFactory.getLog(CarbonServerManager.class);
     private Process process;
     private String carbonHome;
-    private String originalUserDir = null;
     private AutomationContext automationContext;
     private ServerLogReader inputStreamHandler;
     private boolean isCoverageEnable = false;
@@ -78,7 +76,6 @@ public class CarbonServerManager {
             if (!commandMap.isEmpty()) {
                 if (getPortOffsetFromCommandMap(commandMap) == 0) {
                     System.setProperty(ServerConstants.CARBON_HOME, carbonHome);
-                    originalUserDir = System.getProperty("user.dir");
                     System.setProperty("user.dir", carbonHome);
                 }
             }
@@ -238,7 +235,7 @@ public class CarbonServerManager {
         int arrayIndex = 0;
         Set<Map.Entry<String, String>> entries = commandMap.entrySet();
         for (Map.Entry<String, String> entry : entries) {
-            String parameter = "";
+            String parameter;
             String key = entry.getKey();
             String value = entry.getValue();
             if (value == null || value.isEmpty()) {
@@ -281,7 +278,8 @@ public class CarbonServerManager {
                 }
             }
         } else {
-            throw new FileNotFoundException("Server startup script not found at " + carbonHome + File.separator + "bin");
+            throw new FileNotFoundException("Server startup script not found at " +
+                    carbonHome + File.separator + "bin");
         }
         return FilenameUtils.removeExtension(scriptName);
     }

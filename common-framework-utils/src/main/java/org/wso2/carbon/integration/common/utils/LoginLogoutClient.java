@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.authenticator.stub.LogoutAuthenticationExceptionException;
+import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.integration.common.admin.client.AuthenticatorClient;
 import org.xml.sax.SAXException;
@@ -44,7 +45,7 @@ public class LoginLogoutClient {
     private String hostName;
     private String backendURL;
     private AutomationContext automationContext;
-    AuthenticatorClient loginClient;
+    private AuthenticatorClient loginClient;
 
     public LoginLogoutClient(AutomationContext context) throws MalformedURLException,
             XPathExpressionException, AxisFault {
@@ -52,8 +53,8 @@ public class LoginLogoutClient {
         backendURL = context.getContextUrls().getBackEndUrl();
         this.port = backend.getPort();
         this.hostName = backend.getHost();
-        automationContext = context;
-        loginClient = new AuthenticatorClient(backendURL);
+        this.automationContext = context;
+        this.loginClient = new AuthenticatorClient(backendURL);
     }
 
     /**
@@ -63,8 +64,9 @@ public class LoginLogoutClient {
      */
     public String login() throws LoginAuthenticationExceptionException, IOException, XMLStreamException,
             URISyntaxException, SAXException, XPathExpressionException {
-
-        return loginClient.login(automationContext.getUser().getUserName(), automationContext.getUser().getPassword()
+        String userName;
+        userName = automationContext.getUser().getUserName();
+        return loginClient.login(userName, automationContext.getUser().getPassword()
                 , automationContext.getInstance().getHosts().get("default"));
     }
 
