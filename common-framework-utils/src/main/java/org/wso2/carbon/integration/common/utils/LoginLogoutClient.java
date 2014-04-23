@@ -22,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.authenticator.stub.LogoutAuthenticationExceptionException;
-import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.integration.common.admin.client.AuthenticatorClient;
 import org.xml.sax.SAXException;
@@ -65,8 +64,8 @@ public class LoginLogoutClient {
     public String login() throws LoginAuthenticationExceptionException, IOException, XMLStreamException,
             URISyntaxException, SAXException, XPathExpressionException {
         String userName;
-        userName = automationContext.getUser().getUserName();
-        return loginClient.login(userName, automationContext.getUser().getPassword()
+        userName = automationContext.getContextTenant().getContextUser().getUserName();
+        return loginClient.login(userName, automationContext.getContextTenant().getContextUser().getPassword()
                 , automationContext.getInstance().getHosts().get("default"));
     }
 
