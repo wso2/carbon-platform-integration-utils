@@ -90,7 +90,7 @@ public class TestServerManager {
      * @throws java.io.IOException If an error occurs while copying the deployment artifacts into the
      *                             Carbon server
      */
-    protected String startServer() throws IOException, XPathExpressionException {
+    protected String startServer() throws Exception {
         if (carbonZip == null) {
             carbonZip = System.getProperty(FrameworkConstants.SYSTEM_PROPERTY_CARBON_ZIP_LOCATION);
         }
