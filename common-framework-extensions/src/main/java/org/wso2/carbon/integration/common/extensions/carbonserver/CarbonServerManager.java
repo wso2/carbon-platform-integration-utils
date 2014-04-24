@@ -186,8 +186,8 @@ public class CarbonServerManager {
                 String url = automationContext.getContextUrls().getBackEndUrl();
                 String backendURL = url.replaceAll("(:\\d+)", ":" + httpsPort);
                 ServerAdminClient serverAdminServiceClient = new ServerAdminClient(backendURL,
-                        automationContext.getAdminUser().getUserName(),
-                        automationContext.getAdminUser().getPassword());
+                        automationContext.getContextTenant().getTenantAdmin().getUserName(),
+                        automationContext.getContextTenant().getTenantAdmin().getPassword());
                 serverAdminServiceClient.shutdown();
                 long time = System.currentTimeMillis() + DEFAULT_START_STOP_WAIT_MS;
                 while (!inputStreamHandler.getOutput().contains(SERVER_SHUTDOWN_MESSAGE) &&
