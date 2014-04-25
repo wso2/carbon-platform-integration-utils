@@ -51,6 +51,7 @@ public class ServerConfigurationManager {
     private String backEndUrl;
     private AutomationContext autoCtx;
     private String sessionCookie;
+    private LoginLogoutClient loginLogoutClient;
 
     /**
      * Create a  ServerConfigurationManager
@@ -61,23 +62,21 @@ public class ServerConfigurationManager {
     public ServerConfigurationManager(String productGroup, TestUserMode userMode)
             throws IOException, XPathExpressionException, LoginAuthenticationExceptionException, URISyntaxException,
             SAXException, XMLStreamException {
-        autoCtx = new AutomationContext(productGroup, userMode);
-        LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(autoCtx);
-        sessionCookie = loginLogoutUtil.login();
+        this.autoCtx = new AutomationContext(productGroup, userMode);
+        this.loginLogoutClient = new LoginLogoutClient(autoCtx);
         this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
-        port = new URL(backEndUrl).getPort();
-        hostname = new URL(backEndUrl).getHost();
+        this.port = new URL(backEndUrl).getPort();
+        this.hostname = new URL(backEndUrl).getHost();
     }
 
     public ServerConfigurationManager(AutomationContext autoCtx)
             throws IOException, XPathExpressionException, LoginAuthenticationExceptionException, URISyntaxException,
             SAXException, XMLStreamException {
-        LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(autoCtx);
-        sessionCookie = loginLogoutUtil.login();
+        this.loginLogoutClient = new LoginLogoutClient(autoCtx);
         this.autoCtx = autoCtx;
         this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
-        port = new URL(backEndUrl).getPort();
-        hostname = new URL(backEndUrl).getHost();
+        this.port = new URL(backEndUrl).getPort();
+        this.hostname = new URL(backEndUrl).getHost();
     }
 
 
@@ -226,6 +225,7 @@ public class ServerConfigurationManager {
      */
     public void restartGracefully() throws Exception {
         //todo use ServerUtils class restart
+        sessionCookie = loginLogoutClient.login();
         ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
         serverAdmin.restartGracefully();
         CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
