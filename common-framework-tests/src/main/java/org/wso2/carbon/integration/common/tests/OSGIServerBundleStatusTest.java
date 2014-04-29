@@ -33,6 +33,7 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /*
@@ -77,8 +78,8 @@ public abstract class OSGIServerBundleStatusTest {
             unsatisfiedList.add(arrList.get(x).split("\t")[3]);
             log.info(unsatisfiedList.get(x));
         }
-        assertTrue(unsatisfiedList.size() == 0, "Unsatisfied components detected" +
-                " in server startup");
+        assertEquals(unsatisfiedList.size(), 0, "Unsatisfied components detected" +
+                                                  " in server startup. " + getString(unsatisfiedList));
     }
 
     private ArrayList<String> retrieveUnsatisfiedComponentsList(String command) throws IOException {
@@ -117,6 +118,13 @@ public abstract class OSGIServerBundleStatusTest {
         } catch (IOException e) {
             log.error("Error occurred while telnet disconnection " + e);
         }
+    }
+
+    private String getString(ArrayList<String> list) {
+        if(list != null && list.size() > 0)     {
+            return list.toString();
+        }
+        return "";
     }
 }
 
