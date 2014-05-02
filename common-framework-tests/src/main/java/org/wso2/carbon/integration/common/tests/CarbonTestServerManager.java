@@ -36,9 +36,7 @@ public class CarbonTestServerManager extends TestServerManager {
     }
 
     public String startServer() throws Exception {
-        String carbonHome = super.startServer();
-        System.setProperty("carbon.home", carbonHome);
-        return carbonHome;
+        return super.startServer();
     }
 
     public void stopServer() throws Exception {

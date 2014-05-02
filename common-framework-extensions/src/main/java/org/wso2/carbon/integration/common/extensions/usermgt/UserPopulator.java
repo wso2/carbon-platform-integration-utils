@@ -102,7 +102,8 @@ public class UserPopulator {
                                     superTenantReplacement,
                                     tenants, tenantUsername)),
                             new String[]{FrameworkConstants.ADMIN_ROLE}, null);
-                    log.info("Populated " + tenantUsername);
+                    log.info("User - " + tenantUsername + " created in tenant domain of " + " "
+                            + tenants );
                 } else {
                     if (!tenantUsername.equals(ExtensionCommonConstants.ADMIN_USER)) {
                         log.info(tenantUsername + " is already in " + tenants);
@@ -144,7 +145,7 @@ public class UserPopulator {
                         userManagementClient.deleteUser(automationContext.getConfigurationValue
                                 (String.format(AutomationXpathConstants.
                                         TENANT_USER_USERNAME, superTenantReplacement, tenants, user)));
-                        log.info(user + " user deleted successfully");
+                        log.info("User was deleted successfully - " + user);
                     }
                 }
             }
