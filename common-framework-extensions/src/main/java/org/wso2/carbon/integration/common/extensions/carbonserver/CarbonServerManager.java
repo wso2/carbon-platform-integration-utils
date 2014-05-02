@@ -80,13 +80,16 @@ public class CarbonServerManager {
                 }
             }
             File commandDir = new File(carbonHome);
+
             log.info("Starting server............. ");
             String scriptName = getStartupScriptFileName();
             final int portOffset = getPortOffsetFromCommandMap(commandMap);
             String[] parameters = expandServerStartupCommandList(commandMap);
+
             if (System.getProperty("os.name").toLowerCase().contains("windows")) {
                 commandDir = new File(carbonHome + File.separator + "bin");
                 String[] cmdArray;
+
                 if (isCoverageEnable) {
                     cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat",
                             "-Demma.properties=" + System.getProperty("emma.properties"),
@@ -97,7 +100,9 @@ public class CarbonServerManager {
                     cmdArray = mergePropertiesToCommandArray(parameters, cmdArray);
                 }
                 tempProcess = Runtime.getRuntime().exec(cmdArray, null, commandDir);
+
             } else {
+
                 String[] cmdArray;
                 if (isCoverageEnable) {
                     cmdArray = new String[]{"sh", "bin/" + scriptName + ".sh",
@@ -110,6 +115,7 @@ public class CarbonServerManager {
                 }
                 tempProcess = Runtime.getRuntime().exec(cmdArray, null, commandDir);
             }
+
             InputStreamHandler errorStreamHandler =
                     new InputStreamHandler("errorStream", tempProcess.getErrorStream());
             inputStreamHandler = new ServerLogReader("inputStream", tempProcess.getInputStream());
