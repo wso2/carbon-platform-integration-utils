@@ -53,6 +53,7 @@ public abstract class ServerStartupBaseTest {
         boolean status = false;
         int startLine = 0;
         int stopLine = 0;
+        String errorMessage = "";
         LogEvent[] logEvents = logViewerClient.getAllSystemLogs();
         if (logEvents.length > 0) {
             for (int i = 0; i < logEvents.length; i++) {
@@ -72,13 +73,14 @@ public abstract class ServerStartupBaseTest {
             }
             while (startLine <= stopLine) {
                 if (logEvents[startLine].getPriority().contains("ERROR")) {
-                    log.error("Startup contain errors - " + logEvents[startLine].getMessage());
+                    errorMessage = logEvents[startLine].getMessage();
+                    log.error("Startup contain errors - " + errorMessage);
                     status = true;
                     break;
                 }
                 startLine++;
             }
         }
-        assertFalse(status, "Server started with errors");
+        assertFalse(status, "Server started with errors. [" + errorMessage + "]");
     }
 }
