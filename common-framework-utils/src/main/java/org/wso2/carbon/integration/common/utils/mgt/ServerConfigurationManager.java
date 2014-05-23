@@ -244,8 +244,8 @@ public class ServerConfigurationManager {
     public void restartGracefully(String sessionCookie) throws Exception {
         //todo use ServerUtils class restart
         ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
-        serverAdmin.restartGracefully();
         CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
+        serverAdmin.restartGracefully();
         Thread.sleep(20000); //forceful wait until emma dump coverage data file.
         ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
         Thread.sleep(5000); //forceful wait until server is ready to be served
