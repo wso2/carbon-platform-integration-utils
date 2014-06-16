@@ -108,9 +108,17 @@ public class ServerConfigurationManager {
     private void backupConfiguration(File file) {
         //restore backup configuration
         originalConfig = file;
-        backUpConfig = new File(file.getAbsolutePath() + File.separator + file.getName() + ".backup");
+        backUpConfig = new File(file.getAbsolutePath() + ".backup");
         originalConfig.renameTo(backUpConfig);
         isFileBackUp = true;
+    }
+
+    /**
+     *
+     * @return  will return the carbon home. the location of the server instance
+     */
+    public static String getCarbonHome() {
+        return  System.getProperty(ServerConstants.CARBON_HOME);
     }
 
     /**
@@ -122,7 +130,7 @@ public class ServerConfigurationManager {
      * @throws Exception
      */
     public void applyConfigurationWithoutRestart(File sourceFile, File targetFile, boolean backup) throws Exception {
-        // Using inputstreams to copy bytes instead of Readers that copy chars. Otherwise thigns like JKS files get corrupted during copy.
+        // Using inputstreams to copy bytes instead of Readers that copy chars. Otherwise things like JKS files get corrupted during copy.
         FileChannel source = null;
         FileChannel destination = null;
         if (backup) {
