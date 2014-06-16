@@ -56,4 +56,9 @@ public class UserProfileMgtAdminServiceClient {
             throws RemoteException, UserProfileMgtServiceUserProfileExceptionException {
         return userProfileMgtStub.getUserProfile(userName, profileName);
     }
+
+    public UserProfileDTO getProfileFieldsForInternalStore()
+            throws RemoteException, UserProfileMgtServiceUserProfileExceptionException {
+        return userProfileMgtStub.getProfileFieldsForInternalStore();
+    }
 }
