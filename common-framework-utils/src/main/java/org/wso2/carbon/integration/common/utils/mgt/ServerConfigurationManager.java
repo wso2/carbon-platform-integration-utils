@@ -306,6 +306,7 @@ public class ServerConfigurationManager {
      */
     public void restartForcefully() throws Exception {
         //todo use ServerUtils class restart
+        sessionCookie = loginLogoutClient.login();
         ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
         serverAdmin.restart();
         CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
