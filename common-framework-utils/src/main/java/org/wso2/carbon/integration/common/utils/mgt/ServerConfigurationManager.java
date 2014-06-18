@@ -253,6 +253,21 @@ public class ServerConfigurationManager {
     }
 
     /**
+     * Restart Server forcefully  from admin user
+     *
+     * @throws Exception
+     */
+    public void restartForcefully() throws Exception {
+        //todo use ServerUtils class restart
+        ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
+        serverAdmin.restart();
+        CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
+        Thread.sleep(20000); //forceful wait until emma dump coverage data file.
+        ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
+        ClientConnectionUtil.waitForLogin(autoCtx);
+    }
+
+    /**
      * Copy Jar file to server component/lib
      *
      * @param jar
