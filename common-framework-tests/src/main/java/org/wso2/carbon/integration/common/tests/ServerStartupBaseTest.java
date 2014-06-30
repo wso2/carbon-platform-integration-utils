@@ -73,7 +73,7 @@ public abstract class ServerStartupBaseTest {
             }
             while (startLine <= stopLine) {
                 if (logEvents[startLine].getPriority().contains("ERROR")) {
-                    errorMessage = logEvents[startLine].getMessage();
+                    errorMessage = logEvents[startLine].getMessage() +"\n" +logEvents[startLine].getStacktrace();
                     log.error("Startup contain errors - " + errorMessage);
                     status = true;
                     break;

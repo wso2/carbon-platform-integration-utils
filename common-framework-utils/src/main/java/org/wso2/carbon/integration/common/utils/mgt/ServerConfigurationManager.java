@@ -60,8 +60,9 @@ public class ServerConfigurationManager {
      * @throws MalformedURLException - if backend url is invalid
      */
     public ServerConfigurationManager(String productGroup, TestUserMode userMode)
-            throws IOException, XPathExpressionException, LoginAuthenticationExceptionException, URISyntaxException,
-            SAXException, XMLStreamException {
+            throws IOException, XPathExpressionException, LoginAuthenticationExceptionException,
+                   URISyntaxException,
+                   SAXException, XMLStreamException {
         this.autoCtx = new AutomationContext(productGroup, userMode);
         this.loginLogoutClient = new LoginLogoutClient(autoCtx);
         this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
@@ -70,8 +71,9 @@ public class ServerConfigurationManager {
     }
 
     public ServerConfigurationManager(AutomationContext autoCtx)
-            throws IOException, XPathExpressionException, LoginAuthenticationExceptionException, URISyntaxException,
-            SAXException, XMLStreamException {
+            throws IOException, XPathExpressionException, LoginAuthenticationExceptionException,
+                   URISyntaxException,
+                   SAXException, XMLStreamException {
         this.loginLogoutClient = new LoginLogoutClient(autoCtx);
         this.autoCtx = autoCtx;
         this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
@@ -89,7 +91,7 @@ public class ServerConfigurationManager {
         //restore backup configuration
         String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
         String confDir = carbonHome + File.separator + "repository" + File.separator + "conf"
-                + File.separator;
+                         + File.separator;
         String AXIS2_XML = "axis2";
         if (fileName.contains(AXIS2_XML)) {
             confDir = confDir + "axis2" + File.separator;
@@ -108,9 +110,16 @@ public class ServerConfigurationManager {
     private void backupConfiguration(File file) {
         //restore backup configuration
         originalConfig = file;
-        backUpConfig = new File(file.getAbsolutePath() + File.separator + file.getName() + ".backup");
+        backUpConfig = new File(file.getAbsolutePath() + ".backup");
         originalConfig.renameTo(backUpConfig);
         isFileBackUp = true;
+    }
+
+    /**
+     * @return will return the carbon home. the location of the server instance
+     */
+    public static String getCarbonHome() {
+        return System.getProperty(ServerConstants.CARBON_HOME);
     }
 
     /**
@@ -121,8 +130,9 @@ public class ServerConfigurationManager {
      * @param backup     boolean value, set this to true if you want to backup the original file.
      * @throws Exception
      */
-    public void applyConfigurationWithoutRestart(File sourceFile, File targetFile, boolean backup) throws Exception {
-        // Using inputstreams to copy bytes instead of Readers that copy chars. Otherwise thigns like JKS files get corrupted during copy.
+    public void applyConfigurationWithoutRestart(File sourceFile, File targetFile, boolean backup)
+            throws Exception {
+        // Using inputstreams to copy bytes instead of Readers that copy chars. Otherwise things like JKS files get corrupted during copy.
         FileChannel source = null;
         FileChannel destination = null;
         if (backup) {
@@ -142,6 +152,43 @@ public class ServerConfigurationManager {
         }
         if (destination != null) {
             destination.close();
+        }
+    }
+
+    /**
+     *
+     * @param sourceFile   file  of the new configuration file
+     * @param targetFile   configuration file required to replace in the server. File must be created
+     *                     with the absolute path.
+     * @param backupConfigFile require to back the existing file
+     * @param restartServer    require to restart the server after replacing the config file
+     * @throws Exception
+     */
+    public void applyConfiguration(File sourceFile, File targetFile, boolean backupConfigFile,
+                                   boolean restartServer) throws Exception {
+        // Using inputstreams to copy bytes instead of Readers that copy chars. Otherwise things like JKS files get corrupted during copy.
+        FileChannel source = null;
+        FileChannel destination = null;
+        if (backupConfigFile) {
+            backupConfiguration(targetFile);
+            source = new FileInputStream(sourceFile).getChannel();
+            destination = new FileOutputStream(originalConfig).getChannel();
+        } else {
+            if (!targetFile.exists()) {
+                targetFile.createNewFile();
+            }
+            source = new FileInputStream(sourceFile).getChannel();
+            destination = new FileOutputStream(targetFile).getChannel();
+        }
+        destination.transferFrom(source, 0, source.size());
+        if (source != null) {
+            source.close();
+        }
+        if (destination != null) {
+            destination.close();
+        }
+        if (restartServer) {
+            restartGracefully();
         }
     }
 
@@ -253,6 +300,22 @@ public class ServerConfigurationManager {
     }
 
     /**
+     * Restart Server forcefully  from admin user
+     *
+     * @throws Exception
+     */
+    public void restartForcefully() throws Exception {
+        //todo use ServerUtils class restart
+        sessionCookie = loginLogoutClient.login();
+        ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
+        serverAdmin.restart();
+        CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
+        Thread.sleep(20000); //forceful wait until emma dump coverage data file.
+        ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
+        ClientConnectionUtil.waitForLogin(autoCtx);
+    }
+
+    /**
      * Copy Jar file to server component/lib
      *
      * @param jar
@@ -262,7 +325,7 @@ public class ServerConfigurationManager {
     public void copyToComponentLib(File jar) throws IOException, URISyntaxException {
         String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
         String lib = carbonHome + File.separator + "repository" + File.separator + "components" + File.separator
-                + "lib";
+                     + "lib";
         FileManager.copyJarFile(jar, lib);
     }
 
@@ -274,7 +337,7 @@ public class ServerConfigurationManager {
     public void removeFromComponentLib(String fileName) throws IOException, URISyntaxException {
         String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
         String filePath = carbonHome + File.separator + "repository" + File.separator + "components" + File.separator
-                + "lib" + File.separator + fileName;
+                          + "lib" + File.separator + fileName;
         FileManager.deleteFile(filePath);
 //      removing osgi bundle from dropins; OSGI bundle versioning starts with _1.0.0
         fileName = fileName.replace("-", "_");
@@ -293,7 +356,7 @@ public class ServerConfigurationManager {
     public void copyToComponentDropins(File jar) throws IOException, URISyntaxException {
         String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
         String lib = carbonHome + File.separator + "repository" + File.separator + "components" + File.separator
-                + "dropins";
+                     + "dropins";
         FileManager.copyJarFile(jar, lib);
     }
 
@@ -305,7 +368,7 @@ public class ServerConfigurationManager {
     public void removeFromComponentDropins(String fileName) throws IOException, URISyntaxException {
         String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
         String filePath = carbonHome + File.separator + "repository" + File.separator + "components" + File.separator
-                + "dropins" + File.separator + fileName;
+                          + "dropins" + File.separator + fileName;
         FileManager.deleteFile(filePath);
     }
 }
