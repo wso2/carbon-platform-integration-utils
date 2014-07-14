@@ -156,10 +156,9 @@ public class ServerConfigurationManager {
     }
 
     /**
-     *
-     * @param sourceFile   file  of the new configuration file
-     * @param targetFile   configuration file required to replace in the server. File must be created
-     *                     with the absolute path.
+     * @param sourceFile       file  of the new configuration file
+     * @param targetFile       configuration file required to replace in the server. File must be created
+     *                         with the absolute path.
      * @param backupConfigFile require to back the existing file
      * @param restartServer    require to restart the server after replacing the config file
      * @throws Exception
@@ -202,6 +201,21 @@ public class ServerConfigurationManager {
             backUpConfig.renameTo(originalConfig);
             isFileBackUp = false;
             restartGracefully();
+        }
+    }
+
+    /**
+     * restore to last configuration
+     *
+     * @throws Exception
+     */
+    public void restoreToLastConfiguration(boolean restartServer) throws Exception {
+        if (isFileBackUp) {
+            backUpConfig.renameTo(originalConfig);
+            isFileBackUp = false;
+            if (restartServer) {
+                restartGracefully();
+            }
         }
     }
 
