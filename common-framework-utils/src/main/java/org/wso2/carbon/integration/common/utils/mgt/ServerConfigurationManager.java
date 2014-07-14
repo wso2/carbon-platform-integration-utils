@@ -53,15 +53,20 @@ public class ServerConfigurationManager {
     private AutomationContext autoCtx;
     private String sessionCookie;
     private LoginLogoutClient loginLogoutClient;
-
 	private List<ConfigData> configDatas = new ArrayList<ConfigData>(0);
 
-    /**
-     * Create a  ServerConfigurationManager
-     *
-     * @throws AxisFault
-     * @throws MalformedURLException - if backend url is invalid
-     */
+	/**
+	 * Create a ServerConfigurationManager
+	 *
+	 * @param productGroup product group
+	 * @param userMode user mode
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 * @throws LoginAuthenticationExceptionException
+	 * @throws URISyntaxException
+	 * @throws SAXException
+	 * @throws XMLStreamException
+	 */
     public ServerConfigurationManager(String productGroup, TestUserMode userMode)
             throws IOException, XPathExpressionException, LoginAuthenticationExceptionException,
                    URISyntaxException,
@@ -73,6 +78,17 @@ public class ServerConfigurationManager {
         this.hostname = new URL(backEndUrl).getHost();
     }
 
+	/**
+	 * Create a ServerConfigurationManager
+	 *
+	 * @param autoCtx automation context
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 * @throws LoginAuthenticationExceptionException
+	 * @throws URISyntaxException
+	 * @throws SAXException
+	 * @throws XMLStreamException
+	 */
     public ServerConfigurationManager(AutomationContext autoCtx)
             throws IOException, XPathExpressionException, LoginAuthenticationExceptionException,
                    URISyntaxException,
@@ -197,14 +213,14 @@ public class ServerConfigurationManager {
         }
     }
 
-    /**
-     * restore to a last configuration and restart the server
-     *
-     * @throws Exception
-     */
-    public void restoreToLastConfiguration() throws Exception {
-	    restoreToLastConfiguration(true);
-    }
+	/**
+	 * restore to a last configuration and restart the server
+	 *
+	 * @throws Exception
+	 */
+	public void restoreToLastConfiguration() throws Exception {
+		restoreToLastConfiguration(true);
+	}
 
 	/**
 	 * restore all files to last configuration and restart the server
@@ -213,7 +229,7 @@ public class ServerConfigurationManager {
 	 */
 	public void restoreToLastConfiguration(boolean isRestartRequired) throws Exception {
 		for (ConfigData data : configDatas) {
-				data.getBackupConfig().renameTo(data.getOriginalConfig());
+			data.getBackupConfig().renameTo(data.getOriginalConfig());
 		}
 		if (isRestartRequired) {
 			restartGracefully();
@@ -223,7 +239,7 @@ public class ServerConfigurationManager {
     /**
      * apply configuration file and restart server to take effect the configuration
      *
-     * @param newConfig
+     * @param newConfig configuration file
      * @throws Exception
      */
     public void applyConfiguration(File newConfig) throws Exception {
@@ -243,7 +259,7 @@ public class ServerConfigurationManager {
     /**
      * apply configuration file and restart server to take effect the configuration
      *
-     * @param newConfig
+     * @param newConfig configuration file
      * @throws Exception
      */
     public void applyConfigurationWithoutRestart(File newConfig) throws Exception {
@@ -300,7 +316,7 @@ public class ServerConfigurationManager {
     /**
      * Restart server gracefully from current user session
      *
-     * @param sessionCookie
+     * @param sessionCookie session cookie
      * @throws Exception
      */
     public void restartGracefully(String sessionCookie) throws Exception {
@@ -334,7 +350,7 @@ public class ServerConfigurationManager {
     /**
      * Copy Jar file to server component/lib
      *
-     * @param jar
+     * @param jar jar file
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -346,7 +362,7 @@ public class ServerConfigurationManager {
     }
 
     /**
-     * @param fileName
+     * @param fileName file name
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -365,7 +381,7 @@ public class ServerConfigurationManager {
      * /**
      * Copy Jar file to server component/dropins
      *
-     * @param jar
+     * @param jar jar file
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -377,7 +393,7 @@ public class ServerConfigurationManager {
     }
 
     /**
-     * @param fileName
+     * @param fileName file name
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -388,6 +404,9 @@ public class ServerConfigurationManager {
         FileManager.deleteFile(filePath);
     }
 
+	/**
+	 * Private class to hold config data
+	 */
 	private class ConfigData {
 
 		private File backupConfig;
