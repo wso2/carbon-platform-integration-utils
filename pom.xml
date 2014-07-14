@@ -311,10 +311,15 @@
                 <artifactId>json-simple</artifactId>
                 <version>${json.version}</version>
             </dependency>
-            <dependency>
+            <!--<dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.test.api</artifactId>
                 <version>${test.api.version}</version>
+            </dependency>-->
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.webapp.mgt.stub</artifactId>
+                <version>${webapp.stub.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -330,7 +335,8 @@
         <commons-net.version>3.2</commons-net.version>
         <htmlparser.version>2.1</htmlparser.version>
         <json.version>1.1</json.version>
-        <test.api.version>4.3.0</test.api.version>
+        <webapp.stub.version>4.2.0</webapp.stub.version>
+        <!--<test.api.version>4.3.0</test.api.version>-->
     </properties>
 
 </project>

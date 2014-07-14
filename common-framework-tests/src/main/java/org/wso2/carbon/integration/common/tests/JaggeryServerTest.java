@@ -26,9 +26,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
-import org.wso2.carbon.automation.test.api.clients.webapp.mgt.WebAppAdminClient;
 import org.wso2.carbon.automation.test.utils.http.client.HttpsResponse;
 import org.wso2.carbon.integration.common.admin.client.AuthenticatorClient;
+import org.wso2.carbon.integration.common.admin.client.WebAppAdminClient;
 import org.wso2.carbon.integration.common.tests.utils.JaggerySerevrTestUtils;
 
 import javax.net.ssl.HostnameVerifier;
