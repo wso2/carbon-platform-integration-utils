@@ -17,7 +17,6 @@
 */
 package org.wso2.carbon.integration.common.utils.mgt;
 
-import org.apache.axis2.AxisFault;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
@@ -32,16 +31,17 @@ import org.xml.sax.SAXException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class can be used to configure server by  replacing axis2.xml or carbon.xml
  */
 public class ServerConfigurationManager {
-    //    private final String CARBON_XML = "carbon.xml";
+
     private static final long TIME_OUT = 240000;
     private boolean isFileBackUp = false;
     private File originalConfig;
@@ -52,13 +52,20 @@ public class ServerConfigurationManager {
     private AutomationContext autoCtx;
     private String sessionCookie;
     private LoginLogoutClient loginLogoutClient;
+	private List<ConfigData> configDatas = new ArrayList<ConfigData>(0);
 
-    /**
-     * Create a  ServerConfigurationManager
-     *
-     * @throws AxisFault
-     * @throws MalformedURLException - if backend url is invalid
-     */
+	/**
+	 * Create a ServerConfigurationManager
+	 *
+	 * @param productGroup product group
+	 * @param userMode user mode
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 * @throws LoginAuthenticationExceptionException
+	 * @throws URISyntaxException
+	 * @throws SAXException
+	 * @throws XMLStreamException
+	 */
     public ServerConfigurationManager(String productGroup, TestUserMode userMode)
             throws IOException, XPathExpressionException, LoginAuthenticationExceptionException,
                    URISyntaxException,
@@ -70,6 +77,17 @@ public class ServerConfigurationManager {
         this.hostname = new URL(backEndUrl).getHost();
     }
 
+	/**
+	 * Create a ServerConfigurationManager
+	 *
+	 * @param autoCtx automation context
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 * @throws LoginAuthenticationExceptionException
+	 * @throws URISyntaxException
+	 * @throws SAXException
+	 * @throws XMLStreamException
+	 */
     public ServerConfigurationManager(AutomationContext autoCtx)
             throws IOException, XPathExpressionException, LoginAuthenticationExceptionException,
                    URISyntaxException,
@@ -85,7 +103,7 @@ public class ServerConfigurationManager {
     /**
      * backup the current server configuration file
      *
-     * @param fileName
+     * @param fileName file name
      */
     private void backupConfiguration(String fileName) {
         //restore backup configuration
@@ -99,7 +117,8 @@ public class ServerConfigurationManager {
         originalConfig = new File(confDir + fileName);
         backUpConfig = new File(confDir + fileName + ".backup");
         originalConfig.renameTo(backUpConfig);
-        isFileBackUp = true;
+
+	    configDatas.add(new ConfigData(backUpConfig, originalConfig));
     }
 
     /**
@@ -112,7 +131,8 @@ public class ServerConfigurationManager {
         originalConfig = file;
         backUpConfig = new File(file.getAbsolutePath() + ".backup");
         originalConfig.renameTo(backUpConfig);
-        isFileBackUp = true;
+
+	    configDatas.add(new ConfigData(backUpConfig, originalConfig));
     }
 
     /**
@@ -191,38 +211,33 @@ public class ServerConfigurationManager {
         }
     }
 
-    /**
-     * restore to a last configuration and restart the server
-     *
-     * @throws Exception
-     */
-    public void restoreToLastConfiguration() throws Exception {
-        if (isFileBackUp) {
-            backUpConfig.renameTo(originalConfig);
-            isFileBackUp = false;
-            restartGracefully();
-        }
-    }
+	/**
+	 * restore to a last configuration and restart the server
+	 *
+	 * @throws Exception
+	 */
+	public void restoreToLastConfiguration() throws Exception {
+		restoreToLastConfiguration(true);
+	}
 
-    /**
-     * restore to last configuration
-     *
-     * @throws Exception
-     */
-    public void restoreToLastConfiguration(boolean restartServer) throws Exception {
-        if (isFileBackUp) {
-            backUpConfig.renameTo(originalConfig);
-            isFileBackUp = false;
-            if (restartServer) {
-                restartGracefully();
-            }
-        }
-    }
+	/**
+	 * restore all files to last configuration and restart the server
+	 *
+	 * @throws Exception
+	 */
+	public void restoreToLastConfiguration(boolean isRestartRequired) throws Exception {
+		for (ConfigData data : configDatas) {
+			data.getBackupConfig().renameTo(data.getOriginalConfig());
+		}
+		if (isRestartRequired) {
+			restartGracefully();
+		}
+	}
 
     /**
      * apply configuration file and restart server to take effect the configuration
      *
-     * @param newConfig
+     * @param newConfig configuration file
      * @throws Exception
      */
     public void applyConfiguration(File newConfig) throws Exception {
@@ -242,7 +257,7 @@ public class ServerConfigurationManager {
     /**
      * apply configuration file and restart server to take effect the configuration
      *
-     * @param newConfig
+     * @param newConfig configuration file
      * @throws Exception
      */
     public void applyConfigurationWithoutRestart(File newConfig) throws Exception {
@@ -299,7 +314,7 @@ public class ServerConfigurationManager {
     /**
      * Restart server gracefully from current user session
      *
-     * @param sessionCookie
+     * @param sessionCookie session cookie
      * @throws Exception
      */
     public void restartGracefully(String sessionCookie) throws Exception {
@@ -333,7 +348,7 @@ public class ServerConfigurationManager {
     /**
      * Copy Jar file to server component/lib
      *
-     * @param jar
+     * @param jar jar file
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -345,7 +360,7 @@ public class ServerConfigurationManager {
     }
 
     /**
-     * @param fileName
+     * @param fileName file name
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -364,7 +379,7 @@ public class ServerConfigurationManager {
      * /**
      * Copy Jar file to server component/dropins
      *
-     * @param jar
+     * @param jar jar file
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -376,7 +391,7 @@ public class ServerConfigurationManager {
     }
 
     /**
-     * @param fileName
+     * @param fileName file name
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -386,5 +401,27 @@ public class ServerConfigurationManager {
                           + "dropins" + File.separator + fileName;
         FileManager.deleteFile(filePath);
     }
+
+	/**
+	 * Private class to hold config data
+	 */
+	private class ConfigData {
+
+		private File backupConfig;
+		private File originalConfig;
+
+		public ConfigData(File backupConfig, File originalConfig) {
+			this.backupConfig = backupConfig;
+			this.originalConfig = originalConfig;
+		}
+
+		public File getBackupConfig() {
+			return backupConfig;
+		}
+
+		public File getOriginalConfig() {
+			return originalConfig;
+		}
+	}
 }
 
