@@ -28,8 +28,12 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.test.utils.http.client.HttpsResponse;
 import org.wso2.carbon.integration.common.admin.client.AuthenticatorClient;
-import org.wso2.carbon.integration.common.admin.client.WebAppAdminClient;
+import org.wso2.carbon.integration.common.admin.client.utils.AuthenticateStubUtil;
 import org.wso2.carbon.integration.common.tests.utils.JaggerySerevrTestUtils;
+import org.wso2.carbon.webapp.mgt.stub.WebappAdminStub;
+import org.wso2.carbon.webapp.mgt.stub.types.carbon.VersionedWebappMetadata;
+import org.wso2.carbon.webapp.mgt.stub.types.carbon.WebappMetadata;
+import org.wso2.carbon.webapp.mgt.stub.types.carbon.WebappsWrapper;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -60,7 +64,7 @@ public class JaggeryServerTest {
     private List<String> jaggeryAppList = new ArrayList<String>();
     private ArrayList<String> testList = new ArrayList<String>();
     private HashMap<String, String> moduleMap = new HashMap<String, String>();
-    private WebAppAdminClient webAppAdminClient;
+    private WebappAdminStub webappAdminStub;
     private String ip;
     private String port;
 
@@ -72,14 +76,14 @@ public class JaggeryServerTest {
         port = automationContext.getDefaultInstance().getPorts().get("https");
         AuthenticatorClient authenticationAdminClient
                 = new AuthenticatorClient(automationContext.getContextUrls().getBackEndUrl());
-        webAppAdminClient = new WebAppAdminClient(
-                automationContext.getContextUrls().getBackEndUrl(),
-                authenticationAdminClient.login(automationContext.getSuperTenant().
-                        getTenantAdmin().getUserName(), automationContext.getSuperTenant().
-                        getTenantAdmin().getPassword(),
-                        automationContext.getDefaultInstance().getHosts().get("default")));
+        webappAdminStub = new WebappAdminStub(automationContext.getContextUrls().getBackEndUrl()
+                + "WebappAdmin");
+        AuthenticateStubUtil.authenticateStub(authenticationAdminClient.login(automationContext.getSuperTenant().
+                getTenantAdmin().getUserName(), automationContext.getSuperTenant().
+                getTenantAdmin().getPassword(),
+                automationContext.getDefaultInstance().getHosts().get("default")), webappAdminStub);
         result.setMatchKey("specsResult");
-        appList = webAppAdminClient.getWebApplist("");
+        appList = getWebApplist("");
         jaggeryAppList();
         endpointList();
     }
@@ -90,7 +94,6 @@ public class JaggeryServerTest {
         appList = null;
         testList = null;
         moduleMap = null;
-        webAppAdminClient = null;
         log.info("Jaggery Tests Execution Completed.");
     }
 
@@ -175,7 +178,7 @@ public class JaggeryServerTest {
 
         for (String appName : appList) {
 
-            if (webAppAdminClient.getWebAppType(appName).equals("jaggeryWebapp")) {
+            if (webappAdminStub.getStartedWebapp(appName).getWebappType().equals("jaggeryWebapp")) {
                 jaggeryAppList.add(appName);
             }
         }
@@ -211,5 +214,21 @@ public class JaggeryServerTest {
             parser.reset();
         }
         return testList;
+    }
+
+    private List<String> getWebApplist(String webAppNameSearchString) throws RemoteException {
+        List<String> list = new ArrayList<String>();
+        WebappsWrapper wrapper = webappAdminStub.getPagedWebappsSummary(webAppNameSearchString,
+                "ALL", "ALL", 0);
+        VersionedWebappMetadata[] webappGroups = wrapper.getWebapps();
+
+        if (webappGroups != null) {
+            for (VersionedWebappMetadata webappGroup : webappGroups) {
+                for (WebappMetadata metaData : webappGroup.getVersionGroups()) {
+                    list.add(metaData.getWebappFile());
+                }
+            }
+        }
+        return list;
     }
 }
