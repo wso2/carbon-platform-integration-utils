@@ -59,9 +59,5 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.user.profile.stub</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.webapp.mgt.stub</artifactId>
-        </dependency>
     </dependencies>
 </project>
