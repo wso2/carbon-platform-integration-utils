@@ -20,6 +20,7 @@ package org.wso2.carbon.integration.common.extensions.usermgt;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.NodeList;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.configurations.AutomationConfiguration;
@@ -51,11 +52,13 @@ public class UserPopulator {
     TenantManagementServiceClient tenantStub;
     String productGroupName;
     String instanceName;
+	List<String> rolesList;
 
     public UserPopulator(String productGroupName, String instanceName) throws XPathExpressionException {
         this.productGroupName = productGroupName;
         this.instanceName = instanceName;
         tenantsList = getTenantsDomainList();
+	    rolesList = getRolesList();
     }
 
     public void populateUsers() throws Exception {
@@ -91,19 +94,51 @@ public class UserPopulator {
                             String.format(AutomationXpathConstants.ADMIN_USER_PASSWORD, superTenantReplacement, tenants)),
                             backendURL, UrlGenerationUtil.getManagerHost(automationContext.getInstance()));
 
+	        userManagementClient = new UserManagementClient(backendURL, tenantAdminSession);
+
+	        // add roles to the tenant
+	        for (String role : rolesList) {
+		        if (!userManagementClient.roleNameExists(role)) {
+			        List<String> permissions = getPermissionList(role);
+			        userManagementClient.addRole(role, null, permissions.toArray(
+					        new String[permissions.size()]));
+		        }
+	        }
+
             //here we populate the user list of the current tenant
             List<String> userList = getUserList(tenants);
-            userManagementClient = new UserManagementClient(backendURL, tenantAdminSession);
             for(String tenantUsername : userList) {
-                System.out.println(userManagementClient.getUserList().size());
                 boolean isUserAddedAlready = userManagementClient.getUserList().contains(automationContext.
                         getConfigurationValue(String.format(AutomationXpathConstants.TENANT_USER_USERNAME,
                                 superTenantReplacement, tenants, tenantUsername)));
+
                 if(!isUserAddedAlready) {
+	                String[] roles = new String[] { FrameworkConstants.ADMIN_ROLE };
+	                List<String> userRoles = new ArrayList<String>(0);
+	                NodeList roleList = automationContext.getConfigurationNodeList(
+			                String.format(AutomationXpathConstants.TENANT_USER_ROLES,
+			                              superTenantReplacement, tenants, tenantUsername)
+	                );
+
+	                if (roleList != null && roleList.item(0) != null) {
+		                roleList = roleList.item(0).getChildNodes();
+		                for (int i = 0; i < roleList.getLength(); i++) {
+			                String role = roleList.item(i).getTextContent();
+			                if (userManagementClient.roleNameExists(role)) {
+				                userRoles.add(role);
+			                } else {
+				                log.error("Role is not exist : " + role);
+			                }
+		                }
+		                if (userRoles.size() > 0) {
+			                roles = userRoles.toArray(new String[userRoles.size()]);
+		                }
+	                }
+
                     userManagementClient.addUser(automationContext.getConfigurationValue(String.format(AutomationXpathConstants.
                             TENANT_USER_USERNAME, superTenantReplacement, tenants, tenantUsername)),
                             automationContext.getConfigurationValue(String.format(AutomationXpathConstants.TENANT_USER_PASSWORD,
-                                    superTenantReplacement, tenants, tenantUsername)), new String[]{FrameworkConstants.ADMIN_ROLE}, null);
+                                    superTenantReplacement, tenants, tenantUsername)), roles, null);
                     log.info("User - " + tenantUsername + " created in tenant domain of " + " " + tenants);
                 } else {
                     if(!tenantUsername.equals(ExtensionCommonConstants.ADMIN_USER)) {
@@ -190,6 +225,40 @@ public class UserPopulator {
         }
         return userList;
     }
+
+	public List<String> getRolesList() throws XPathExpressionException {
+		List<String> roles = new ArrayList<String>(0);
+		AutomationContext automationContext = new AutomationContext();
+
+		NodeList rolesList = automationContext.getConfigurationNodeList(
+				AutomationXpathConstants.ROLES_NODE);
+		if (rolesList != null && rolesList.item(0) != null) {
+			rolesList = rolesList.item(0).getChildNodes();
+			for (int i = 0; i < rolesList.getLength(); i++) {
+				roles.add(rolesList.item(i).getAttributes()
+				                   .getNamedItem(AutomationXpathConstants.NAME)
+				                   .getNodeValue());
+			}
+		}
+		return roles;
+	}
+
+	public List<String> getPermissionList(String role) throws XPathExpressionException {
+		List<String> permissions = new ArrayList<String>(0);
+		AutomationContext automationContext = new AutomationContext();
+
+		NodeList permissionList = automationContext.getConfigurationNodeList(String.format(
+				AutomationXpathConstants.PERMISSIONS_NODE, role));
+		if (permissionList != null && permissionList.item(0) != null) {
+			permissionList = permissionList.item(0).getChildNodes();
+			for (int i = 0; i < permissionList.getLength(); i++) {
+				permissions.add(permissionList.item(i).getTextContent());
+			}
+		}
+
+		return permissions;
+	}
+
 }
 
 
