@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
 import org.wso2.carbon.automation.engine.extensions.ExecutionListenerExtension;
+import org.wso2.carbon.integration.common.extensions.utils.ExtensionCommonConstants;
 import org.wso2.carbon.utils.ServerConstants;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -30,10 +31,19 @@ public class CarbonServerExtension extends ExecutionListenerExtension {
     private TestServerManager serverManager;
     private static final Log log = LogFactory.getLog(CarbonServerExtension.class);
     private String executionEnvironment;
+    private static final String PORT_OFF_SET = "portOffset";
 
     public void initiate() {
         try {
-            serverManager = new TestServerManager(getAutomationContext());
+            if(getParameterMap().get(PORT_OFF_SET) != null) {
+                String portOffset = getParameterMap().get(PORT_OFF_SET);
+                getParameterMap().put(ExtensionCommonConstants.SERVER_STARTUP_PORT_OFFSET_COMMAND, portOffset);
+                getParameterMap().remove(PORT_OFF_SET);
+            } else {
+                //setting 0 to offSet
+                getParameterMap().put(ExtensionCommonConstants.SERVER_STARTUP_PORT_OFFSET_COMMAND, "0");
+            }
+            serverManager = new TestServerManager(getAutomationContext(), null, getParameterMap());
             executionEnvironment =
                     getAutomationContext().getConfigurationValue(ContextXpathConstants.EXECUTION_ENVIRONMENT);
         } catch (XPathExpressionException e) {
