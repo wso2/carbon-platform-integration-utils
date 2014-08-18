@@ -31,16 +31,10 @@ public class CarbonServerExtension extends ExecutionListenerExtension {
     private TestServerManager serverManager;
     private static final Log log = LogFactory.getLog(CarbonServerExtension.class);
     private String executionEnvironment;
-    private static final String PORT_OFF_SET = "portOffset";
 
     public void initiate() {
         try {
-            if(getParameterMap().get(PORT_OFF_SET) != null) {
-                String portOffset = getParameterMap().get(PORT_OFF_SET);
-                getParameterMap().put(ExtensionCommonConstants.SERVER_STARTUP_PORT_OFFSET_COMMAND, portOffset);
-                getParameterMap().remove(PORT_OFF_SET);
-            } else {
-                //setting 0 to offSet
+            if(getParameterMap().get(ExtensionCommonConstants.SERVER_STARTUP_PORT_OFFSET_COMMAND) == null) {
                 getParameterMap().put(ExtensionCommonConstants.SERVER_STARTUP_PORT_OFFSET_COMMAND, "0");
             }
             serverManager = new TestServerManager(getAutomationContext(), null, getParameterMap());
