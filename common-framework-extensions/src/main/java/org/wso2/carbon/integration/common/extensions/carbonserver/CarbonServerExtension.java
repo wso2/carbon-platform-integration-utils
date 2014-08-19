@@ -34,10 +34,10 @@ public class CarbonServerExtension extends ExecutionListenerExtension {
 
     public void initiate() {
         try {
-            if(getParameterMap().get(ExtensionCommonConstants.SERVER_STARTUP_PORT_OFFSET_COMMAND) == null) {
-                getParameterMap().put(ExtensionCommonConstants.SERVER_STARTUP_PORT_OFFSET_COMMAND, "0");
+            if(getParameters().get(ExtensionCommonConstants.SERVER_STARTUP_PORT_OFFSET_COMMAND) == null) {
+                getParameters().put(ExtensionCommonConstants.SERVER_STARTUP_PORT_OFFSET_COMMAND, "0");
             }
-            serverManager = new TestServerManager(getAutomationContext(), null, getParameterMap());
+            serverManager = new TestServerManager(getAutomationContext(), null, getParameters());
             executionEnvironment =
                     getAutomationContext().getConfigurationValue(ContextXpathConstants.EXECUTION_ENVIRONMENT);
         } catch (XPathExpressionException e) {
