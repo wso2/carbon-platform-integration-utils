@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.integration.common.extensions.carbonserver;
 
-import javax.xml.xpath.XPathExpressionException;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 

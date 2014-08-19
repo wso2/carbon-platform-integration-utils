@@ -20,24 +20,26 @@ package org.wso2.carbon.integration.common.extensions.carbonserver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
-import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
-import org.wso2.carbon.automation.engine.extensions.interfaces.ExecutionListenerExtension;
+import org.wso2.carbon.automation.engine.extensions.ExecutionListenerExtension;
+import org.wso2.carbon.integration.common.extensions.utils.ExtensionCommonConstants;
 import org.wso2.carbon.utils.ServerConstants;
 
 import javax.xml.xpath.XPathExpressionException;
 
-public class CarbonServerExtension implements ExecutionListenerExtension {
-    TestServerManager serverManager;
+public class CarbonServerExtension extends ExecutionListenerExtension {
+    private TestServerManager serverManager;
     private static final Log log = LogFactory.getLog(CarbonServerExtension.class);
     private String executionEnvironment;
 
     public void initiate() {
         try {
-            AutomationContext context = new AutomationContext();
-            serverManager = new TestServerManager(context);
+            if(getParameters().get(ExtensionCommonConstants.SERVER_STARTUP_PORT_OFFSET_COMMAND) == null) {
+                getParameters().put(ExtensionCommonConstants.SERVER_STARTUP_PORT_OFFSET_COMMAND, "0");
+            }
+            serverManager = new TestServerManager(getAutomationContext(), null, getParameters());
             executionEnvironment =
-                    context.getConfigurationValue(ContextXpathConstants.EXECUTION_ENVIRONMENT);
+                    getAutomationContext().getConfigurationValue(ContextXpathConstants.EXECUTION_ENVIRONMENT);
         } catch (XPathExpressionException e) {
             handleException("Error while initiating test environment", e);
         }
