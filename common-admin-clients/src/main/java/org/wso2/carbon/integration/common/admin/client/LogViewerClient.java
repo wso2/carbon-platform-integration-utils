@@ -61,8 +61,8 @@ public class LogViewerClient {
      * @return logMessage array
      * @throws java.rmi.RemoteException Exception
      */
-    public LogEvent[] getLogs(String logType, String searchKey, String domain, String serverKey)
-            throws RemoteException {
+    public LogEvent[] getRemoteLogs(String logType, String searchKey, String domain, String serverKey)
+            throws RemoteException, LogViewerLogViewerException {
         return logViewerStub.getLogs(logType, searchKey, domain, serverKey);
     }
 
@@ -75,13 +75,61 @@ public class LogViewerClient {
         }
     }
 
-    public LogEvent[] getAllSystemLogs() throws RemoteException {
+    public LogEvent[] getAllRemoteSystemLogs() throws RemoteException, LogViewerLogViewerException {
         try {
             return logViewerStub.getAllSystemLogs();
         } catch (RemoteException e) {
             log.error("Fail to get all logs ", e);
             throw new RemoteException("Fail to get all system logs ", e);
         }
+    }
+
+
+
+    /**
+     * Getting system logs
+     *
+     * Deprecated because api change in stub passing LogViewerLogViewerException
+     *
+     * @param logType   Log type (INFO,WARN,ERROR,DEBUG)
+     * @param searchKey searching keyword
+     * @param domain    - tenant domain
+     * @param serverKey - server key defined at carbon.xml
+     * @return logMessage array
+     * @throws java.rmi.RemoteException Exception
+     */
+    @Deprecated
+    public LogEvent[] getLogs(String logType, String searchKey, String domain, String serverKey)
+            throws RemoteException {
+        LogEvent[] logEvents = new LogEvent[0];
+        try {
+            logEvents= logViewerStub.getLogs(logType, searchKey, domain, serverKey);
+        } catch (LogViewerLogViewerException e) {
+            log.error("LogViewerException occurred"+e.getStackTrace());
+            throw new RemoteException("Logviewer Exception Occurred"+e.getStackTrace());
+        }
+        return logEvents;
+    }
+
+
+    /**
+     * Deprecated
+     * @return
+     * @throws RemoteException
+     */
+    @Deprecated
+    public LogEvent[] getAllSystemLogs() throws RemoteException {
+        LogEvent[] logEvents = new LogEvent[0];
+        try {
+            logEvents= logViewerStub.getAllSystemLogs();
+        } catch (RemoteException e) {
+            log.error("Fail to get all logs ", e);
+            throw new RemoteException("Fail to get all system logs ", e);
+        } catch (LogViewerLogViewerException e) {
+            log.error("LogViewerException occurred"+e.getStackTrace());
+            throw new RemoteException("Logviewer Exception Occurred"+e.getStackTrace());
+        }
+        return logEvents;
     }
 
     public boolean clearLogs() throws RemoteException {
