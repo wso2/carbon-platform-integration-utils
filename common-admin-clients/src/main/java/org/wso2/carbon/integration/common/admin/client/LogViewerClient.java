@@ -32,8 +32,8 @@ import java.rmi.RemoteException;
  */
 public class LogViewerClient {
     private static final Log log = LogFactory.getLog(LogViewerClient.class);
-    private LogViewerStub logViewerStub;
     String serviceName = "LogViewer";
+    private LogViewerStub logViewerStub;
 
     public LogViewerClient(String backEndUrl, String sessionCookie)
             throws AxisFault {
@@ -85,11 +85,11 @@ public class LogViewerClient {
     }
 
 
-
     /**
      * Getting system logs
-     *
+     * <p/>
      * Deprecated because api change in stub passing LogViewerLogViewerException
+     * l
      *
      * @param logType   Log type (INFO,WARN,ERROR,DEBUG)
      * @param searchKey searching keyword
@@ -103,10 +103,10 @@ public class LogViewerClient {
             throws RemoteException {
         LogEvent[] logEvents = new LogEvent[0];
         try {
-            logEvents= logViewerStub.getLogs(logType, searchKey, domain, serverKey);
+            logEvents = logViewerStub.getLogs(logType, searchKey, domain, serverKey);
         } catch (LogViewerLogViewerException e) {
-            log.error("LogViewerException occurred"+e.getStackTrace());
-            throw new RemoteException("Logviewer Exception Occurred"+e.getStackTrace());
+            log.error("LogViewerException occurred" + e.getStackTrace());
+            throw new RemoteException("Logviewer Exception Occurred" + e.getStackTrace());
         }
         return logEvents;
     }
@@ -114,6 +114,7 @@ public class LogViewerClient {
 
     /**
      * Deprecated
+     *
      * @return
      * @throws RemoteException
      */
@@ -121,13 +122,13 @@ public class LogViewerClient {
     public LogEvent[] getAllSystemLogs() throws RemoteException {
         LogEvent[] logEvents = new LogEvent[0];
         try {
-            logEvents= logViewerStub.getAllSystemLogs();
+            logEvents = logViewerStub.getAllSystemLogs();
         } catch (RemoteException e) {
             log.error("Fail to get all logs ", e);
             throw new RemoteException("Fail to get all system logs ", e);
         } catch (LogViewerLogViewerException e) {
-            log.error("LogViewerException occurred"+e.getStackTrace());
-            throw new RemoteException("Logviewer Exception Occurred"+e.getStackTrace());
+            log.error("LogViewerException occurred" + e.getStackTrace());
+            throw new RemoteException("Logviewer Exception Occurred" + e.getStackTrace());
         }
         return logEvents;
     }
