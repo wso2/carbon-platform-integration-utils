@@ -52,7 +52,7 @@ public class LogViewerClient {
     }
 
     /**
-     * Getting system logs
+     * Getting  remote system logs
      *
      * @param logType   Log type (INFO,WARN,ERROR,DEBUG)
      * @param searchKey searching keyword
@@ -75,6 +75,13 @@ public class LogViewerClient {
         }
     }
 
+
+    /**
+     * Provide all remote system logs
+     * @return
+     * @throws RemoteException
+     * @throws LogViewerLogViewerException
+     */
     public LogEvent[] getAllRemoteSystemLogs() throws RemoteException, LogViewerLogViewerException {
         try {
             return logViewerStub.getAllSystemLogs();
