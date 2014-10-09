@@ -57,8 +57,8 @@ public abstract class OSGIServerBundleStatusTest {
         // start with OSGI component service
         serverPropertyMap.put("-DosgiConsole", Integer.toString(telnetPort));
         AutomationContext autoCtx = new AutomationContext();
-        CarbonTestServerManager server = new CarbonTestServerManager(autoCtx, System.getProperty("carbon.zip"),
-                serverPropertyMap);
+        CarbonTestServerManager server = new CarbonTestServerManager(autoCtx,
+                System.getProperty("carbon.zip"), serverPropertyMap);
         manager.startServers(server);
     }
 
@@ -78,7 +78,7 @@ public abstract class OSGIServerBundleStatusTest {
             log.info(unsatisfiedList.get(x));
         }
         assertEquals(unsatisfiedList.size(), 0, "Unsatisfied components detected" +
-                                                  " in server startup. " + getString(unsatisfiedList));
+                " in server startup. " + getString(unsatisfiedList));
     }
 
     private ArrayList<String> retrieveUnsatisfiedComponentsList(String command) throws IOException {
@@ -92,7 +92,7 @@ public abstract class OSGIServerBundleStatusTest {
     }
 
     private void writeInputCommand(String value) throws UnsupportedEncodingException {
-        out = new PrintStream(telnet.getOutputStream(),true, "UTF-8");
+        out = new PrintStream(telnet.getOutputStream(), true, "UTF-8");
         out.println(value);
         out.flush();
         log.info(value);
@@ -100,7 +100,7 @@ public abstract class OSGIServerBundleStatusTest {
 
     private void readResponse() throws IOException {
         InputStream in = telnet.getInputStream();
-        BufferedReader inBuff = new BufferedReader(new InputStreamReader(in,"UTF-8"));
+        BufferedReader inBuff = new BufferedReader(new InputStreamReader(in, "UTF-8"));
         String inputLine;
         while ((inputLine = inBuff.readLine()) != null)
             if (inputLine.contains("Unsatisfied")) {  // filtering Unsatisfied components
@@ -120,7 +120,7 @@ public abstract class OSGIServerBundleStatusTest {
     }
 
     private String getString(ArrayList<String> list) {
-        if(list != null && list.size() > 0)     {
+        if (list != null && list.size() > 0) {
             return list.toString();
         }
         return "";

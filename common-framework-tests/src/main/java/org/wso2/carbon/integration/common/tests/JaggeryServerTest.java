@@ -78,7 +78,8 @@ public class JaggeryServerTest {
                 = new AuthenticatorClient(automationContext.getContextUrls().getBackEndUrl());
         webappAdminStub = new WebappAdminStub(automationContext.getContextUrls().getBackEndUrl()
                 + "WebappAdmin");
-        AuthenticateStubUtil.authenticateStub(authenticationAdminClient.login(automationContext.getSuperTenant().
+        AuthenticateStubUtil.authenticateStub(authenticationAdminClient.login(
+                automationContext.getSuperTenant().
                 getTenantAdmin().getUserName(), automationContext.getSuperTenant().
                 getTenantAdmin().getPassword(),
                 automationContext.getDefaultInstance().getHosts().get("default")), webappAdminStub);
