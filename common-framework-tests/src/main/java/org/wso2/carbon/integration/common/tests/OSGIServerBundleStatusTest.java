@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 /*
   This test class can be used to identify required osgi component service
@@ -92,8 +91,8 @@ public abstract class OSGIServerBundleStatusTest {
         return arrList;
     }
 
-    private void writeInputCommand(String value) {
-        out = new PrintStream(telnet.getOutputStream());
+    private void writeInputCommand(String value) throws UnsupportedEncodingException {
+        out = new PrintStream(telnet.getOutputStream(),true, "UTF-8");
         out.println(value);
         out.flush();
         log.info(value);
@@ -101,7 +100,7 @@ public abstract class OSGIServerBundleStatusTest {
 
     private void readResponse() throws IOException {
         InputStream in = telnet.getInputStream();
-        BufferedReader inBuff = new BufferedReader(new InputStreamReader(in));
+        BufferedReader inBuff = new BufferedReader(new InputStreamReader(in,"UTF-8"));
         String inputLine;
         while ((inputLine = inBuff.readLine()) != null)
             if (inputLine.contains("Unsatisfied")) {  // filtering Unsatisfied components
