@@ -17,6 +17,8 @@
 */
 package org.wso2.carbon.integration.common.extensions.usermgt;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -32,12 +34,11 @@ import java.util.List;
 /**
  * Pluggable class - This performs the user population
  */
-<<<<<<< HEAD
+
 public class UserPopulateExtension extends ExecutionListenerExtension {
     private static final Log log = LogFactory.getLog(UserPopulateExtension.class);
-=======
-public class UserPopulateExtension implements ExecutionListenerExtension {
->>>>>>> d952555c0f508b9d12be1660ba57dc9615675790
+
+
     private List<Node> productGroupsList;
 	private List<UserPopulator> userPopulatorList = new ArrayList<UserPopulator>(0);
 
