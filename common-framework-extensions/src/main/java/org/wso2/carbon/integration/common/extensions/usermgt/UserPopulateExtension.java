@@ -34,13 +34,16 @@ import java.util.List;
 /**
  * Pluggable class - This performs the user population
  */
+
 public class UserPopulateExtension extends ExecutionListenerExtension {
     private static final Log log = LogFactory.getLog(UserPopulateExtension.class);
+
+
     private List<Node> productGroupsList;
+	private List<UserPopulator> userPopulatorList = new ArrayList<UserPopulator>(0);
 
     public void initiate() throws Exception {
         productGroupsList = getAllProductNodes();
-
     }
 
     // Populate all tenants and user on execution start of the test
@@ -51,18 +54,15 @@ public class UserPopulateExtension extends ExecutionListenerExtension {
             String instanceName = getProductGroupInstance(aProductGroupsList);
             UserPopulator userPopulator = new UserPopulator(productGroupName, instanceName);
             userPopulator.populateUsers();
+	        userPopulatorList.add(userPopulator);
         }
     }
 
     // Remove the populated users on execution finish of the test
     public void onExecutionFinish() throws Exception {
-        for (Node aProductGroupsList : productGroupsList) {
-            String productGroupName = aProductGroupsList.getAttributes().
-                    getNamedItem(AutomationXpathConstants.NAME).getNodeValue();
-            String instanceName = getProductGroupInstance(aProductGroupsList);
-            UserPopulator userPopulator = new UserPopulator(productGroupName, instanceName);
-            userPopulator.deleteUsers();
-        }
+	    for(UserPopulator userPopulator: userPopulatorList) {
+		    userPopulator.deleteUsers();
+	    }
     }
 
     //get the instance which can call admin services for provided product group
