@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.integration.common.extensions.usermgt;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -34,13 +32,17 @@ import java.util.List;
 /**
  * Pluggable class - This performs the user population
  */
+<<<<<<< HEAD
 public class UserPopulateExtension extends ExecutionListenerExtension {
     private static final Log log = LogFactory.getLog(UserPopulateExtension.class);
+=======
+public class UserPopulateExtension implements ExecutionListenerExtension {
+>>>>>>> d952555c0f508b9d12be1660ba57dc9615675790
     private List<Node> productGroupsList;
+	private List<UserPopulator> userPopulatorList = new ArrayList<UserPopulator>(0);
 
     public void initiate() throws Exception {
         productGroupsList = getAllProductNodes();
-
     }
 
     // Populate all tenants and user on execution start of the test
@@ -51,18 +53,15 @@ public class UserPopulateExtension extends ExecutionListenerExtension {
             String instanceName = getProductGroupInstance(aProductGroupsList);
             UserPopulator userPopulator = new UserPopulator(productGroupName, instanceName);
             userPopulator.populateUsers();
+	        userPopulatorList.add(userPopulator);
         }
     }
 
     // Remove the populated users on execution finish of the test
     public void onExecutionFinish() throws Exception {
-        for (Node aProductGroupsList : productGroupsList) {
-            String productGroupName = aProductGroupsList.getAttributes().
-                    getNamedItem(AutomationXpathConstants.NAME).getNodeValue();
-            String instanceName = getProductGroupInstance(aProductGroupsList);
-            UserPopulator userPopulator = new UserPopulator(productGroupName, instanceName);
-            userPopulator.deleteUsers();
-        }
+	    for(UserPopulator userPopulator: userPopulatorList) {
+		    userPopulator.deleteUsers();
+	    }
     }
 
     //get the instance which can call admin services for provided product group
