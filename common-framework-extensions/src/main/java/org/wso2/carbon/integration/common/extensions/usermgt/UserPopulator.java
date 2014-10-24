@@ -45,363 +45,364 @@ import java.util.List;
  */
 public class UserPopulator {
 
-	private static final Log log = LogFactory.getLog(UserPopulator.class);
+    private static final Log log = LogFactory.getLog(UserPopulator.class);
 
-	private AutomationContext automationContext;
-	private List<String> tenantList;
-	private List<String> rolesList;
-	private List<RemovableData> removableDataList = new ArrayList<RemovableData>(0);
+    private AutomationContext automationContext;
+    private List<String> tenantList;
+    private List<String> rolesList;
+    private List<RemovableData> removableDataList = new ArrayList<RemovableData>(0);
+    private NodeList userNodeList;
 
-	public UserPopulator(String productGroupName, String instanceName)
-			throws XPathExpressionException {
-		this.automationContext = new AutomationContext(productGroupName, instanceName,
-		                                               TestUserMode.SUPER_TENANT_ADMIN);
-		this.tenantList = getTenantList();
-		this.rolesList = getRolesList();
-	}
+    public UserPopulator(String productGroupName, String instanceName)
+            throws XPathExpressionException {
+        this.automationContext = new AutomationContext(productGroupName, instanceName,
+                                                       TestUserMode.SUPER_TENANT_ADMIN);
+        this.tenantList = getTenantList();
+        this.rolesList = getRolesList();
+    }
 
-	/**
-	 * Populate Tenants, Users and Roles
-	 *
-	 * @throws Exception
-	 */
-	public void populateUsers() throws Exception {
+    /**
+     * Populate Tenants, Users and Roles
+     *
+     * @throws Exception
+     */
+    public void populateUsers() throws Exception {
 
-		// login as carbon super to add tenants
-		LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(automationContext);
-		String sessionCookie = loginLogoutUtil.login();
-		String backendURL = automationContext.getContextUrls().getBackEndUrl();
-		TenantManagementServiceClient tenantManagementServiceClient =
-				new TenantManagementServiceClient(backendURL, sessionCookie);
+        // login as carbon super to add tenants
+        LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(automationContext);
+        String sessionCookie = loginLogoutUtil.login();
+        String backendURL = automationContext.getContextUrls().getBackEndUrl();
+        TenantManagementServiceClient tenantManagementServiceClient =
+                new TenantManagementServiceClient(backendURL, sessionCookie);
 
-		for (String tenant : tenantList) {
-			RemovableData removableData = new RemovableData();
-			removableData.setTenant(tenant);
+        for (String tenant : tenantList) {
+            RemovableData removableData = new RemovableData();
+            removableData.setTenant(tenant);
 
-			// add tenant, if the tenant is not the Super tenant
-			String tenantType = AutomationXpathConstants.SUPER_TENANT;
-			if (!tenant.equals(FrameworkConstants.SUPER_TENANT_DOMAIN_NAME)) {
-				tenantType = AutomationXpathConstants.TENANTS;
-				String tenantAdminUserName = getTenantAdminUsername(tenantType, tenant);
-				String tenantAdminPassword = getTenantAdminPassword(tenantType, tenant);
+            // add tenant, if the tenant is not the Super tenant
+            String tenantType = AutomationXpathConstants.SUPER_TENANT;
+            if (!tenant.equals(FrameworkConstants.SUPER_TENANT_DOMAIN_NAME)) {
+                tenantType = AutomationXpathConstants.TENANTS;
+                String tenantAdminUserName = getTenantAdminUsername(tenantType, tenant);
+                String tenantAdminPassword = getTenantAdminPassword(tenantType, tenant);
 
-				if (!tenantManagementServiceClient.getTenant(tenant).getActive()) {
-					tenantManagementServiceClient
-							.addTenant(tenant, tenantAdminPassword, tenantAdminUserName,
-							           FrameworkConstants.TENANT_USAGE_PLAN_DEMO);
-					log.info("Added new tenant : " + tenant);
+//				if (!tenantManagementServiceClient.getTenant(tenant).getActive()) {
+                tenantManagementServiceClient
+                        .addTenant(tenant, tenantAdminPassword, tenantAdminUserName,
+                                   FrameworkConstants.TENANT_USAGE_PLAN_DEMO);
+                log.info("Added new tenant : " + tenant);
 
-					// if new tenant added -> need to remove from the system at the end of the test
-					removableData.setNewTenant(true);
-				}
+                // if new tenant added -> need to remove from the system at the end of the test
+                removableData.setNewTenant(true);
+//				}
 
-				// login as newly added tenant
-				sessionCookie = login(tenantAdminUserName, tenant, tenantAdminPassword, backendURL,
-				                      UrlGenerationUtil.getManagerHost(
-						                      automationContext.getInstance()));
+                // login as newly added tenant
+                sessionCookie = login(tenantAdminUserName, tenant, tenantAdminPassword, backendURL,
+                                      UrlGenerationUtil.getManagerHost(
+                                              automationContext.getInstance()));
 
-			}
+            }
 
-			removableData.setTenantType(tenantType);
-			UserManagementClient userManagementClient =
-					new UserManagementClient(backendURL, sessionCookie);
+            removableData.setTenantType(tenantType);
+            UserManagementClient userManagementClient =
+                    new UserManagementClient(backendURL, sessionCookie);
 
-			// add roles to the tenant
-			addRoles(userManagementClient, removableData);
+            // add roles to the tenant
+            addRoles(userManagementClient, removableData);
 
-			// populate users of the current tenant and add roles
-			addTenantUsers(tenantType, tenant, userManagementClient, removableData);
+            // populate users of the current tenant and add roles
+            addTenantUsers(tenantType, tenant, userManagementClient, removableData);
 
-			// collect RemovableData
-			removableDataList.add(removableData);
-		}
-	}
+            // collect RemovableData
+            removableDataList.add(removableData);
+        }
+    }
 
-	private void addRoles(UserManagementClient userManagementClient, RemovableData removableData)
-			throws Exception {
+    private void addRoles(UserManagementClient userManagementClient, RemovableData removableData)
+            throws Exception {
 
-		for (String role : rolesList) {
-			if (!userManagementClient.roleNameExists(role)) {
-				List<String> permissions = getPermissionList(role);
-				userManagementClient
-						.addRole(role, null, permissions.toArray(new String[permissions.size()]));
-				log.info("Added role " + role + " with permissions");
+        for (String role : rolesList) {
+            if (!userManagementClient.roleNameExists(role)) {
+                List<String> permissions = getPermissionList(role);
+                userManagementClient
+                        .addRole(role, null, permissions.toArray(new String[permissions.size()]));
+                log.info("Added role " + role + " with permissions");
 
-				// if new role added for existing tenant -> need to remove from the system at the
-				// end of the test
-				if (!removableData.isNewTenant()) {
-					removableData.setNewRole(role);
-				}
-			}
-		}
-	}
+                // if new role added for existing tenant -> need to remove from the system at the
+                // end of the test
+                if (!removableData.isNewTenant()) {
+                    removableData.setNewRole(role);
+                }
+            }
+        }
+    }
 
-	private void addTenantUsers(String tenantType, String tenant,
-	                            UserManagementClient userManagementClient,
-	                            RemovableData removableData) throws Exception {
+    private void addTenantUsers(String tenantType, String tenant,
+                                UserManagementClient userManagementClient,
+                                RemovableData removableData) throws Exception {
 
-		List<String> userList = getUserList(tenant);
-		for (String tenantUser : userList) {
-			String tenantUserUsername = getTenantUserUsername(tenantType, tenant, tenantUser);
-			boolean isTenantUserExist = userManagementClient.getUserList().contains(
-					tenantUserUsername);
+        List<String> userList = getUserList(tenant);
+        for (String tenantUser : userList) {
+            String tenantUserUsername = getTenantUserUsername(tenantType, tenant, tenantUser);
+            boolean isTenantUserExist = userManagementClient.getUserList().contains(
+                    tenantUserUsername);
 
-			if (!isTenantUserExist) {
-				String[] rolesToBeAdded = new String[] { FrameworkConstants.ADMIN_ROLE };
-				List<String> userRoles = new ArrayList<String>(0);
-				NodeList roleList = automationContext.getConfigurationNodeList(
-						String.format(AutomationXpathConstants.TENANT_USER_ROLES, tenantType,
-						              tenant, tenantUser));
+            if (!isTenantUserExist) {
+                String[] rolesToBeAdded = new String[]{FrameworkConstants.ADMIN_ROLE};
+                List<String> userRoles = new ArrayList<String>(0);
+                NodeList roleList = automationContext.getConfigurationNodeList(
+                        String.format(AutomationXpathConstants.TENANT_USER_ROLES, tenantType,
+                                      tenant, tenantUser));
 
-				if (roleList != null && roleList.item(0) != null) {
-					roleList = roleList.item(0).getChildNodes();
-					for (int i = 0; i < roleList.getLength(); i++) {
-						String role = roleList.item(i).getTextContent();
-						if (userManagementClient.roleNameExists(role)) {
-							userRoles.add(role);
-						} else {
-							log.error("Role is not exist : " + role);
-						}
-					}
-					if (userRoles.size() > 0) {
-						rolesToBeAdded = userRoles.toArray(new String[userRoles.size()]);
-					}
-				}
+                if (roleList != null && roleList.item(0) != null) {
+                    roleList = roleList.item(0).getChildNodes();
+                    for (int i = 0; i < roleList.getLength(); i++) {
+                        String role = roleList.item(i).getTextContent();
+                        if (userManagementClient.roleNameExists(role)) {
+                            userRoles.add(role);
+                        } else {
+                            log.error("Role is not exist : " + role);
+                        }
+                    }
+                    if (userRoles.size() > 0) {
+                        rolesToBeAdded = userRoles.toArray(new String[userRoles.size()]);
+                    }
+                }
 
-				userManagementClient.addUser(tenantUserUsername,
-				                             getTenantUserPassword(tenantType, tenant, tenantUser),
-				                             rolesToBeAdded, null);
-				log.info("User - " + tenantUser + " created in tenant domain of " + " " + tenant);
+                userManagementClient.addUser(tenantUserUsername,
+                                             getTenantUserPassword(tenantType, tenant, tenantUser),
+                                             rolesToBeAdded, null);
+                log.info("User - " + tenantUser + " created in tenant domain of " + " " + tenant);
 
-				// if new user added for existing tenant -> need to remove from the system at the
-				// end of the test
-				if (!removableData.isNewTenant()) {
-					removableData.setNewUser(tenantUserUsername);
-				}
+                // if new user added for existing tenant -> need to remove from the system at the
+                // end of the test
+                if (!removableData.isNewTenant()) {
+                    removableData.setNewUser(tenantUserUsername);
+                }
 
-			} else {
-				log.info(tenantUser + " is already in " + tenant);
-			}
+            } else {
+                log.info(tenantUser + " is already in " + tenant);
+            }
 
-		}
-	}
+        }
+    }
 
-	/**
-	 * Delete Tenants, Users and Roles
-	 *
-	 * @throws Exception
-	 */
-	public void deleteUsers() throws Exception {
-		String backendURL = automationContext.getContextUrls().getBackEndUrl();
-		for (RemovableData removableData : removableDataList) {
-			if (removableData.isNewTenant()) {
-				LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(automationContext);
-				String sessionCookie = loginLogoutUtil.login();
+    /**
+     * Delete Tenants, Users and Roles
+     *
+     * @throws Exception
+     */
+    public void deleteUsers() throws Exception {
+        String backendURL = automationContext.getContextUrls().getBackEndUrl();
+        for (RemovableData removableData : removableDataList) {
+            if (removableData.isNewTenant()) {
+                LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(automationContext);
+                String sessionCookie = loginLogoutUtil.login();
 
-				// remove tenant
-				TenantManagementServiceClient tenantManagementServiceClient =
-						new TenantManagementServiceClient(backendURL, sessionCookie);
-				tenantManagementServiceClient.deleteTenant(removableData.getTenant());
+                // remove tenant
+                TenantManagementServiceClient tenantManagementServiceClient =
+                        new TenantManagementServiceClient(backendURL, sessionCookie);
+                tenantManagementServiceClient.deleteTenant(removableData.getTenant());
 
-				log.info("Tenant was deleted successfully - " + removableData.getTenant());
-			} else {
-				String sessionCookie = login(
-						getTenantAdminUsername(removableData.getTenantType(),
-						                       removableData.getTenant()),
-						removableData.getTenant(),
-						getTenantAdminPassword(removableData.getTenantType(),
-						                       removableData.getTenant()),
-						backendURL,
-						UrlGenerationUtil.getManagerHost(automationContext.getInstance()));
+                log.info("Tenant was deleted successfully - " + removableData.getTenant());
+            } else {
+                String sessionCookie = login(
+                        getTenantAdminUsername(removableData.getTenantType(),
+                                               removableData.getTenant()),
+                        removableData.getTenant(),
+                        getTenantAdminPassword(removableData.getTenantType(),
+                                               removableData.getTenant()),
+                        backendURL,
+                        UrlGenerationUtil.getManagerHost(automationContext.getInstance()));
 
-				UserManagementClient userManagementClient =
-						new UserManagementClient(backendURL, sessionCookie);
+                UserManagementClient userManagementClient =
+                        new UserManagementClient(backendURL, sessionCookie);
 
-				for (String user : removableData.getNewUsers()) {
-					// remove users
-					boolean isTenantUserExist = userManagementClient.getUserList().contains(user);
-					if (isTenantUserExist) {
-						userManagementClient.deleteUser(user);
-						log.info("User was deleted successfully - " + user);
-					}
-				}
+                for (String user : removableData.getNewUsers()) {
+                    // remove users
+                    boolean isTenantUserExist = userManagementClient.getUserList().contains(user);
+                    if (isTenantUserExist) {
+                        userManagementClient.deleteUser(user);
+                        log.info("User was deleted successfully - " + user);
+                    }
+                }
 
-				for (String role : removableData.getNewRoles()) {
-					// remove roles
-					if (userManagementClient.roleNameExists(role)) {
-						userManagementClient.deleteRole(role);
-						log.info("Role was deleted successfully - " + role);
-					}
-				}
-			}
-		}
-	}
+                for (String role : removableData.getNewRoles()) {
+                    // remove roles
+                    if (userManagementClient.roleNameExists(role)) {
+                        userManagementClient.deleteRole(role);
+                        log.info("Role was deleted successfully - " + role);
+                    }
+                }
+            }
+        }
+    }
 
-	private String getTenantAdminUsername(String tenantType, String tenant)
-			throws XPathExpressionException {
-		return automationContext
-				.getConfigurationValue(
-						String.format(AutomationXpathConstants.ADMIN_USER_USERNAME, tenantType,
-						              tenant));
-	}
+    private String getTenantAdminUsername(String tenantType, String tenant)
+            throws XPathExpressionException {
+        return automationContext
+                .getConfigurationValue(
+                        String.format(AutomationXpathConstants.ADMIN_USER_USERNAME, tenantType,
+                                      tenant));
+    }
 
-	private String getTenantAdminPassword(String tenantType, String tenant)
-			throws XPathExpressionException {
-		return automationContext
-				.getConfigurationValue(
-						String.format(AutomationXpathConstants.ADMIN_USER_PASSWORD, tenantType,
-						              tenant));
-	}
+    private String getTenantAdminPassword(String tenantType, String tenant)
+            throws XPathExpressionException {
+        return automationContext
+                .getConfigurationValue(
+                        String.format(AutomationXpathConstants.ADMIN_USER_PASSWORD, tenantType,
+                                      tenant));
+    }
 
-	private String getTenantUserUsername(String tenantType, String tenant, String tenantUser)
-			throws XPathExpressionException {
-		return automationContext.getConfigurationValue(
-				String.format(AutomationXpathConstants.TENANT_USER_USERNAME, tenantType, tenant,
-				              tenantUser));
-	}
+    private String getTenantUserUsername(String tenantType, String tenant, String tenantUser)
+            throws XPathExpressionException {
+        return automationContext.getConfigurationValue(
+                String.format(AutomationXpathConstants.TENANT_USER_USERNAME, tenantType, tenant,
+                              tenantUser));
+    }
 
-	private String getTenantUserPassword(String tenantType, String tenant, String tenantUser)
-			throws XPathExpressionException {
-		return automationContext.getConfigurationValue(
-				String.format(AutomationXpathConstants.TENANT_USER_PASSWORD, tenantType, tenant,
-				              tenantUser));
-	}
+    private String getTenantUserPassword(String tenantType, String tenant, String tenantUser)
+            throws XPathExpressionException {
+        return automationContext.getConfigurationValue(
+                String.format(AutomationXpathConstants.TENANT_USER_PASSWORD, tenantType, tenant,
+                              tenantUser));
+    }
 
-	private String login(String userName, String domain, String password, String backendUrl,
-	                     String hostName) throws
-	                                      RemoteException,
-	                                      LoginAuthenticationExceptionException,
-	                                      XPathExpressionException {
-		AuthenticatorClient loginClient = new AuthenticatorClient(backendUrl);
-		if (!domain.equals(AutomationConfiguration
-				                   .getConfigurationValue(
-						                   ExtensionCommonConstants.SUPER_TENANT_DOMAIN_NAME))) {
-			userName += "@" + domain;
-		}
-		return loginClient.login(userName, password, hostName);
-	}
+    private String login(String userName, String domain, String password, String backendUrl,
+                         String hostName) throws
+                                          RemoteException,
+                                          LoginAuthenticationExceptionException,
+                                          XPathExpressionException {
+        AuthenticatorClient loginClient = new AuthenticatorClient(backendUrl);
+        if (!domain.equals(AutomationConfiguration
+                                   .getConfigurationValue(
+                                           ExtensionCommonConstants.SUPER_TENANT_DOMAIN_NAME))) {
+            userName += "@" + domain;
+        }
+        return loginClient.login(userName, password, hostName);
+    }
 
-	private List<String> getTenantList() throws XPathExpressionException {
-		List<String> tenantList = new ArrayList<String>(0);
-		// add carbon.super
-		tenantList.add(FrameworkConstants.SUPER_TENANT_DOMAIN_NAME);
+    private List<String> getTenantList() throws XPathExpressionException {
+        List<String> tenantList = new ArrayList<String>(0);
+        // add carbon.super
+        tenantList.add(FrameworkConstants.SUPER_TENANT_DOMAIN_NAME);
 
-		// add other tenants
-		NodeList tenantNodeList =
-				automationContext.getConfigurationNodeList(AutomationXpathConstants.TENANTS_NODE)
-				                 .item(0)
-				                 .getChildNodes();
-		for (int i = 0; i < tenantNodeList.getLength(); i++) {
-			tenantList.add(
-					tenantNodeList.item(i).getAttributes()
-					              .getNamedItem(AutomationXpathConstants.DOMAIN).getNodeValue()
-			);
-		}
-		return tenantList;
-	}
+        // add other tenants
+        NodeList tenantNodeList =
+                automationContext.getConfigurationNodeList(AutomationXpathConstants.TENANTS_NODE)
+                        .item(0)
+                        .getChildNodes();
+        for (int i = 0; i < tenantNodeList.getLength(); i++) {
+            tenantList.add(
+                    tenantNodeList.item(i).getAttributes()
+                            .getNamedItem(AutomationXpathConstants.DOMAIN).getNodeValue()
+            );
+        }
+        return tenantList;
+    }
 
-	private List<String> getUserList(String tenantDomain) throws XPathExpressionException {
-		List<String> userList = new ArrayList<String>(0);
+    private List<String> getUserList(String tenantDomain) throws XPathExpressionException {
+        List<String> userList = new ArrayList<String>(0);
 
-		// set tenant type
-		String tenantType = AutomationXpathConstants.TENANTS;
-		if (tenantDomain.equals(FrameworkConstants.SUPER_TENANT_DOMAIN_NAME)) {
-			tenantType = AutomationXpathConstants.SUPER_TENANT;
-		}
+        // set tenant type
+        String tenantType = AutomationXpathConstants.TENANTS;
+        if (tenantDomain.equals(FrameworkConstants.SUPER_TENANT_DOMAIN_NAME)) {
+            tenantType = AutomationXpathConstants.SUPER_TENANT;
+        }
 
-		NodeList userNodeList = automationContext
-				.getConfigurationNodeList(
-						String.format(AutomationXpathConstants.USER_NODE, tenantType,
-						              tenantDomain));
-		for (int i = 0; i < userNodeList.getLength(); i++) {
-			userList.add(userNodeList.item(0).getChildNodes().item(i).getAttributes()
-			                         .getNamedItem(AutomationXpathConstants.KEY).getNodeValue());
-		}
-		return userList;
-	}
+        NodeList userNodeList = automationContext
+                .getConfigurationNodeList(
+                        String.format(AutomationXpathConstants.USER_NODE, tenantType,
+                                      tenantDomain));
 
-	private List<String> getRolesList() throws XPathExpressionException {
-		List<String> roleList = new ArrayList<String>(0);
+        for (int i = 0; i < userNodeList.getLength(); i++) {
+            userList.add(userNodeList.item(i).getAttributes().getNamedItem("key").getNodeValue());
+        }
+        return userList;
+    }
 
-		NodeList roleNodeList =
-				automationContext.getConfigurationNodeList(AutomationXpathConstants.ROLES_NODE);
-		if (roleNodeList != null && roleNodeList.item(0) != null) {
-			roleNodeList = roleNodeList.item(0).getChildNodes();
-			for (int i = 0; i < roleNodeList.getLength(); i++) {
-				roleList.add(roleNodeList.item(i).getAttributes()
-				                         .getNamedItem(AutomationXpathConstants.NAME)
-				                         .getNodeValue());
-			}
-		}
-		return roleList;
-	}
+    private List<String> getRolesList() throws XPathExpressionException {
+        List<String> roleList = new ArrayList<String>(0);
 
-	private List<String> getPermissionList(String role) throws XPathExpressionException {
-		List<String> permissionList = new ArrayList<String>(0);
+        NodeList roleNodeList =
+                automationContext.getConfigurationNodeList(AutomationXpathConstants.ROLES_NODE);
+        if (roleNodeList != null && roleNodeList.item(0) != null) {
+            roleNodeList = roleNodeList.item(0).getChildNodes();
+            for (int i = 0; i < roleNodeList.getLength(); i++) {
+                roleList.add(roleNodeList.item(i).getAttributes()
+                                     .getNamedItem(AutomationXpathConstants.NAME)
+                                     .getNodeValue());
+            }
+        }
+        return roleList;
+    }
 
-		NodeList permissionNodeList = automationContext
-				.getConfigurationNodeList(
-						String.format(AutomationXpathConstants.PERMISSIONS_NODE, role));
-		if (permissionNodeList != null && permissionNodeList.item(0) != null) {
-			permissionNodeList = permissionNodeList.item(0).getChildNodes();
-			for (int i = 0; i < permissionNodeList.getLength(); i++) {
-				permissionList.add(permissionNodeList.item(i).getTextContent());
-			}
-		}
+    private List<String> getPermissionList(String role) throws XPathExpressionException {
+        List<String> permissionList = new ArrayList<String>(0);
 
-		return permissionList;
-	}
+        NodeList permissionNodeList = automationContext
+                .getConfigurationNodeList(
+                        String.format(AutomationXpathConstants.PERMISSIONS_NODE, role));
+        if (permissionNodeList != null && permissionNodeList.item(0) != null) {
+            permissionNodeList = permissionNodeList.item(0).getChildNodes();
+            for (int i = 0; i < permissionNodeList.getLength(); i++) {
+                permissionList.add(permissionNodeList.item(i).getTextContent());
+            }
+        }
 
-	private class RemovableData {
+        return permissionList;
+    }
 
-		private String tenant;
-		private String tenantType;
-		private boolean isNewTenant = false;
+    private class RemovableData {
 
-		private List<String> newRoles = new ArrayList<String>(0);
-		private List<String> newUsers = new ArrayList<String>(0);
+        private String tenant;
+        private String tenantType;
+        private boolean isNewTenant = false;
 
-		public String getTenant() {
-			return tenant;
-		}
+        private List<String> newRoles = new ArrayList<String>(0);
+        private List<String> newUsers = new ArrayList<String>(0);
 
-		public void setTenant(String tenant) {
-			this.tenant = tenant;
-		}
+        public String getTenant() {
+            return tenant;
+        }
 
-		public String getTenantType() {
-			return tenantType;
-		}
+        public void setTenant(String tenant) {
+            this.tenant = tenant;
+        }
 
-		public void setTenantType(String tenantType) {
-			this.tenantType = tenantType;
-		}
+        public String getTenantType() {
+            return tenantType;
+        }
 
-		public boolean isNewTenant() {
-			return isNewTenant;
-		}
+        public void setTenantType(String tenantType) {
+            this.tenantType = tenantType;
+        }
 
-		public void setNewTenant(boolean isNewTenant) {
-			this.isNewTenant = isNewTenant;
-		}
+        public boolean isNewTenant() {
+            return isNewTenant;
+        }
 
-		public List<String> getNewRoles() {
-			return newRoles;
-		}
+        public void setNewTenant(boolean isNewTenant) {
+            this.isNewTenant = isNewTenant;
+        }
 
-		public void setNewRole(String role) {
-			this.newRoles.add(role);
-		}
+        public List<String> getNewRoles() {
+            return newRoles;
+        }
 
-		public List<String> getNewUsers() {
-			return newUsers;
-		}
+        public void setNewRole(String role) {
+            this.newRoles.add(role);
+        }
 
-		public void setNewUser(String user) {
-			this.newUsers.add(user);
-		}
+        public List<String> getNewUsers() {
+            return newUsers;
+        }
 
-	}
+        public void setNewUser(String user) {
+            this.newUsers.add(user);
+        }
+
+    }
 
 }
 
