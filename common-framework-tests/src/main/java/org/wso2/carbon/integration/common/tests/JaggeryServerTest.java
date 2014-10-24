@@ -78,7 +78,8 @@ public class JaggeryServerTest {
                 = new AuthenticatorClient(automationContext.getContextUrls().getBackEndUrl());
         webappAdminStub = new WebappAdminStub(automationContext.getContextUrls().getBackEndUrl()
                 + "WebappAdmin");
-        AuthenticateStubUtil.authenticateStub(authenticationAdminClient.login(automationContext.getSuperTenant().
+        AuthenticateStubUtil.authenticateStub(authenticationAdminClient.login(
+                automationContext.getSuperTenant().
                 getTenantAdmin().getUserName(), automationContext.getSuperTenant().
                 getTenantAdmin().getPassword(),
                 automationContext.getDefaultInstance().getHosts().get("default")), webappAdminStub);
@@ -129,6 +130,12 @@ public class JaggeryServerTest {
                 moduleMap.get(endpointName) + " End Point " + endpointName);
     }
 
+    /**
+     * Sending the request and getting the response
+     * @param Uri - request url
+     * @param append - append request parameters
+     * @throws IOException
+     */
     private HttpsResponse getRequest(String Uri, String requestParameters, boolean append)
             throws IOException {
         if (Uri.startsWith("https://")) {
@@ -156,7 +163,7 @@ public class JaggeryServerTest {
             StringBuilder sb = new StringBuilder();
             BufferedReader rd = null;
             try {
-                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                rd = new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
                 String line;
                 while ((line = rd.readLine()) != null) {
                     sb.append(line);
@@ -174,6 +181,11 @@ public class JaggeryServerTest {
         return null;
     }
 
+    /**
+     * For filtering jaggeryWebapps only
+     * @return List.
+     * @throws RemoteException
+     */
     private List jaggeryAppList() throws RemoteException {
 
         for (String appName : appList) {
@@ -185,6 +197,12 @@ public class JaggeryServerTest {
         return jaggeryAppList;
     }
 
+    /**
+     * For getting the testUrl list
+     * @return ArrayList.
+     * @throws IOException
+     * @throws XPathExpressionException
+     */
     private ArrayList endpointList() throws IOException, XPathExpressionException {
 
         for (String jaggeryApp : jaggeryAppList) {
@@ -216,6 +234,12 @@ public class JaggeryServerTest {
         return testList;
     }
 
+    /**
+     * For getting WebAppList
+     * @param webAppNameSearchString - selection criteria for selecting
+     * @return List
+     * @throws RemoteException
+     */
     private List<String> getWebApplist(String webAppNameSearchString) throws RemoteException {
         List<String> list = new ArrayList<String>();
         WebappsWrapper wrapper = webappAdminStub.getPagedWebappsSummary(webAppNameSearchString,

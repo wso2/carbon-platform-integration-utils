@@ -79,4 +79,4 @@ public class JaggerySerevrTestUtils implements ContentHandler {
     public boolean endObjectEntry() throws ParseException, IOException {
         return true;
     }
-};
+}
