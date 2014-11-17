@@ -40,7 +40,7 @@ public class UserPopulateExtension extends ExecutionListenerExtension {
 
 
     private List<Node> productGroupsList;
-	private List<UserPopulator> userPopulatorList = new ArrayList<UserPopulator>(0);
+    private List<UserPopulator> userPopulatorList = new ArrayList<UserPopulator>(0);
 
     public void initiate() throws Exception {
         productGroupsList = getAllProductNodes();
@@ -54,15 +54,15 @@ public class UserPopulateExtension extends ExecutionListenerExtension {
             String instanceName = getProductGroupInstance(aProductGroupsList);
             UserPopulator userPopulator = new UserPopulator(productGroupName, instanceName);
             userPopulator.populateUsers();
-	        userPopulatorList.add(userPopulator);
+            userPopulatorList.add(userPopulator);
         }
     }
 
     // Remove the populated users on execution finish of the test
     public void onExecutionFinish() throws Exception {
-	    for(UserPopulator userPopulator: userPopulatorList) {
-		    userPopulator.deleteUsers();
-	    }
+        for (UserPopulator userPopulator : userPopulatorList) {
+            userPopulator.deleteUsers();
+        }
     }
 
     //get the instance which can call admin services for provided product group
