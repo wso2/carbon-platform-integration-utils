@@ -44,63 +44,63 @@ public class SecurityAdminServiceClient {
         AuthenticateStubUtil.authenticateStub(userName, password, securityAdminServiceStub);
     }
 
-	/**
-	 * Apply security by passing policy id
-	 *
-	 * @param serviceName          service name
-	 * @param policyId             policy id
-	 * @param userGroups           user groups
-	 * @param trustedKeyStoreArray trusted key store Array
-	 * @param privateStore         private store
-	 * @throws SecurityAdminServiceSecurityConfigExceptionException
-	 * @throws RemoteException
-	 */
-	public void applySecurity(String serviceName, String policyId,
-	                          String[] userGroups, String[] trustedKeyStoreArray,
-	                          String privateStore)
-			throws SecurityAdminServiceSecurityConfigExceptionException, RemoteException {
+    /**
+     * Apply security by passing policy id
+     *
+     * @param serviceName          service name
+     * @param policyId             policy id
+     * @param userGroups           user groups
+     * @param trustedKeyStoreArray trusted key store Array
+     * @param privateStore         private store
+     * @throws SecurityAdminServiceSecurityConfigExceptionException
+     * @throws RemoteException
+     */
+    public void applySecurity(String serviceName, String policyId,
+                              String[] userGroups, String[] trustedKeyStoreArray,
+                              String privateStore)
+        throws SecurityAdminServiceSecurityConfigExceptionException, RemoteException {
 
-		ApplySecurity applySecurity = new ApplySecurity();
-		applySecurity.setServiceName(serviceName);
-		applySecurity.setPolicyId("scenario" + policyId);
-		applySecurity.setTrustedStores(trustedKeyStoreArray);
-		applySecurity.setPrivateStore(privateStore);
-		applySecurity.setUserGroupNames(userGroups);
+        ApplySecurity applySecurity = new ApplySecurity();
+        applySecurity.setServiceName(serviceName);
+        applySecurity.setPolicyId("scenario" + policyId);
+        applySecurity.setTrustedStores(trustedKeyStoreArray);
+        applySecurity.setPrivateStore(privateStore);
+        applySecurity.setUserGroupNames(userGroups);
 
-		securityAdminServiceStub.applySecurity(applySecurity);
-		log.info("Security Applied");
+        securityAdminServiceStub.applySecurity(applySecurity);
+        log.info("Security Applied");
 
-	}
+    }
 
-	/**
-	 * Apply security by passing policy path
-	 *
-	 * @param serviceName          service name
-	 * @param policyPath           policy path
-	 * @param trustedKeyStoreArray trusted key store Array
-	 * @param privateStore         private store
-	 * @param userGroups           user groups
-	 * @throws SecurityAdminServiceSecurityConfigExceptionException
-	 * @throws RemoteException
-	 */
-	public void applySecurity(String serviceName, String policyPath,
-	                          String[] trustedKeyStoreArray, String privateStore,
-	                          String[] userGroups)
-			throws SecurityAdminServiceSecurityConfigExceptionException, RemoteException {
+    /**
+     * Apply security by passing policy path
+     *
+     * @param serviceName          service name
+     * @param policyPath           policy path
+     * @param trustedKeyStoreArray trusted key store Array
+     * @param privateStore         private store
+     * @param userGroups           user groups
+     * @throws SecurityAdminServiceSecurityConfigExceptionException
+     * @throws RemoteException
+     */
+    public void applySecurity(String serviceName, String policyPath,
+                              String[] trustedKeyStoreArray, String privateStore,
+                              String[] userGroups)
+        throws SecurityAdminServiceSecurityConfigExceptionException, RemoteException {
 
-		ApplySecurity applySecurity = new ApplySecurity();
-		applySecurity.setServiceName(serviceName);
-		applySecurity.setPolicyPath(policyPath);
-		applySecurity.setTrustedStores(trustedKeyStoreArray);
-		applySecurity.setPrivateStore(privateStore);
-		applySecurity.setUserGroupNames(userGroups);
+        ApplySecurity applySecurity = new ApplySecurity();
+        applySecurity.setServiceName(serviceName);
+        applySecurity.setPolicyPath(policyPath);
+        applySecurity.setTrustedStores(trustedKeyStoreArray);
+        applySecurity.setPrivateStore(privateStore);
+        applySecurity.setUserGroupNames(userGroups);
 
-		securityAdminServiceStub.applySecurity(applySecurity);
-		log.info("Security Applied");
+        securityAdminServiceStub.applySecurity(applySecurity);
+        log.info("Security Applied");
 
-	}
+    }
 
-	public void applyKerberosSecurityPolicy(String serviceName,
+    public void applyKerberosSecurityPolicy(String serviceName,
                                             String policyId, String ServicePrincipalName,
                                             String ServicePrincipalPassword)
             throws SecurityAdminServiceSecurityConfigExceptionException, RemoteException {
