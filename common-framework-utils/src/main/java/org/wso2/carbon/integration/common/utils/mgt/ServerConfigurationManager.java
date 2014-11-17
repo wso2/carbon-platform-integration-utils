@@ -52,20 +52,20 @@ public class ServerConfigurationManager {
     private AutomationContext autoCtx;
     private String sessionCookie;
     private LoginLogoutClient loginLogoutClient;
-	private List<ConfigData> configDatas = new ArrayList<ConfigData>(0);
+    private List<ConfigData> configDatas = new ArrayList<ConfigData>(0);
 
-	/**
-	 * Create a ServerConfigurationManager
-	 *
-	 * @param productGroup product group
-	 * @param userMode user mode
-	 * @throws IOException
-	 * @throws XPathExpressionException
-	 * @throws LoginAuthenticationExceptionException
-	 * @throws URISyntaxException
-	 * @throws SAXException
-	 * @throws XMLStreamException
-	 */
+    /**
+     * Create a ServerConfigurationManager
+     *
+     * @param productGroup product group
+     * @param userMode     user mode
+     * @throws IOException
+     * @throws XPathExpressionException
+     * @throws LoginAuthenticationExceptionException
+     * @throws URISyntaxException
+     * @throws SAXException
+     * @throws XMLStreamException
+     */
     public ServerConfigurationManager(String productGroup, TestUserMode userMode)
             throws IOException, XPathExpressionException, LoginAuthenticationExceptionException,
                    URISyntaxException,
@@ -77,17 +77,17 @@ public class ServerConfigurationManager {
         this.hostname = new URL(backEndUrl).getHost();
     }
 
-	/**
-	 * Create a ServerConfigurationManager
-	 *
-	 * @param autoCtx automation context
-	 * @throws IOException
-	 * @throws XPathExpressionException
-	 * @throws LoginAuthenticationExceptionException
-	 * @throws URISyntaxException
-	 * @throws SAXException
-	 * @throws XMLStreamException
-	 */
+    /**
+     * Create a ServerConfigurationManager
+     *
+     * @param autoCtx automation context
+     * @throws IOException
+     * @throws XPathExpressionException
+     * @throws LoginAuthenticationExceptionException
+     * @throws URISyntaxException
+     * @throws SAXException
+     * @throws XMLStreamException
+     */
     public ServerConfigurationManager(AutomationContext autoCtx)
             throws IOException, XPathExpressionException, LoginAuthenticationExceptionException,
                    URISyntaxException,
@@ -118,7 +118,7 @@ public class ServerConfigurationManager {
         backUpConfig = new File(confDir + fileName + ".backup");
         originalConfig.renameTo(backUpConfig);
 
-	    configDatas.add(new ConfigData(backUpConfig, originalConfig));
+        configDatas.add(new ConfigData(backUpConfig, originalConfig));
     }
 
     /**
@@ -132,7 +132,7 @@ public class ServerConfigurationManager {
         backUpConfig = new File(file.getAbsolutePath() + ".backup");
         originalConfig.renameTo(backUpConfig);
 
-	    configDatas.add(new ConfigData(backUpConfig, originalConfig));
+        configDatas.add(new ConfigData(backUpConfig, originalConfig));
     }
 
     /**
@@ -211,28 +211,28 @@ public class ServerConfigurationManager {
         }
     }
 
-	/**
-	 * restore to a last configuration and restart the server
-	 *
-	 * @throws Exception
-	 */
-	public void restoreToLastConfiguration() throws Exception {
-		restoreToLastConfiguration(true);
-	}
+    /**
+     * restore to a last configuration and restart the server
+     *
+     * @throws Exception
+     */
+    public void restoreToLastConfiguration() throws Exception {
+        restoreToLastConfiguration(true);
+    }
 
-	/**
-	 * restore all files to last configuration and restart the server
-	 *
-	 * @throws Exception
-	 */
-	public void restoreToLastConfiguration(boolean isRestartRequired) throws Exception {
-		for (ConfigData data : configDatas) {
-			data.getBackupConfig().renameTo(data.getOriginalConfig());
-		}
-		if (isRestartRequired) {
-			restartGracefully();
-		}
-	}
+    /**
+     * restore all files to last configuration and restart the server
+     *
+     * @throws Exception
+     */
+    public void restoreToLastConfiguration(boolean isRestartRequired) throws Exception {
+        for (ConfigData data : configDatas) {
+            data.getBackupConfig().renameTo(data.getOriginalConfig());
+        }
+        if (isRestartRequired) {
+            restartGracefully();
+        }
+    }
 
     /**
      * apply configuration file and restart server to take effect the configuration
@@ -402,26 +402,26 @@ public class ServerConfigurationManager {
         FileManager.deleteFile(filePath);
     }
 
-	/**
-	 * Private class to hold config data
-	 */
-	private class ConfigData {
+    /**
+     * Private class to hold config data
+     */
+    private class ConfigData {
 
-		private File backupConfig;
-		private File originalConfig;
+        private File backupConfig;
+        private File originalConfig;
 
-		public ConfigData(File backupConfig, File originalConfig) {
-			this.backupConfig = backupConfig;
-			this.originalConfig = originalConfig;
-		}
+        public ConfigData(File backupConfig, File originalConfig) {
+            this.backupConfig = backupConfig;
+            this.originalConfig = originalConfig;
+        }
 
-		public File getBackupConfig() {
-			return backupConfig;
-		}
+        public File getBackupConfig() {
+            return backupConfig;
+        }
 
-		public File getOriginalConfig() {
-			return originalConfig;
-		}
-	}
+        public File getOriginalConfig() {
+            return originalConfig;
+        }
+    }
 }
 
