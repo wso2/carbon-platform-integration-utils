@@ -48,4 +48,8 @@ public class AutomationXpathConstants {
     public static final String DATA_SOURCE_DRIVER_CLASS_NAME = "//datasources/datasource/driverClassName";
     public static final String DATA_SOURCE_DB_USER_NAME = "//datasources/datasource/username";
     public static final String DATA_SOURCE_DB_PASSWORD = "//datasources/datasource/password";
+
+	public static final String ROLES_NODE = "//userManagement/roles";
+	public static final String PERMISSIONS_NODE = "//userManagement/roles/role[@name='%s']/permissions";
+	public static final String TENANT_USER_ROLES = "//%s/tenant[@domain='%s']/users/user[@key='%s']/roles";
 }

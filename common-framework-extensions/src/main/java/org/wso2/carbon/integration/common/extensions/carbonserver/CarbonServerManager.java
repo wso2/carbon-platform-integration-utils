@@ -53,13 +53,15 @@ public class CarbonServerManager {
     private static final String SERVER_STARTUP_MESSAGE = "Mgt Console URL";
     private static final long DEFAULT_START_STOP_WAIT_MS = 1000 * 60 * 5;
     private int defaultHttpsPort = 9443;
+    private static final String CMD_ARG = "cmdArg";
 
     public CarbonServerManager(AutomationContext context) {
         this.automationContext = context;
     }
 
     public synchronized void startServerUsingCarbonHome(String carbonHome,
-                                                        Map<String, String> commandMap) throws Exception {
+                                                        Map<String, String> commandMap)
+            throws Exception {
         if (process != null) { // An instance of the server is running
             return;
         }
@@ -92,8 +94,8 @@ public class CarbonServerManager {
 
                 if (isCoverageEnable) {
                     cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat",
-                            "-Demma.properties=" + System.getProperty("emma.properties"),
-                            "-Demma.rt.control.port=" + (47653 + portOffset)};
+                                            "-Demma.properties=" + System.getProperty("emma.properties"),
+                                            "-Demma.rt.control.port=" + (47653 + portOffset)};
                     cmdArray = mergePropertiesToCommandArray(parameters, cmdArray);
                 } else {
                     cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat"};
@@ -106,8 +108,8 @@ public class CarbonServerManager {
                 String[] cmdArray;
                 if (isCoverageEnable) {
                     cmdArray = new String[]{"sh", "bin/" + scriptName + ".sh",
-                            "-Demma.properties=" + System.getProperty("emma.properties"),
-                            "-Demma.rt.control.port=" + (47653 + portOffset)};
+                                            "-Demma.properties=" + System.getProperty("emma.properties"),
+                                            "-Demma.rt.control.port=" + (47653 + portOffset)};
                     cmdArray = mergePropertiesToCommandArray(parameters, cmdArray);
                 } else {
                     cmdArray = new String[]{"sh", "bin/" + scriptName + ".sh"};
@@ -132,12 +134,12 @@ public class CarbonServerManager {
                 }
             });
             ClientConnectionUtil.waitForPort(defaultHttpPort + portOffset,
-                    DEFAULT_START_STOP_WAIT_MS, false,
-                    automationContext.getInstance().getHosts().get("default"));
+                                             DEFAULT_START_STOP_WAIT_MS, false,
+                                             automationContext.getInstance().getHosts().get("default"));
             //wait until Mgt console url printed.
             long time = System.currentTimeMillis() + 60 * 1000;
             while (!inputStreamHandler.getOutput().contains(SERVER_STARTUP_MESSAGE) &&
-                    System.currentTimeMillis() < time) {
+                   System.currentTimeMillis() < time) {
                 // wait until server startup is completed
             }
             ClientConnectionUtil.waitForLogin(automationContext);
@@ -172,7 +174,7 @@ public class CarbonServerManager {
         }
         String extractedCarbonDir =
                 carbonServerZipFile.substring(carbonServerZipFile.lastIndexOf(fileSeparator) + 1,
-                        indexOfZip);
+                                              indexOfZip);
         FileManipulator.deleteDir(extractedCarbonDir);
         String extractDir = "carbontmp" + System.currentTimeMillis();
         String baseDir = (System.getProperty("basedir", ".")) + File.separator + "target";
@@ -180,24 +182,24 @@ public class CarbonServerManager {
         new ArchiveExtractor().extractFile(carbonServerZipFile, baseDir + File.separator + extractDir);
         return carbonHome =
                 new File(baseDir).getAbsolutePath() + File.separator + extractDir + File.separator +
-                        extractedCarbonDir;
+                extractedCarbonDir;
     }
 
     public synchronized void serverShutdown(int portOffset) throws Exception {
         if (process != null) {
             log.info("Shutting down server..");
             if (ClientConnectionUtil.isPortOpen(Integer.parseInt(ExtensionCommonConstants.
-                    SERVER_DEFAULT_HTTPS_PORT) + portOffset, automationContext.getInstance().getHosts().get("default"))) {
+                                                                         SERVER_DEFAULT_HTTPS_PORT) + portOffset, automationContext.getInstance().getHosts().get("default"))) {
                 int httpsPort = defaultHttpsPort + portOffset;
                 String url = automationContext.getContextUrls().getBackEndUrl();
                 String backendURL = url.replaceAll("(:\\d+)", ":" + httpsPort);
                 ServerAdminClient serverAdminServiceClient = new ServerAdminClient(backendURL,
-                        automationContext.getContextTenant().getTenantAdmin().getUserName(),
-                        automationContext.getContextTenant().getTenantAdmin().getPassword());
+                                                                                   automationContext.getContextTenant().getTenantAdmin().getUserName(),
+                                                                                   automationContext.getContextTenant().getTenantAdmin().getPassword());
                 serverAdminServiceClient.shutdown();
                 long time = System.currentTimeMillis() + DEFAULT_START_STOP_WAIT_MS;
                 while (!inputStreamHandler.getOutput().contains(SERVER_SHUTDOWN_MESSAGE) &&
-                        System.currentTimeMillis() < time) {
+                       System.currentTimeMillis() < time) {
                     // wait until server shutdown is completed
                 }
                 log.info("Server stopped successfully...");
@@ -221,7 +223,7 @@ public class CarbonServerManager {
         serverAdminClient.restartGracefully();
         long time = System.currentTimeMillis() + DEFAULT_START_STOP_WAIT_MS;
         while (!inputStreamHandler.getOutput().contains(SERVER_SHUTDOWN_MESSAGE) &&
-                System.currentTimeMillis() < time) {
+               System.currentTimeMillis() < time) {
             // wait until server shutdown is completed
         }
         Thread.sleep(5000);//wait for port to close
@@ -229,13 +231,20 @@ public class CarbonServerManager {
             CodeCoverageUtils.renameCoverageDataFile(carbonHome);
         }
         ClientConnectionUtil.waitForPort(Integer.parseInt(automationContext.getInstance().getPorts().get("https")),
-                automationContext.getInstance().getHosts().get("default"));
+                                         automationContext.getInstance().getHosts().get("default"));
         ClientConnectionUtil.waitForLogin(automationContext);
     }
 
     private String[] expandServerStartupCommandList(Map<String, String> commandMap) {
         if (commandMap == null || commandMap.size() == 0) {
             return null;
+        }
+        String[] cmdParaArray = null;
+        String cmdArg = null;
+        if (commandMap.containsKey(CMD_ARG)) {
+            cmdArg = commandMap.get(CMD_ARG);
+            cmdParaArray = cmdArg.trim().split("\\s+");
+            commandMap.remove(CMD_ARG);
         }
         String[] parameterArray = new String[commandMap.size()];
         int arrayIndex = 0;
@@ -251,7 +260,13 @@ public class CarbonServerManager {
             }
             parameterArray[arrayIndex++] = parameter;
         }
-        return parameterArray;
+        //setting cmdArg again
+        commandMap.put(CMD_ARG, cmdArg);
+        if (cmdParaArray == null || cmdParaArray.length == 0) {
+            return parameterArray;
+        } else {
+            return ArrayUtils.addAll(parameterArray, cmdParaArray);
+        }
     }
 
     private int getPortOffsetFromCommandMap(Map<String, String> commandMap) {
@@ -285,7 +300,7 @@ public class CarbonServerManager {
             }
         } else {
             throw new FileNotFoundException("Server startup script not found at " +
-                    carbonHome + File.separator + "bin");
+                                            carbonHome + File.separator + "bin");
         }
         return FilenameUtils.removeExtension(scriptName);
     }

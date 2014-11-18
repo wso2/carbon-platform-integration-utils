@@ -23,14 +23,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.automation.engine.configurations.AutomationConfiguration;
-import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.InstanceType;
-import org.wso2.carbon.automation.engine.extensions.interfaces.ExecutionListenerExtension;
+import org.wso2.carbon.automation.engine.extensions.ExecutionListenerExtension;
 import org.wso2.carbon.integration.common.extensions.utils.AutomationXpathConstants;
-
-import javax.xml.xpath.XPathExpressionException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.util.ArrayList;
@@ -39,15 +34,16 @@ import java.util.List;
 /**
  * Pluggable class - This performs the user population
  */
-public class UserPopulateExtension implements ExecutionListenerExtension {
-    AutomationContext automationContext;
+
+public class UserPopulateExtension extends ExecutionListenerExtension {
     private static final Log log = LogFactory.getLog(UserPopulateExtension.class);
+
+
     private List<Node> productGroupsList;
+    private List<UserPopulator> userPopulatorList = new ArrayList<UserPopulator>(0);
 
     public void initiate() throws Exception {
-        automationContext = new AutomationContext();
         productGroupsList = getAllProductNodes();
-
     }
 
     // Populate all tenants and user on execution start of the test
@@ -58,16 +54,13 @@ public class UserPopulateExtension implements ExecutionListenerExtension {
             String instanceName = getProductGroupInstance(aProductGroupsList);
             UserPopulator userPopulator = new UserPopulator(productGroupName, instanceName);
             userPopulator.populateUsers();
+            userPopulatorList.add(userPopulator);
         }
     }
 
     // Remove the populated users on execution finish of the test
     public void onExecutionFinish() throws Exception {
-        for (Node aProductGroupsList : productGroupsList) {
-            String productGroupName = aProductGroupsList.getAttributes().
-                    getNamedItem(AutomationXpathConstants.NAME).getNodeValue();
-            String instanceName = getProductGroupInstance(aProductGroupsList);
-            UserPopulator userPopulator = new UserPopulator(productGroupName, instanceName);
+        for (UserPopulator userPopulator : userPopulatorList) {
             userPopulator.deleteUsers();
         }
     }
