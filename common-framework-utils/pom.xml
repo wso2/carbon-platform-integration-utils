@@ -23,5 +23,27 @@
             <groupId>org.wso2.carbon.automation</groupId>
             <artifactId>org.wso2.carbon.automation.engine</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.automation</groupId>
+            <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.rampart</groupId>
+            <artifactId>rampart-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-nop</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 </project>
