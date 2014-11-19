@@ -190,7 +190,7 @@ public class JaggeryServerTest {
 
         for (String appName : appList) {
 
-            if (webappAdminStub.getStartedWebapp(appName).getWebappType().equals("jaggeryWebapp")) {
+            if (webappAdminStub.getStartedWebapp(appName,ip).getWebappType().equals("jaggeryWebapp")) {
                 jaggeryAppList.add(appName);
             }
         }
