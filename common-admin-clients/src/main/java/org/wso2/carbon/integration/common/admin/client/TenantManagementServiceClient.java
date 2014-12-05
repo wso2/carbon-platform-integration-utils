@@ -100,6 +100,25 @@ public class TenantManagementServiceClient {
         }
     }
 
+    /**
+     * deactivate tenant
+     * @param domainName
+     * @throws RemoteException
+     * @throws TenantMgtAdminServiceExceptionException
+     */
+    public void deactivateTenant(String domainName) throws RemoteException, TenantMgtAdminServiceExceptionException {
+        try {
+            tenantMgtAdminServiceStub.deactivateTenant(domainName);
+        } catch (RemoteException e) {
+            log.error("Error while reach the tenant");
+            throw new RemoteException("RemoteException thrown while retrieving user/tenants : ", e);
+        } catch (TenantMgtAdminServiceExceptionException e) {
+            log.error("No such tenant found");
+            throw new TenantMgtAdminServiceExceptionException("RemoteException thrown while" +
+                    " deactivating tenant : ", e);
+        }
+    }
+
     public TenantInfoBean getTenant(String tenantDomain)
             throws TenantMgtAdminServiceExceptionException, RemoteException {
         TenantInfoBean getTenantBean;
