@@ -91,7 +91,8 @@ public class TenantManagementServiceClient {
     public void deleteTenant(String domainName) {
         try {
             tenantMgtAdminServiceStub.deactivateTenant(domainName);
-            tenantMgtAdminServiceStub.deleteTenant(domainName);
+            //https://wso2.org/jira/browse/TA-915 no need to delete tenant
+            //tenantMgtAdminServiceStub.deleteTenant(domainName);
         } catch (RemoteException e) {
             log.error("Error while reach the tenant");
         } catch (TenantMgtAdminServiceExceptionException e) {
