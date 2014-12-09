@@ -321,6 +321,13 @@
                 <artifactId>rampart-core</artifactId>
                 <version>${rampart.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.automation</groupId>
+                <artifactId>org.wso2.carbon.automation.extensions</artifactId>
+                <version>${test.framwork.version}</version>
+            </dependency>
+
+
         </dependencies>
     </dependencyManagement>
 
@@ -328,7 +335,7 @@
         <!-- Carbon platform version comes here-->
         <carbon.platform.version>4.3.0-SNAPSHOT</carbon.platform.version>
         <carbon.stub.version>4.3.0-SNAPSHOT</carbon.stub.version>
-        <test.framwork.version>4.3.1-SNAPSHOT</test.framwork.version>
+        <test.framwork.version>4.3.1</test.framwork.version>
         <zip4j.version>1.2.3</zip4j.version>
         <commons-lang3>3.0</commons-lang3>
         <htmlparser.version>2.1</htmlparser.version>

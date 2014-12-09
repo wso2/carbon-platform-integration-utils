@@ -65,14 +65,11 @@
             <groupId>net.lingala.zip4j</groupId>
             <artifactId>zip4j</artifactId>
         </dependency>
-
-
-
         <dependency>
             <groupId>org.wso2.carbon.automation</groupId>
             <artifactId>org.wso2.carbon.automation.extensions</artifactId>
-            <version>4.3.1-SNAPSHOT</version>
         </dependency>
+
 
     </dependencies>
 
