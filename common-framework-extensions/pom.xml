@@ -69,8 +69,6 @@
             <groupId>org.wso2.carbon.automation</groupId>
             <artifactId>org.wso2.carbon.automation.extensions</artifactId>
         </dependency>
-
-
     </dependencies>
 
 </project>

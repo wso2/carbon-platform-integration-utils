@@ -326,8 +326,6 @@
                 <artifactId>org.wso2.carbon.automation.extensions</artifactId>
                 <version>${test.framwork.version}</version>
             </dependency>
-
-
         </dependencies>
     </dependencyManagement>
 
