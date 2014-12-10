@@ -45,12 +45,12 @@ public class UIManagementListener implements ITestListener {
 
     @Override
     public void onTestStart(ITestResult iTestResult) {
-
+        log.info("On test start :" + iTestResult.getTestClass().getName() + "." + iTestResult.getName());
     }
 
     @Override
     public void onTestSuccess(ITestResult iTestResult) {
-
+        log.info("On test success :" + iTestResult.getTestClass().getName() + "." + iTestResult.getName());
     }
 
     /**
@@ -59,7 +59,7 @@ public class UIManagementListener implements ITestListener {
     @Override
     public void onTestFailure(ITestResult iTestResult) {
         WebDriver webDriver = BrowserManager.driver;
-        String fullTestName = iTestResult.getTestClass().getName() + ExtensionCommonConstants.PERIOD + iTestResult.getName();
+        String fullTestName = iTestResult.getTestClass().getName() + "." + iTestResult.getName();
 
         try {
             log.info("Screen capturing Start : " + fullTestName);
@@ -82,7 +82,7 @@ public class UIManagementListener implements ITestListener {
 
     @Override
     public void onTestSkipped(ITestResult iTestResult) {
-
+        log.info("On test skipped :" + iTestResult.getTestClass().getName() + "." + iTestResult.getName());
     }
 
     @Override
