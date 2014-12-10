@@ -321,6 +321,11 @@
                 <artifactId>rampart-core</artifactId>
                 <version>${rampart.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.automation</groupId>
+                <artifactId>org.wso2.carbon.automation.extensions</artifactId>
+                <version>${test.framwork.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
