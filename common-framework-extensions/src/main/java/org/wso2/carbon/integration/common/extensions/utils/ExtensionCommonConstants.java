@@ -51,6 +51,6 @@ public class ExtensionCommonConstants {
     public static final String OPERA_BROWSER = "opera";
     public static final String DATE_FORMAT_YY_MM_DD_HH_MIN_SS = "yyyy_MM_dd_HH_mm_ss";
     public static final String UNDERSCORE = "_";
-    public static final String SCREEN_SHOT_LOCATION="SeleniumImageFiles/FailedTest";
-    public static final String SCREEN_SHOT_EXTENSION=".png";
+    public static final String SCREEN_SHOT_LOCATION = "capturedscreens/failedtests";
+    public static final String SCREEN_SHOT_EXTENSION = ".png";
 }
