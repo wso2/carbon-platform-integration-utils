@@ -98,7 +98,7 @@ public class UIManagementListener implements ITestListener {
             long currentTime = System.currentTimeMillis();
             DateFormat dateFormat = new SimpleDateFormat(ExtensionCommonConstants.DATE_FORMAT_YY_MM_DD_HH_MIN_SS);
             Calendar cal = Calendar.getInstance();
-            String imagePath = resourcePath + File.separator + ExtensionCommonConstants.SCREEN_SHOT_LOCATION + File.separator +
+            String imagePath = resourcePath + File.separator + ExtensionCommonConstants.SCREEN_SHOT_LOCATION + File.separator + ExtensionCommonConstants.SCREEN_SHOT_SUB_LOCATION1 + File.separator +
                                fullTestName + ExtensionCommonConstants.UNDERSCORE + dateFormat.format(cal.getTime()) +
                                ExtensionCommonConstants.UNDERSCORE + currentTime + ExtensionCommonConstants.SCREEN_SHOT_EXTENSION;
             File scrFile = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE);
