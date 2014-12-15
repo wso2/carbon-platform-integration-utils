@@ -54,30 +54,13 @@ public class UIManagementListener implements ITestListener {
     }
 
     /**
+     * Execute in a test failure situation.
+     *
      * @param iTestResult Information about failure test case
      */
     @Override
     public void onTestFailure(ITestResult iTestResult) {
-        WebDriver webDriver = BrowserManager.driver;
-        String fullTestName = iTestResult.getTestClass().getName() + "." + iTestResult.getName();
-
-        try {
-            log.info("Screen capturing Start : " + fullTestName);
-            String resourcePath = FrameworkPathUtil.getReportLocation();
-            long currentTime = System.currentTimeMillis();
-            DateFormat dateFormat = new SimpleDateFormat(ExtensionCommonConstants.DATE_FORMAT_YY_MM_DD_HH_MIN_SS);
-            Calendar cal = Calendar.getInstance();
-            String imagePath = resourcePath + File.separator + ExtensionCommonConstants.SCREEN_SHOT_LOCATION + File.separator +
-                               fullTestName + ExtensionCommonConstants.UNDERSCORE + dateFormat.format(cal.getTime()) +
-                               ExtensionCommonConstants.UNDERSCORE + currentTime + ExtensionCommonConstants.SCREEN_SHOT_EXTENSION;
-            File scrFile = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE);
-            FileUtils.copyFile(scrFile, new File(imagePath));
-            log.info("Screen capturing End : " + fullTestName);
-        } catch (IOException e) {
-            //  Even having problems in screen shot  generation, test need to be continued hence not throwing any exceptions.
-            log.error("Error in screen capturing  for test failure in " + fullTestName, e);
-        }
-
+        doScreenCapture(iTestResult);
     }
 
     @Override
@@ -97,6 +80,34 @@ public class UIManagementListener implements ITestListener {
 
     @Override
     public void onFinish(ITestContext iTestContext) {
+
+    }
+
+    /**
+     * Capture the current web browser screen and save it.
+     *
+     * @param iTestResult Information about failure test case
+     */
+    private void doScreenCapture(ITestResult iTestResult) {
+        WebDriver webDriver = BrowserManager.driver;
+        String fullTestName = iTestResult.getTestClass().getName() + "." + iTestResult.getName();
+
+        try {
+            log.info("Screen capturing Start : " + fullTestName);
+            String resourcePath = FrameworkPathUtil.getReportLocation();
+            long currentTime = System.currentTimeMillis();
+            DateFormat dateFormat = new SimpleDateFormat(ExtensionCommonConstants.DATE_FORMAT_YY_MM_DD_HH_MIN_SS);
+            Calendar cal = Calendar.getInstance();
+            String imagePath = resourcePath + File.separator + ExtensionCommonConstants.SCREEN_SHOT_LOCATION + File.separator +
+                               fullTestName + ExtensionCommonConstants.UNDERSCORE + dateFormat.format(cal.getTime()) +
+                               ExtensionCommonConstants.UNDERSCORE + currentTime + ExtensionCommonConstants.SCREEN_SHOT_EXTENSION;
+            File scrFile = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE);
+            FileUtils.copyFile(scrFile, new File(imagePath));
+            log.info("Screen capturing End : " + fullTestName);
+        } catch (IOException e) {
+            //  Even having problems in screen shot  generation, test need to be continued hence not throwing any exceptions.
+            log.error("Error in screen capturing  for test failure in " + fullTestName, e);
+        }
 
     }
 }
