@@ -40,13 +40,16 @@ public class UserPopulateExtension extends ExecutionListenerExtension {
 
 
     private List<Node> productGroupsList;
-    private List<UserPopulator> userPopulatorList = new ArrayList<UserPopulator>(0);
+    private List<UserPopulator> userPopulatorList = new ArrayList<UserPopulator>();
 
     public void initiate() throws Exception {
         productGroupsList = getAllProductNodes();
     }
 
-    // Populate all tenants and user on execution start of the test
+    /**
+     * Populate all tenants, users, roles and permissions on execution start of the test
+     * @throws Exception
+     */
     public void onExecutionStart() throws Exception {
         for (Node aProductGroupsList : productGroupsList) {
             String productGroupName = aProductGroupsList.getAttributes().
@@ -58,7 +61,10 @@ public class UserPopulateExtension extends ExecutionListenerExtension {
         }
     }
 
-    // Remove the populated users on execution finish of the test
+    /**
+     * Remove the populated tenants, users, roles and permissions on execution finish of the test
+     * @throws Exception
+     */
     public void onExecutionFinish() throws Exception {
         for (UserPopulator userPopulator : userPopulatorList) {
             userPopulator.deleteUsers();
