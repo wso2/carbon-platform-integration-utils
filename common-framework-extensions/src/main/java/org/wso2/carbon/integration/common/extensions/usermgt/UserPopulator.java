@@ -83,11 +83,11 @@ public class UserPopulator {
             if (!tenant.equals(FrameworkConstants.SUPER_TENANT_DOMAIN_NAME)) {
                 tenantType = AutomationXpathConstants.TENANTS;
                 String tenantAdminUserName = getTenantAdminUsername(tenantType, tenant);
-                String tenantAdminPassword = getTenantAdminPassword(tenantType, tenant);
+                char[] tenantAdminPassword = getTenantAdminPassword(tenantType, tenant);
 
 //				if (!tenantManagementServiceClient.getTenant(tenant).getActive()) {
                 tenantManagementServiceClient
-                        .addTenant(tenant, tenantAdminPassword, tenantAdminUserName,
+                        .addTenant(tenant, String.valueOf(tenantAdminPassword), tenantAdminUserName,
                                    FrameworkConstants.TENANT_USAGE_PLAN_DEMO);
                 log.info("Added new tenant : " + tenant);
 
@@ -168,9 +168,9 @@ public class UserPopulator {
                     }
                 }
 
-                userManagementClient.addUser(tenantUserUsername,
-                                             getTenantUserPassword(tenantType, tenant, tenantUser),
-                                             rolesToBeAdded, null);
+                userManagementClient
+                    .addUser(tenantUserUsername, String.valueOf(getTenantUserPassword(tenantType, tenant, tenantUser)),
+                             rolesToBeAdded, null);
                 log.info("User - " + tenantUser + " created in tenant domain of " + " " + tenant);
 
                 // if new user added for existing tenant -> need to remove from the system at the
@@ -245,12 +245,10 @@ public class UserPopulator {
                                       tenant));
     }
 
-    private String getTenantAdminPassword(String tenantType, String tenant)
-            throws XPathExpressionException {
-        return automationContext
-                .getConfigurationValue(
-                        String.format(AutomationXpathConstants.ADMIN_USER_PASSWORD, tenantType,
-                                      tenant));
+    private char[] getTenantAdminPassword(String tenantType, String tenant)
+        throws XPathExpressionException {
+        return automationContext.getConfigurationValue(
+            String.format(AutomationXpathConstants.ADMIN_USER_PASSWORD, tenantType, tenant)).toCharArray();
     }
 
     private String getTenantUserUsername(String tenantType, String tenant, String tenantUser)
@@ -260,14 +258,14 @@ public class UserPopulator {
                               tenantUser));
     }
 
-    private String getTenantUserPassword(String tenantType, String tenant, String tenantUser)
+    private char[] getTenantUserPassword(String tenantType, String tenant, String tenantUser)
             throws XPathExpressionException {
         return automationContext.getConfigurationValue(
                 String.format(AutomationXpathConstants.TENANT_USER_PASSWORD, tenantType, tenant,
-                              tenantUser));
+                              tenantUser)).toCharArray();
     }
 
-    private String login(String userName, String domain, String password, String backendUrl,
+    private String login(String userName, String domain, char[] password, String backendUrl,
                          String hostName) throws
                                           RemoteException,
                                           LoginAuthenticationExceptionException,
@@ -278,7 +276,7 @@ public class UserPopulator {
                                            ExtensionCommonConstants.SUPER_TENANT_DOMAIN_NAME))) {
             userName += "@" + domain;
         }
-        return loginClient.login(userName, password, hostName);
+        return loginClient.login(userName, String.valueOf(password), hostName);
     }
 
     private List<String> getTenantList() throws XPathExpressionException {
