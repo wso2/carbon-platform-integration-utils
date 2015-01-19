@@ -21,6 +21,8 @@ Copyright (c) 2015, WSO2 Inc. (http://wso2.com). All Rights Reserved.
 WSO2 TAF - carbon-platform-integration-utils binary is bundled with:
 
   zip4j-1.2.3.jar
+  htmlparser-2.1.jar
+  json-simple-1.1.jar
 
 The original software is available from
      https://github.com/wso2-dev/carbon-platform-integration-utils
