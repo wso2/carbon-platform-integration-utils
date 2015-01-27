@@ -1,33 +1,19 @@
-WSO2 Test Automation Framework 
+WSO2 Carbon-Platform-Integration-Utils
 
-WSO2 Test Automation Framework (TAF) is an automation framework that performs equally in all stages of the deployment lifecycle.It is a single framework capable of handling complex and maximum coverage with limited number of test cases.
+WSO2 Carbon-Platform-Integration-Utils consists of essentail supportive modules which users can import and write automation tests with WSO2 Test Automation Framework (TAF). 
 
-WSO2 Test Automation Framework is an open source product available under the Apache Software License (v2.0) 
+WSO2 Carbon-Platform-Integration-Utils is an open source product utility available under the Apache Software License (v2.0) 
 
 Key Features
 
-Platform wide Test execution support.
-Simple Automation Context API.
-TestNG listener based test execution. 
-REST backend support with JAX-RS services.
-Embedded server support (FTP, Proxy server, JMS, ActiveMQ, HTTP Servers Axis2 Server).
-Annotation based test execution management support.
-Ability to execute same test on multiple environments.
-Third party test tooling integration support (Jmeter) 
-Selenium webdriver integration and ability to run UI tests to cross browser environments.
-Set of common test utilities to facilitate better test writing experience.
-Introduction of lightweight automation engine.
-Introduction of enhanced Automation Context API.
-Ability to integrate third party products and platforms.
-Native xpath based xml parsing implementation. 
-Introduction of single configuration file to manage all configurations.
-Framework extensibility capability through pluggable modules.
-Enhanced server management facility.
-Enhanced User management capability.
-Configuration file validator.
-Introduction of enhanced code coverage through EMMA.
-Enhanced support for cluster based platform wide test automation.
-
+common-admin-clients module 
+ - This module consists of set of admin clients together with supportive utility methods which are common for WSO2 products.
+common-framework-extensions module
+ - Consists of Pluggable classes allowing to plug additional extensions to the test execution flow  
+common-framework-tests module
+ - Common set of tests users can extend and execute with the test suite
+common-framework-utils module
+ - Collection of utility classes comprising common utility methods  
 
 System Requirements
 
@@ -41,7 +27,7 @@ System Requirements
 
 Project Resources
 
-WSO2 TAF Documentation 
+Documentation reference 
 
 https://docs.wso2.com/display/TA430/Introducing+Test+Automation+Framework
 
@@ -60,6 +46,4 @@ Thank you for your interest in WSO2 Test Automation Framework.We value your patr
 - The WSO2 Test Automation Framework Team - 
 
 
-(c) Copyright 2014 WSO2 Inc.
-
-
+(c) Copyright 2015 WSO2 Inc.
