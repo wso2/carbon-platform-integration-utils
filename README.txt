@@ -33,7 +33,7 @@ https://docs.wso2.com/display/TA430/Introducing+Test+Automation+Framework
 
 Reporting Problems
 
-Issues can be reported using the Test Automation public JIRA available here
+Issues can be reported using the Test Automation public JIRA available on https://wso2.org/jira/browse/TA
 
 Support
 
