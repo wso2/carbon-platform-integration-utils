@@ -43,7 +43,6 @@ import java.util.List;
 public class ServerConfigurationManager {
 
     private static final long TIME_OUT = 240000;
-    private boolean isFileBackUp = false;
     private File originalConfig;
     private File backUpConfig;
     private int port;
@@ -52,7 +51,7 @@ public class ServerConfigurationManager {
     private AutomationContext autoCtx;
     private String sessionCookie;
     private LoginLogoutClient loginLogoutClient;
-    private List<ConfigData> configDatas = new ArrayList<ConfigData>(0);
+    private List<ConfigData> configDatas = new ArrayList<ConfigData>();
 
     /**
      * Create a ServerConfigurationManager
