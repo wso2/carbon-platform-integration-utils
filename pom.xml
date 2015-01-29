@@ -330,6 +330,8 @@
     </dependencyManagement>
 
     <properties>
+        <!-- Carbon Kernel Version-->
+        <carbon.kernel.version>4.3.0</carbon.kernel.version>
         <!-- Carbon platform version comes here-->
         <carbon.platform.version>4.3.0</carbon.platform.version>
         <carbon.stub.version>4.3.0-SNAPSHOT</carbon.stub.version>
