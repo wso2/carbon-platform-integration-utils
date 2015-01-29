@@ -50,8 +50,7 @@ public class UserPopulator {
     private AutomationContext automationContext;
     private List<String> tenantList;
     private List<String> rolesList;
-    private List<RemovableData> removableDataList = new ArrayList<RemovableData>(0);
-    private NodeList userNodeList;
+    private List<RemovableData> removableDataList = new ArrayList<RemovableData>();
 
     public UserPopulator(String productGroupName, String instanceName)
             throws XPathExpressionException {
@@ -84,11 +83,11 @@ public class UserPopulator {
             if (!tenant.equals(FrameworkConstants.SUPER_TENANT_DOMAIN_NAME)) {
                 tenantType = AutomationXpathConstants.TENANTS;
                 String tenantAdminUserName = getTenantAdminUsername(tenantType, tenant);
-                String tenantAdminPassword = getTenantAdminPassword(tenantType, tenant);
+                char[] tenantAdminPassword = getTenantAdminPassword(tenantType, tenant);
 
 //				if (!tenantManagementServiceClient.getTenant(tenant).getActive()) {
                 tenantManagementServiceClient
-                        .addTenant(tenant, tenantAdminPassword, tenantAdminUserName,
+                        .addTenant(tenant, String.valueOf(tenantAdminPassword), tenantAdminUserName,
                                    FrameworkConstants.TENANT_USAGE_PLAN_DEMO);
                 log.info("Added new tenant : " + tenant);
 
@@ -149,7 +148,7 @@ public class UserPopulator {
 
             if (!isTenantUserExist) {
                 String[] rolesToBeAdded = new String[]{FrameworkConstants.ADMIN_ROLE};
-                List<String> userRoles = new ArrayList<String>(0);
+                List<String> userRoles = new ArrayList<String>();
                 NodeList roleList = automationContext.getConfigurationNodeList(
                         String.format(AutomationXpathConstants.TENANT_USER_ROLES, tenantType,
                                       tenant, tenantUser));
@@ -161,7 +160,7 @@ public class UserPopulator {
                         if (userManagementClient.roleNameExists(role)) {
                             userRoles.add(role);
                         } else {
-                            log.error("Role is not exist : " + role);
+                            log.warn("Role is not exist : " + role);
                         }
                     }
                     if (userRoles.size() > 0) {
@@ -169,9 +168,9 @@ public class UserPopulator {
                     }
                 }
 
-                userManagementClient.addUser(tenantUserUsername,
-                                             getTenantUserPassword(tenantType, tenant, tenantUser),
-                                             rolesToBeAdded, null);
+                userManagementClient
+                    .addUser(tenantUserUsername, String.valueOf(getTenantUserPassword(tenantType, tenant, tenantUser)),
+                             rolesToBeAdded, null);
                 log.info("User - " + tenantUser + " created in tenant domain of " + " " + tenant);
 
                 // if new user added for existing tenant -> need to remove from the system at the
@@ -246,12 +245,10 @@ public class UserPopulator {
                                       tenant));
     }
 
-    private String getTenantAdminPassword(String tenantType, String tenant)
-            throws XPathExpressionException {
-        return automationContext
-                .getConfigurationValue(
-                        String.format(AutomationXpathConstants.ADMIN_USER_PASSWORD, tenantType,
-                                      tenant));
+    private char[] getTenantAdminPassword(String tenantType, String tenant)
+        throws XPathExpressionException {
+        return automationContext.getConfigurationValue(
+            String.format(AutomationXpathConstants.ADMIN_USER_PASSWORD, tenantType, tenant)).toCharArray();
     }
 
     private String getTenantUserUsername(String tenantType, String tenant, String tenantUser)
@@ -261,14 +258,14 @@ public class UserPopulator {
                               tenantUser));
     }
 
-    private String getTenantUserPassword(String tenantType, String tenant, String tenantUser)
+    private char[] getTenantUserPassword(String tenantType, String tenant, String tenantUser)
             throws XPathExpressionException {
         return automationContext.getConfigurationValue(
                 String.format(AutomationXpathConstants.TENANT_USER_PASSWORD, tenantType, tenant,
-                              tenantUser));
+                              tenantUser)).toCharArray();
     }
 
-    private String login(String userName, String domain, String password, String backendUrl,
+    private String login(String userName, String domain, char[] password, String backendUrl,
                          String hostName) throws
                                           RemoteException,
                                           LoginAuthenticationExceptionException,
@@ -279,11 +276,11 @@ public class UserPopulator {
                                            ExtensionCommonConstants.SUPER_TENANT_DOMAIN_NAME))) {
             userName += "@" + domain;
         }
-        return loginClient.login(userName, password, hostName);
+        return loginClient.login(userName, String.valueOf(password), hostName);
     }
 
     private List<String> getTenantList() throws XPathExpressionException {
-        List<String> tenantList = new ArrayList<String>(0);
+        List<String> tenantList = new ArrayList<String>();
         // add carbon.super
         tenantList.add(FrameworkConstants.SUPER_TENANT_DOMAIN_NAME);
 
@@ -302,7 +299,7 @@ public class UserPopulator {
     }
 
     private List<String> getUserList(String tenantDomain) throws XPathExpressionException {
-        List<String> userList = new ArrayList<String>(0);
+        List<String> userList = new ArrayList<String>();
 
         // set tenant type
         String tenantType = AutomationXpathConstants.TENANTS;
@@ -322,7 +319,7 @@ public class UserPopulator {
     }
 
     private List<String> getRolesList() throws XPathExpressionException {
-        List<String> roleList = new ArrayList<String>(0);
+        List<String> roleList = new ArrayList<String>();
 
         NodeList roleNodeList =
                 automationContext.getConfigurationNodeList(AutomationXpathConstants.ROLES_NODE);
@@ -338,7 +335,7 @@ public class UserPopulator {
     }
 
     private List<String> getPermissionList(String role) throws XPathExpressionException {
-        List<String> permissionList = new ArrayList<String>(0);
+        List<String> permissionList = new ArrayList<String>();
 
         NodeList permissionNodeList = automationContext
                 .getConfigurationNodeList(
@@ -353,14 +350,17 @@ public class UserPopulator {
         return permissionList;
     }
 
+    /**
+     * Class to store data to be removed at the end of the test execution
+     */
     private class RemovableData {
 
         private String tenant;
         private String tenantType;
         private boolean isNewTenant = false;
 
-        private List<String> newRoles = new ArrayList<String>(0);
-        private List<String> newUsers = new ArrayList<String>(0);
+        private List<String> newRoles = new ArrayList<String>();
+        private List<String> newUsers = new ArrayList<String>();
 
         public String getTenant() {
             return tenant;
