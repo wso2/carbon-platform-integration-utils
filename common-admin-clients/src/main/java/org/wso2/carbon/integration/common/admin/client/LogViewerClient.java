@@ -113,7 +113,7 @@ public class LogViewerClient {
             logEvents = logViewerStub.getLogs(logType, searchKey, domain, serverKey);
         } catch (LogViewerLogViewerException e) {
             log.error("LogViewerException occurred" + e.getStackTrace());
-            throw new RemoteException("Logviewer Exception Occurred" + e.getStackTrace());
+            throw new RemoteException("Logviewer Exception Occurred" + e);
         }
         return logEvents;
     }
@@ -135,7 +135,7 @@ public class LogViewerClient {
             throw new RemoteException("Fail to get all system logs ", e);
         } catch (LogViewerLogViewerException e) {
             log.error("LogViewerException occurred" + e.getStackTrace());
-            throw new RemoteException("Logviewer Exception Occurred" + e.getStackTrace());
+            throw new RemoteException("Logviewer Exception Occurred" + e);
         }
         return logEvents;
     }
