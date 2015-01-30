@@ -63,11 +63,11 @@
             <artifactId>org.wso2.carbon.security.mgt.stub</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.commons</groupId>
             <artifactId>org.wso2.carbon.application.mgt.stub</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.multitenancy</groupId>
             <artifactId>org.wso2.carbon.tenant.mgt.stub</artifactId>
         </dependency>
         <dependency>
