@@ -123,7 +123,7 @@
             <!--Deployment dependenct-->
 
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
+                <groupId>org.wso2.carbon.deployment</groupId>
                 <artifactId>org.wso2.carbon.webapp.mgt.stub</artifactId>
                 <version>${carbon.deployment.version}</version>
             </dependency>
@@ -218,7 +218,7 @@
         <carbon.identity.imp.pkg.version>[4.3.0, 4.4.0)</carbon.identity.imp.pkg.version>
 
         <!-- Carbon deployment version-->
-        <carbon.deployment.version>4.3.0-SNAPSHOT</carbon.deployment.version>
+        <carbon.deployment.version>4.3.0</carbon.deployment.version>
         <carbon.deployment.imp.pkg.version>[4.3.0, 4.4.0)</carbon.deployment.imp.pkg.version>
 
 
