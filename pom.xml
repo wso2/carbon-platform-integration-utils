@@ -35,8 +35,6 @@
     <url>http://wso2.org</url>
     <packaging>pom</packaging>
 
-
-
     <modules>
         <module>common-admin-clients</module>
         <module>common-framework-utils</module>
@@ -132,7 +130,6 @@
                 <artifactId>org.wso2.carbon.utils</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.engine</artifactId>
