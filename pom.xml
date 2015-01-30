@@ -28,7 +28,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.carbon.integration</groupId>
+    <groupId>org.wso2.carbon.integrationutils</groupId>
     <artifactId>carbon-platform-integration-utils</artifactId>
     <version>4.3.0-SNAPSHOT</version>
     <name>WSO2 Carbon Platform Integration Utils - Aggregator POM</name>
@@ -70,21 +70,25 @@
 
     <dependencyManagement>
         <dependencies>
+
+            <!--Common dependency-->
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
+                <groupId>org.wso2.carbon.commons</groupId>
                 <artifactId>org.wso2.carbon.ndatasource.stub</artifactId>
-                <version>${carbon.stub.version}</version>
+                <version>${carbon.commons.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
+                <groupId>org.wso2.carbon.commons</groupId>
                 <artifactId>org.wso2.carbon.logging.view.stub</artifactId>
-                <version>${carbon.stub.version}</version>
+                <version>${carbon.commons.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
+                <groupId>org.wso2.carbon.commons</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
-                <version>${carbon.stub.version}</version>
+                <version>${carbon.commons.version}</version>
             </dependency>
+
+            <!--Kernal dependency-->
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.server.admin.stub</artifactId>
@@ -92,14 +96,10 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.throttle.stub</artifactId>
-                <version>${carbon.stub.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.security.mgt.stub</artifactId>
@@ -107,9 +107,21 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.identity.user.profile.stub</artifactId>
+                <version>${carbon.stub.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.application.mgt.stub</artifactId>
                 <version>${carbon.stub.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.webapp.mgt.stub</artifactId>
+                <version>${webapp.stub.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.tenant.mgt.stub</artifactId>
@@ -120,26 +132,38 @@
                 <artifactId>org.wso2.carbon.utils</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.engine</artifactId>
                 <version>${test.framwork.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
+                <groupId>org.wso2.carbon.automation</groupId>
+                <artifactId>org.wso2.carbon.automation.extensions</artifactId>
+                <version>${test.framwork.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.automation</groupId>
+                <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
+                <version>${test.framwork.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.integrationutils</groupId>
                 <artifactId>org.wso2.carbon.integration.common.extensions</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
+                <groupId>org.wso2.carbon.integrationutils</groupId>
                 <artifactId>org.wso2.carbon.integration.common.utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.identity.user.profile.stub</artifactId>
-                <version>${carbon.stub.version}</version>
+                <groupId>org.wso2.carbon.integrationutils</groupId>
+                <artifactId>org.wso2.carbon.integration.common.admin.client</artifactId>
+                <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>net.lingala.zip4j</groupId>
                 <artifactId>zip4j</artifactId>
@@ -150,16 +174,8 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.integration.common.admin.client</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.automation</groupId>
-                <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
-                <version>${test.framwork.version}</version>
-            </dependency>
+
+
             <dependency>
                 <groupId>org.htmlparser</groupId>
                 <artifactId>htmlparser</artifactId>
@@ -175,29 +191,55 @@
                 <artifactId>json-simple</artifactId>
                 <version>${json.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.webapp.mgt.stub</artifactId>
-                <version>${webapp.stub.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>org.apache.rampart</groupId>
                 <artifactId>rampart-core</artifactId>
-                <version>${rampart.version}</version>
+                <version>${rampart.wso2.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.automation</groupId>
-                <artifactId>org.wso2.carbon.automation.extensions</artifactId>
-                <version>${test.framwork.version}</version>
-            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
     <properties>
-        <!-- Carbon Kernel Version-->
+        <!-- Carbon kernel version-->
         <carbon.kernel.version>4.3.0</carbon.kernel.version>
+        <carbon.kernel.imp.pkg.version>[4.3.0, 4.4.0)</carbon.kernel.imp.pkg.version>
+
+        <!-- Carbon Commons version-->
+        <carbon.commons.version>4.3.1</carbon.commons.version>
+        <carbon.commons.imp.pkg.version>[4.3.0, 4.4.0)</carbon.commons.imp.pkg.version>
+
+        <!-- Carbon Identity version-->
+        <carbon.identity.version>4.3.0-SNAPSHOT</carbon.identity.version>
+        <carbon.identity.imp.pkg.version>[4.3.0, 4.4.0)</carbon.identity.imp.pkg.version>
+
+        <!-- Carbon deployment version-->
+        <carbon.deployment.version>4.3.0-SNAPSHOT</carbon.deployment.version>
+        <carbon.deployment.imp.pkg.version>[4.3.0, 4.4.0)</carbon.deployment.imp.pkg.version>
+
+
+        <!-- Carbon Multi-tenancy version-->
+        <carbon.multitenancy.exp.pkg.version>4.3.0-SNAPSHOT</carbon.multitenancy.exp.pkg.version>
+        <carbon.multitenancy.imp.pkg.version>[4.3.0, 4.4.0)</carbon.multitenancy.imp.pkg.version>
+
+        <!-- Rampart Version -->
+        <rampart.wso2.version>1.6.1-wso2v13-SNAPSHOT</rampart.wso2.version>
+
+        <slf4j.wso2.version>1.5.10.wso2v1</slf4j.wso2.version>
+
+        <!-- Automation Framework version-->
+        <test.framework.version>4.3.1</test.framework.version>
+        <zip4j.version>1.2.3</zip4j.version>
+        <commons-lang3>3.0</commons-lang3>
+        <htmlparser.version>2.1</htmlparser.version>
+        <commons-net.version>3.2</commons-net.version>
+        <!--<htmlparser.version>2.1</htmlparser.version>-->
+        <json.version>1.1</json.version>
+        <!--<webapp.stub.version>4.3.0-SNAPSHOT</webapp.stub.version>-->
+        <!--<rampart.version>1.6.1-wso2v13-SNAPSHOT</rampart.version>-->
+        <project.scm.id>scm-server</project.scm.id>
         <!-- Carbon platform version comes here-->
-        <carbon.platform.version>4.3.0</carbon.platform.version>
         <carbon.stub.version>4.3.0-SNAPSHOT</carbon.stub.version>
         <test.framwork.version>4.3.1</test.framwork.version>
         <zip4j.version>1.2.3</zip4j.version>
@@ -207,7 +249,6 @@
         <htmlparser.version>2.1</htmlparser.version>
         <json.version>1.1</json.version>
         <webapp.stub.version>4.3.0-SNAPSHOT</webapp.stub.version>
-        <rampart.version>1.6.1-wso2v13-SNAPSHOT</rampart.version>
         <project.scm.id>scm-server</project.scm.id>
     </properties>
 
