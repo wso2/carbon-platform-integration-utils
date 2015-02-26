@@ -205,28 +205,28 @@
 
     <properties>
         <!-- Carbon kernel version-->
-        <carbon.kernel.version>4.3.0</carbon.kernel.version>
-        <carbon.kernel.imp.pkg.version>[4.3.0, 4.4.0)</carbon.kernel.imp.pkg.version>
+        <carbon.kernel.version>4.4.0-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.imp.pkg.version>[4.4.0, 4.5.0)</carbon.kernel.imp.pkg.version>
 
         <!-- Carbon Commons version-->
-        <carbon.commons.version>4.3.1</carbon.commons.version>
+        <carbon.commons.version>4.3.6-SNAPSHOT</carbon.commons.version>
         <carbon.commons.imp.pkg.version>[4.3.0, 4.4.0)</carbon.commons.imp.pkg.version>
 
         <!-- Carbon Identity version-->
-        <carbon.identity.version>4.3.0</carbon.identity.version>
+        <carbon.identity.version>4.3.4-SNAPSHOT</carbon.identity.version>
         <carbon.identity.imp.pkg.version>[4.3.0, 4.4.0)</carbon.identity.imp.pkg.version>
 
         <!-- Carbon deployment version-->
-        <carbon.deployment.version>4.3.0</carbon.deployment.version>
+        <carbon.deployment.version>4.3.2-SNAPSHOT</carbon.deployment.version>
         <carbon.deployment.imp.pkg.version>[4.3.0, 4.4.0)</carbon.deployment.imp.pkg.version>
 
 
         <!-- Carbon Multi-tenancy version-->
-        <carbon.multitenancy.version>4.3.0</carbon.multitenancy.version>
+        <carbon.multitenancy.version>4.3.5-SNAPSHOT</carbon.multitenancy.version>
         <carbon.multitenancy.imp.pkg.version>[4.3.0, 4.4.0)</carbon.multitenancy.imp.pkg.version>
 
         <!-- Rampart Version -->
-        <rampart.wso2.version>1.6.1-wso2v13</rampart.wso2.version>
+        <rampart.wso2.version>1.6.1-wso2v14</rampart.wso2.version>
 
         <slf4j.wso2.version>1.5.10.wso2v1</slf4j.wso2.version>
 
