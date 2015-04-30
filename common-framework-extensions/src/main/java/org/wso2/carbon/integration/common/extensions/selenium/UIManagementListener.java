@@ -113,6 +113,5 @@ public class UIManagementListener implements ITestListener {
             //  Even having problems in screen shot  generation, test need to be continued hence not throwing any exceptions.
             log.warn("Error in screen capturing  for test failure in " + fullTestName, e);
         }
-
     }
 }
