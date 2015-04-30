@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.integration.common.extensions.selenium.uimgt;
+package org.wso2.carbon.integration.common.extensions.selenium;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
@@ -39,6 +39,7 @@ import java.util.Calendar;
 
 /**
  * UI Related activities during a test execution.
+ * onTestFailure : It will capture the screen shot of the browser window and save it.
  */
 public class UIManagementListener implements ITestListener {
     private static final Log log = LogFactory.getLog(UIManagementListener.class);
@@ -60,7 +61,9 @@ public class UIManagementListener implements ITestListener {
      */
     @Override
     public void onTestFailure(ITestResult iTestResult) {
-        doScreenCapture(iTestResult);
+        String fullTestName = iTestResult.getTestClass().getName() + "." + iTestResult.getName();
+        log.info("On test failure :" + fullTestName);
+        doScreenCapture(fullTestName);
     }
 
     @Override
@@ -86,27 +89,29 @@ public class UIManagementListener implements ITestListener {
     /**
      * Capture the current web browser screen and save it.
      *
-     * @param iTestResult Information about failure test case
+     * @param fullTestName - Full name of the test case.
      */
-    private void doScreenCapture(ITestResult iTestResult) {
+    private void doScreenCapture(String fullTestName) {
         WebDriver webDriver = BrowserManager.driver;
-        String fullTestName = iTestResult.getTestClass().getName() + "." + iTestResult.getName();
-
         try {
             log.info("Screen capturing Start : " + fullTestName);
-            String resourcePath = FrameworkPathUtil.getReportLocation();
+            // Retrieve report location of the Test Framework
+            String reportLocation = FrameworkPathUtil.getReportLocation();
             long currentTime = System.currentTimeMillis();
             DateFormat dateFormat = new SimpleDateFormat(ExtensionCommonConstants.DATE_FORMAT_YY_MM_DD_HH_MIN_SS);
             Calendar cal = Calendar.getInstance();
-            String imagePath = resourcePath + File.separator + ExtensionCommonConstants.SCREEN_SHOT_LOCATION + File.separator +
-                               fullTestName + ExtensionCommonConstants.UNDERSCORE + dateFormat.format(cal.getTime()) +
-                               ExtensionCommonConstants.UNDERSCORE + currentTime + ExtensionCommonConstants.SCREEN_SHOT_EXTENSION;
+            //Image path looks like :
+            // [reportlocation]/capturedscreens/failedtests/[fullTestName]_[Date]_[Current time in milliseconds].png
+            String imagePath =
+                    reportLocation + File.separator + ExtensionCommonConstants.SCREEN_SHOT_LOCATION + File.separator +
+                            fullTestName + "_" + dateFormat.format(cal.getTime()) + "_" + currentTime +
+                            ExtensionCommonConstants.SCREEN_SHOT_EXTENSION;
             File scrFile = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE);
             FileUtils.copyFile(scrFile, new File(imagePath));
             log.info("Screen capturing End : " + fullTestName);
         } catch (IOException e) {
             //  Even having problems in screen shot  generation, test need to be continued hence not throwing any exceptions.
-            log.error("Error in screen capturing  for test failure in " + fullTestName, e);
+            log.warn("Error in screen capturing  for test failure in " + fullTestName, e);
         }
 
     }
