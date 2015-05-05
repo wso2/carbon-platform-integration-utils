@@ -70,6 +70,24 @@ public class LoginLogoutClient {
     }
 
     /**
+     * This is to fix https://wso2.org/jira/browse/TA-964
+     * @param username - username
+     * @param password - password
+     * @param hostName - url to login
+     * @return - session cookie
+     * @throws LoginAuthenticationExceptionException
+     * @throws IOException
+     * @throws XMLStreamException
+     * @throws URISyntaxException
+     * @throws SAXException
+     * @throws XPathExpressionException
+     */
+    public String login(String username, String password, String  hostName) throws LoginAuthenticationExceptionException, IOException, XMLStreamException,
+            URISyntaxException, SAXException, XPathExpressionException {
+        return loginClient.login(username, password, hostName);
+    }
+
+    /**
      * Log out from carbon server
      */
     public void logout() throws LogoutAuthenticationExceptionException, RemoteException {
