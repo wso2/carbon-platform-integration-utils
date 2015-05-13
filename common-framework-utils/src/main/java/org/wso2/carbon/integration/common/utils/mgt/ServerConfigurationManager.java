@@ -20,7 +20,6 @@ package org.wso2.carbon.integration.common.utils.mgt;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
-import org.wso2.carbon.automation.engine.frameworkutils.CodeCoverageUtils;
 import org.wso2.carbon.integration.common.admin.client.ServerAdminClient;
 import org.wso2.carbon.integration.common.utils.ClientConnectionUtil;
 import org.wso2.carbon.integration.common.utils.FileManager;
@@ -303,8 +302,6 @@ public class ServerConfigurationManager {
         sessionCookie = loginLogoutClient.login();
         ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
         serverAdmin.restartGracefully();
-        CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
-        Thread.sleep(20000); //forceful wait until emma dump coverage data file.
         ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
         Thread.sleep(5000); //forceful wait until server is ready to be served
         ClientConnectionUtil.waitForLogin(autoCtx);
@@ -319,9 +316,7 @@ public class ServerConfigurationManager {
     public void restartGracefully(String sessionCookie) throws Exception {
         //todo use ServerUtils class restart
         ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
-        CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
         serverAdmin.restartGracefully();
-        Thread.sleep(20000); //forceful wait until emma dump coverage data file.
         ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
         Thread.sleep(5000); //forceful wait until server is ready to be served
         ClientConnectionUtil.waitForLogin(autoCtx);
@@ -337,8 +332,6 @@ public class ServerConfigurationManager {
         sessionCookie = loginLogoutClient.login();
         ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
         serverAdmin.restart();
-        CodeCoverageUtils.renameCoverageDataFile(System.getProperty(ServerConstants.CARBON_HOME));
-        Thread.sleep(20000); //forceful wait until emma dump coverage data file.
         ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
         Thread.sleep(5000); //forceful wait until server is ready to be served
         ClientConnectionUtil.waitForLogin(autoCtx);
