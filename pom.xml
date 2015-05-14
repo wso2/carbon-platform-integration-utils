@@ -17,8 +17,9 @@
   ~  under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
@@ -42,13 +43,15 @@
     </modules>
 
     <scm>
-        <connection>scm:git:https://github.com/wso2/carbon-platform-integration-utils.git</connection>
-        <developerConnection>scm:git:https://github.com/wso2/carbon-platform-integration-utils.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2/carbon-platform-integration-utils.git
+        </connection>
+        <developerConnection>scm:git:https://github.com/wso2/carbon-platform-integration-utils.git
+        </developerConnection>
         <url>https://github.com/wso2/carbon-platform-integration-utils.git</url>
         <tag>HEAD</tag>
     </scm>
     <build>
-    <pluginManagement>
+        <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -138,17 +141,17 @@
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.engine</artifactId>
-                <version>${test.framwork.version}</version>
+                <version>${test.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.extensions</artifactId>
-                <version>${test.framwork.version}</version>
+                <version>${test.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
-                <version>${test.framwork.version}</version>
+                <version>${test.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.automationutils</groupId>
@@ -231,13 +234,12 @@
         <slf4j.wso2.version>1.5.10.wso2v1</slf4j.wso2.version>
 
         <!-- Automation Framework version-->
-        <test.framework.version>4.3.1</test.framework.version>
+        <test.framework.version>4.3.2-SNAPSHOT</test.framework.version>
         <zip4j.version>1.2.3</zip4j.version>
         <commons-lang3>3.0</commons-lang3>
         <htmlparser.version>2.1</htmlparser.version>
         <commons-net.version>3.2</commons-net.version>
 
-        <test.framwork.version>4.3.1</test.framwork.version>
         <zip4j.version>1.2.3</zip4j.version>
         <commons-lang3>3.0</commons-lang3>
         <htmlparser.version>2.1</htmlparser.version>

@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.integration.common.tests;
 
+import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.BeforeSuite;
@@ -26,8 +27,10 @@ import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.integration.common.admin.client.LogViewerClient;
+import org.wso2.carbon.logging.view.stub.LogViewerLogViewerException;
 import org.wso2.carbon.logging.view.stub.types.carbon.LogEvent;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.rmi.RemoteException;
 
 import static org.testng.Assert.assertFalse;
@@ -40,7 +43,7 @@ public abstract class ServerStartupBaseTest {
     public String productName;
 
     @BeforeSuite(alwaysRun = true)
-    public void initialize() throws Exception {
+    public void initialize() throws XPathExpressionException, AxisFault {
         AutomationContext autoContext = new AutomationContext();
         logViewerClient = new LogViewerClient(autoContext.getContextUrls().getBackEndUrl(),
                 autoContext.getSuperTenant().getTenantAdmin().getUserName(),
@@ -49,12 +52,12 @@ public abstract class ServerStartupBaseTest {
 
     @Test(groups = "wso2.all", description = "verify server startup errors")
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.STANDALONE})
-    public void testVerifyLogs() throws RemoteException {
+    public void testVerifyLogs() throws RemoteException, LogViewerLogViewerException {
         boolean status = false;
         int startLine = 0;
         int stopLine = 0;
         String errorMessage = "";
-        LogEvent[] logEvents = logViewerClient.getAllSystemLogs();
+        LogEvent[] logEvents = logViewerClient.getAllRemoteSystemLogs();
         if (logEvents.length > 0) {
             for (int i = 0; i < logEvents.length; i++) {
                 if (logEvents[i] != null) {

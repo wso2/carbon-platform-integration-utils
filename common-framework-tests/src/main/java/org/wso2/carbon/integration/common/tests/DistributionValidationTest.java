@@ -22,6 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.htmlparser.util.ParserException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.frameworkutils.FrameworkPathUtil;
@@ -29,6 +30,9 @@ import org.wso2.carbon.integration.common.tests.utils.DistributionValidationTest
 import org.wso2.carbon.utils.ServerConstants;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -72,20 +76,20 @@ public abstract class DistributionValidationTest {
     abstract public String[] getPathToXML();
 
     @BeforeClass(alwaysRun = true)
-    public void init() throws Exception {
+    public void init() {
 
         productPath = System.getProperty(ServerConstants.CARBON_HOME);
 
         reportFile = new File(FrameworkPathUtil.getReportLocation() + File.separator
-                + "DistributionValidationTestReport.txt");
+                              + "DistributionValidationTestReport.txt");
 
         // getting the jar files list inside the distribution directory
         jarFileListInDistribution = (List<File>) FileUtils.listFiles(new File(productPath),
-                new String[]{"jar"}, true);
+                                                                     new String[]{"jar"}, true);
 
         // getting the running distribution name
         distributionVersion = new File(productPath.split("/")
-                [productPath.split("/").length - 1] + ".zip");
+                                               [productPath.split("/").length - 1] + ".zip");
 
         // derive the jar list from LICENSE.txt
         DistributionValidationTestUtils.readLicenseFile(productPath, licenceJarList, duplicateJarList);
@@ -93,8 +97,9 @@ public abstract class DistributionValidationTest {
     }
 
     @Test(groups = "wso2.all", description = "Validation of jar files mentioned in the" +
-            " LICENSE.txt file against the distribution")
-    public void testValidateJarFilesAgainstDistribution() throws Exception {
+                                             " LICENSE.txt file against the distribution")
+    public void testValidateJarFilesAgainstDistribution()
+            throws FileNotFoundException, UnsupportedEncodingException {
 
         assertTrue("Jar entries does not exist in LICENSE.txt", licenceJarList.size() > 0);
 
@@ -107,16 +112,17 @@ public abstract class DistributionValidationTest {
         }
 
         DistributionValidationTestUtils.reportGeneratorList(additionalJarFilesInLicenceFile, "Following jar files mentioned" +
-                " in the LICENSE.txt cloud not be found inside the product distribution", reportFile);
+                                                                                             " in the LICENSE.txt cloud not be found inside the product distribution", reportFile);
 
         assertFalse("Some of the jar files mentioned in the LICENSE.txt are unavailable" +
-                " in the product distribution", additionalJarFilesInLicenceFile.size() > 0);
+                    " in the product distribution", additionalJarFilesInLicenceFile.size() > 0);
     }
 
     @Test(groups = "wso2.all", description = "Validation of jar files inside the" +
-            " distribution against LICENSE.txt",
-            dependsOnMethods = "testValidateJarFilesAgainstDistribution")
-    public void testValidateJarFilesAgainstLicenceFile() throws Exception {
+                                             " distribution against LICENSE.txt",
+          dependsOnMethods = "testValidateJarFilesAgainstDistribution")
+    public void testValidateJarFilesAgainstLicenceFile()
+            throws FileNotFoundException, UnsupportedEncodingException {
 
         ArrayList<String> jarsNotMentionedInLicenceFile = new ArrayList<String>();
 
@@ -126,17 +132,20 @@ public abstract class DistributionValidationTest {
                 jarsNotMentionedInLicenceFile.add(jarFileInDistribution.toString());
             }
         }
+        if (jarsNotMentionedInLicenceFile.size() > 0) {
 
-        DistributionValidationTestUtils.reportGeneratorList(jarsNotMentionedInLicenceFile, "Following jar files inside the " +
-                "product distribution should be mentioned in LICENSE.txt file", reportFile);
+            DistributionValidationTestUtils.reportGeneratorList(jarsNotMentionedInLicenceFile, "Following jar files inside the " +
+                                                                                               "product distribution should be mentioned in LICENSE.txt file", reportFile);
 
-        assertTrue("Some jar file names in the product distribution were not" +
-                "mentioned in the LICENCE.txt file", jarsNotMentionedInLicenceFile.size() > 0);
+            assertTrue("Some jar file names in the product distribution were not" +
+                       "mentioned in the LICENCE.txt file", jarsNotMentionedInLicenceFile.size() > 0);
+        }
     }
 
     @Test(groups = "wso2.all", description = "Validate duplicate jar entries inside LICENSE.txt",
-            dependsOnMethods = "testValidateJarFilesAgainstLicenceFile")
-    public void testValidateDuplicateJarEntriesInLicenceFile() throws Exception {
+          dependsOnMethods = "testValidateJarFilesAgainstLicenceFile")
+    public void testValidateDuplicateJarEntriesInLicenceFile()
+            throws FileNotFoundException, UnsupportedEncodingException {
 
         boolean isDuplicateJars = false;
 
@@ -149,7 +158,7 @@ public abstract class DistributionValidationTest {
             }
 
             DistributionValidationTestUtils.reportGeneratorList(new ArrayList<String>(duplicateJarList), "Following are the " +
-                    "duplicate jar file list in the LICENSE.txt file", reportFile);
+                                                                                                         "duplicate jar file list in the LICENSE.txt file", reportFile);
 
         }
 
@@ -157,8 +166,8 @@ public abstract class DistributionValidationTest {
     }
 
     @Test(groups = "wso2.all", description = "Recursive scan to identify SNAPSHOT keyword inside " +
-            "the distribution", dependsOnMethods = "testValidateDuplicateJarEntriesInLicenceFile")
-    public void testRecursiveScanForSnapshotKeyword() throws Exception {
+                                             "the distribution", dependsOnMethods = "testValidateDuplicateJarEntriesInLicenceFile")
+    public void testRecursiveScanForSnapshotKeyword() throws IOException {
 
         String[] extensions = new String[]{"txt", "xsd", "js"};
 
@@ -197,28 +206,28 @@ public abstract class DistributionValidationTest {
         }
 
         DistributionValidationTestUtils.reportGeneratorList(textualFileNameWithSnapshotKeyword, "Following are the" +
-                " textual file names which contain " + KEYWORD + " keyword", reportFile);
+                                                                                                " textual file names which contain " + KEYWORD + " keyword", reportFile);
 
         DistributionValidationTestUtils.reportGeneratorMap(snapshotKeywordMap, "List of textual file names together" +
-                " with number of occurrences of " + KEYWORD + " keyword", reportFile);
+                                                                               " with number of occurrences of " + KEYWORD + " keyword", reportFile);
 
         DistributionValidationTestUtils.reportGeneratorList(jarFileNameWithSnapshotKeyword, "List of jar file " +
-                "names which contain " + KEYWORD + " keyword", reportFile);
+                                                                                            "names which contain " + KEYWORD + " keyword", reportFile);
 
         assertFalse("Textual file names with " + KEYWORD + " exists inside the product distribution",
-                textualFileNameWithSnapshotKeyword.size() > 0);
+                    textualFileNameWithSnapshotKeyword.size() > 0);
 
         assertFalse("Occurrence of the keyword" + KEYWORD + " inside a textual file/s contents " +
-                "detected", snapshotKeywordMap.size() > 0);
+                    "detected", snapshotKeywordMap.size() > 0);
 
         assertFalse("Jar file names with " + KEYWORD + " exists inside the product distribution",
-                jarFileNameWithSnapshotKeyword.size() > 0);
+                    jarFileNameWithSnapshotKeyword.size() > 0);
     }
 
     @Test(groups = "wso2.all", description = "Check whether Maven variables are properly " +
-            "being replaced inside configuration files of repository/conf"/*,
+                                             "being replaced inside configuration files of repository/conf"/*,
             dependsOnMethods = "testRecursiveScanForSnapshotKeyword"*/)
-    public void testMavenVariablesReplacement() throws Exception {
+    public void testMavenVariablesReplacement() throws IOException {
 
         // getting xml file path
         String[] xmlFileList = getPathToXML();
@@ -228,7 +237,7 @@ public abstract class DistributionValidationTest {
         for (String xmlFile : xmlFileList) {
             boolean isRecursive = true;
             Collection files = FileUtils.listFiles(new File(productPath + File.separator
-                    + "repository" + File.separator + "conf"), null, isRecursive);
+                                                            + "repository" + File.separator + "conf"), null, isRecursive);
 
             for (Object fileName : files) {
                 File file = (File) fileName;
@@ -238,20 +247,20 @@ public abstract class DistributionValidationTest {
                 }
             }
             DistributionValidationTestUtils.validateXml(xsdValidateMap, pathToXML, (getPathToXSD() + File.separator +
-                    new File(pathToXML).getName().replace(".xml", ".xsd")));
+                                                                                    new File(pathToXML).getName().replace(".xml", ".xsd")));
         }
 
         DistributionValidationTestUtils.reportGeneratorMap(xsdValidateMap, "Following are the configuration file " +
-                "names together with the exceptions encountered while validating respective " +
-                "xml schemas", reportFile);
+                                                                           "names together with the exceptions encountered while validating respective " +
+                                                                           "xml schemas", reportFile);
 
         assertFalse("configuration files - maven variable replacement failure",
-                xsdValidateMap.size() > 0);
+                    xsdValidateMap.size() > 0);
     }
 
     @Test(groups = "wso2.all", description = "Comparison of distribution sizes",
-            dependsOnMethods = "testMavenVariablesReplacement")
-    public void testCompareDistributionSize() throws Exception {
+          dependsOnMethods = "testMavenVariablesReplacement")
+    public void testCompareDistributionSize() throws ParserException, IOException {
 
         double runningDistributionSize;
         double mavenDistributionSize = 0;
@@ -270,9 +279,9 @@ public abstract class DistributionValidationTest {
         }
 
         String urlToDistributionList = "http:" + File.separator + File.separator +
-                "maven.wso2.org" + File.separator + "nexus" + File.separator + "content" +
-                File.separator + "repositories" + File.separator + "wso2maven2" + File.separator +
-                "org" + File.separator + "wso2" + File.separator + path;
+                                       "maven.wso2.org" + File.separator + "nexus" + File.separator + "content" +
+                                       File.separator + "repositories" + File.separator + "wso2maven2" + File.separator +
+                                       "org" + File.separator + "wso2" + File.separator + path;
 
         List<String> linksToVersion = DistributionValidationTestUtils.getLinks(urlToDistributionList);
         List<String> linksFromVersion = DistributionValidationTestUtils.getLinks(linksToVersion.get(linksToVersion.size() - 1));
@@ -298,7 +307,7 @@ public abstract class DistributionValidationTest {
         }
 
         assertTrue("Either no product distribution detected in the maven repo " +
-                "or connection establishment failure", mavenDistributionStatus);
+                   "or connection establishment failure", mavenDistributionStatus);
 
         File distributionFile = new File(System.getProperty("carbon.zip"));
 
@@ -311,65 +320,67 @@ public abstract class DistributionValidationTest {
         String runningDistribution = df.format(runningDistributionSize / (1024 * 1024));
         String mavenDistribution = df.format(mavenDistributionSize / (1024 * 1024));
         String difference = df.format((mavenDistributionSize - runningDistributionSize)
-                / (1024 * 1024));
+                                      / (1024 * 1024));
 
         resultsDataMap.put("Running Distribution Size", runningDistribution + " MB");
         resultsDataMap.put("Maven Distribution Size", mavenDistribution + " MB");
         resultsDataMap.put("The difference between running distribution and maven distribution" +
-                " sizes are ", difference + " MB");
+                           " sizes are ", difference + " MB");
 
         // checking whether size of the running distribution is acceptable
         if (Double.parseDouble(difference) >= 20) {
 
             DistributionValidationTestUtils.reportGeneratorMap(resultsDataMap, "Running distribution size " +
-                    "comparison failure.Below are the sizes of two packs compared.", reportFile);
+                                                                               "comparison failure.Below are the sizes of two packs compared.", reportFile);
 
             sizeDifferenceStatus = true;
         } else {
             DistributionValidationTestUtils.reportGeneratorMap(resultsDataMap, "Running distribution size comparison passed." +
-                    " Below are the sizes of two packs compared.", reportFile);
+                                                                               " Below are the sizes of two packs compared.", reportFile);
         }
 
         assertFalse("Running Distribution size exceeds the acceptable limit size range " +
-                "compared to the previous released distribution size", sizeDifferenceStatus);
+                    "compared to the previous released distribution size", sizeDifferenceStatus);
     }
 
     @Test(groups = "wso2.all", description = "Identification of duplicate jar files",
-            dependsOnMethods = "testCompareDistributionSize")
-    public void testIdentifyingDuplicateJarFiles() throws Exception {
+          dependsOnMethods = "testCompareDistributionSize")
+    public void testIdentifyingDuplicateJarFiles()
+            throws FileNotFoundException, UnsupportedEncodingException {
 
         //check same directory duplicate jars
         Set<String> duplicateSet = DistributionValidationTestUtils.getDuplicateJarSet(jarFileListInDistribution);
 
         //check different directories duplicate jars
         DistributionValidationTestUtils.identifyDuplicateJars(jarFileListInDistribution, distributionVersion,
-                distributionDuplicateJarList, unidentifiedVersionJars);
+                                                              distributionDuplicateJarList, unidentifiedVersionJars);
 
         DistributionValidationTestUtils.reportGeneratorList(new ArrayList<String>(duplicateSet),
-                "These are duplicate jar files in the same directory", reportFile);
+                                                            "These are duplicate jar files in the same directory", reportFile);
         DistributionValidationTestUtils.reportGeneratorList(new ArrayList<String>(distributionDuplicateJarList),
-                "These jar files were identified as duplicates", reportFile);
+                                                            "These jar files were identified as duplicates", reportFile);
         DistributionValidationTestUtils.reportGeneratorList(new ArrayList<String>(unidentifiedVersionJars),
-                "Following jars were excluded from the search for duplicate jars", reportFile);
+                                                            "Following jars were excluded from the search for duplicate jars", reportFile);
 
         assertFalse("Duplicated jar file identified in same directories", duplicateSet.size() > 0);
         assertFalse("Duplicated jar file identified in different versions",
-                distributionDuplicateJarList.size() > 0);
+                    distributionDuplicateJarList.size() > 0);
     }
 
     @Test(groups = "wso2.all", description = "Product specific checks - whether " +
-            "samples/resources are properly packaged",
-            dependsOnMethods = "testIdentifyingDuplicateJarFiles")
-    public void testSamplesDirectoryStructureSrcValidation() throws Exception {
+                                             "samples/resources are properly packaged",
+          dependsOnMethods = "testIdentifyingDuplicateJarFiles")
+    public void testSamplesDirectoryStructureSrcValidation()
+            throws FileNotFoundException, UnsupportedEncodingException {
 
         HashMap<String, String> structureViolation = new HashMap<String, String>();
         String samplesDirPath = productPath + File.separator + SAMPLES_DIRECTORY;
 
         if (new File(samplesDirPath).exists()) {
             versionArr = DistributionValidationTestUtils.validateSamplesDirectoryStructureIdentifyVersions(samplesDirPath,
-                    versionArr);
+                                                                                                           versionArr);
             DistributionValidationTestUtils.reportGeneratorList(versionArr, "Following are the sample directories " +
-                    "with versions embedded", reportFile);
+                                                                            "with versions embedded", reportFile);
         } else {
             DistributionValidationTestUtils.reportGeneratorList(versionArr, "No sample directory detected.", reportFile);
         }
@@ -407,22 +418,23 @@ public abstract class DistributionValidationTest {
                 }
             }
             if (!readmeFile.equals("Available") || (!pomFile.equals("Available") ||
-                    !buildFile.equals("Available"))) {
+                                                    !buildFile.equals("Available"))) {
                 structureViolation.put(parentDir, "README File " + readmeFile + " pom.xml" +
-                        " " + pomFile + " build.xml " + buildFile);
+                                                  " " + pomFile + " build.xml " + buildFile);
             }
         }
         DistributionValidationTestUtils.reportGeneratorMap(structureViolation, "Following are the maven directory " +
-                "structure violating src folders with the details of the violation", reportFile);
+                                                                               "structure violating src folders with the details of the violation", reportFile);
 
         assertFalse("Samples directory contains sample directories with versions ",
-                versionArr.size() > 0);
+                    versionArr.size() > 0);
     }
 
     @Test(groups = "wso2.all", description = "Product specific checks - whether " +
-            "samples/resources are properly packaged",
-            dependsOnMethods = "testSamplesDirectoryStructureSrcValidation")
-    public void testSamplesDirectoryStructureResourcesValidation() throws Exception {
+                                             "samples/resources are properly packaged",
+          dependsOnMethods = "testSamplesDirectoryStructureSrcValidation")
+    public void testSamplesDirectoryStructureResourcesValidation()
+            throws FileNotFoundException, UnsupportedEncodingException {
 
         if (directoryLists.size() == 0) {
             String samplesDirPath = productPath + File.separator + SAMPLES_DIRECTORY;
@@ -448,7 +460,7 @@ public abstract class DistributionValidationTest {
                             int length = file.length;
                             if (length == 0) {
                                 resourcesStructureViolation.put(dirName, "Resources directory" +
-                                        " contains 0 files.");
+                                                                         " contains 0 files.");
                             }
                         }
                     }
@@ -460,7 +472,7 @@ public abstract class DistributionValidationTest {
         }
 
         DistributionValidationTestUtils.reportGeneratorMap(resourcesStructureViolation, "Following are the src " +
-                "directories which violates the maven resources directory structure ", reportFile);
+                                                                                        "directories which violates the maven resources directory structure ", reportFile);
     }
 }
 

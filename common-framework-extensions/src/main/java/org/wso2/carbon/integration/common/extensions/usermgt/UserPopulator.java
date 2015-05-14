@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.integration.common.extensions.usermgt;
 
+import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.NodeList;
@@ -30,11 +31,19 @@ import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.integration.common.admin.client.AuthenticatorClient;
 import org.wso2.carbon.integration.common.admin.client.TenantManagementServiceClient;
 import org.wso2.carbon.integration.common.admin.client.UserManagementClient;
+import org.wso2.carbon.integration.common.extensions.exceptions.AutomationExtensionException;
 import org.wso2.carbon.integration.common.extensions.utils.AutomationXpathConstants;
 import org.wso2.carbon.integration.common.extensions.utils.ExtensionCommonConstants;
 import org.wso2.carbon.integration.common.utils.LoginLogoutClient;
+import org.wso2.carbon.tenant.mgt.stub.TenantMgtAdminServiceExceptionException;
+import org.wso2.carbon.user.mgt.stub.UserAdminUserAdminException;
+import org.xml.sax.SAXException;
 
+import javax.xml.stream.XMLStreamException;
 import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +63,9 @@ public class UserPopulator {
 
     public UserPopulator(String productGroupName, String instanceName)
             throws XPathExpressionException {
-        this.automationContext = new AutomationContext(productGroupName, instanceName,
-                                                       TestUserMode.SUPER_TENANT_ADMIN);
+        this.automationContext =
+                new AutomationContext(productGroupName, instanceName,
+                                      TestUserMode.SUPER_TENANT_ADMIN);
         this.tenantList = getTenantList();
         this.rolesList = getRolesList();
     }
@@ -63,62 +73,69 @@ public class UserPopulator {
     /**
      * Populate Tenants, Users and Roles
      *
-     * @throws Exception
+     * @throws AutomationExtensionException - throws if users cannot be added to carbon server
      */
-    public void populateUsers() throws Exception {
+    public void populateUsers() throws AutomationExtensionException {
+        try {
+            // login as carbon super to add tenants
+            LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(automationContext);
+            String sessionCookie = loginLogoutUtil.login();
+            String backendURL = automationContext.getContextUrls().getBackEndUrl();
+            TenantManagementServiceClient tenantManagementServiceClient =
+                    new TenantManagementServiceClient(backendURL, sessionCookie);
 
-        // login as carbon super to add tenants
-        LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(automationContext);
-        String sessionCookie = loginLogoutUtil.login();
-        String backendURL = automationContext.getContextUrls().getBackEndUrl();
-        TenantManagementServiceClient tenantManagementServiceClient =
-                new TenantManagementServiceClient(backendURL, sessionCookie);
+            for (String tenant : tenantList) {
+                RemovableData removableData = new RemovableData();
+                removableData.setTenant(tenant);
 
-        for (String tenant : tenantList) {
-            RemovableData removableData = new RemovableData();
-            removableData.setTenant(tenant);
+                // add tenant, if the tenant is not the Super tenant
+                String tenantType = AutomationXpathConstants.SUPER_TENANT;
+                if (!tenant.equals(FrameworkConstants.SUPER_TENANT_DOMAIN_NAME)) {
 
-            // add tenant, if the tenant is not the Super tenant
-            String tenantType = AutomationXpathConstants.SUPER_TENANT;
-            if (!tenant.equals(FrameworkConstants.SUPER_TENANT_DOMAIN_NAME)) {
-                tenantType = AutomationXpathConstants.TENANTS;
-                String tenantAdminUserName = getTenantAdminUsername(tenantType, tenant);
-                char[] tenantAdminPassword = getTenantAdminPassword(tenantType, tenant);
+                    tenantType = AutomationXpathConstants.TENANTS;
+                    String tenantAdminUserName = getTenantAdminUsername(tenantType, tenant);
+                    char[] tenantAdminPassword = getTenantAdminPassword(tenantType, tenant);
 
 //				if (!tenantManagementServiceClient.getTenant(tenant).getActive()) {
-                tenantManagementServiceClient
-                        .addTenant(tenant, String.valueOf(tenantAdminPassword), tenantAdminUserName,
-                                   FrameworkConstants.TENANT_USAGE_PLAN_DEMO);
-                log.info("Added new tenant : " + tenant);
+                    tenantManagementServiceClient
+                            .addTenant(tenant, String.valueOf(tenantAdminPassword), tenantAdminUserName,
+                                       FrameworkConstants.TENANT_USAGE_PLAN_DEMO);
+                    log.info("Added new tenant : " + tenant);
 
-                // if new tenant added -> need to remove from the system at the end of the test
-                removableData.setNewTenant(true);
+                    // if new tenant added -> need to remove from the system at the end of the test
+                    removableData.setNewTenant(true);
 //				}
 
-                // login as newly added tenant
-                sessionCookie = login(tenantAdminUserName, tenant, tenantAdminPassword, backendURL,
-                                      UrlGenerationUtil.getManagerHost(
-                                              automationContext.getInstance()));
+                    // login as newly added tenant
+                    sessionCookie = login(tenantAdminUserName,
+                                          tenant,
+                                          tenantAdminPassword,
+                                          backendURL,
+                                          UrlGenerationUtil.getManagerHost(automationContext.getInstance()));
 
+                }
+
+                removableData.setTenantType(tenantType);
+                UserManagementClient userManagementClient =
+                        new UserManagementClient(backendURL, sessionCookie);
+
+                // add roles to the tenant
+                addRoles(userManagementClient, removableData);
+
+                // populate users of the current tenant and add roles
+                addTenantUsers(tenantType, tenant, userManagementClient, removableData);
+
+                // collect RemovableData
+                removableDataList.add(removableData);
             }
+        } catch (Exception e) {
+            throw new AutomationExtensionException("Error while populating users ", e);
 
-            removableData.setTenantType(tenantType);
-            UserManagementClient userManagementClient =
-                    new UserManagementClient(backendURL, sessionCookie);
-
-            // add roles to the tenant
-            addRoles(userManagementClient, removableData);
-
-            // populate users of the current tenant and add roles
-            addTenantUsers(tenantType, tenant, userManagementClient, removableData);
-
-            // collect RemovableData
-            removableDataList.add(removableData);
         }
     }
 
     private void addRoles(UserManagementClient userManagementClient, RemovableData removableData)
-            throws Exception {
+            throws RemoteException, UserAdminUserAdminException, XPathExpressionException {
 
         for (String role : rolesList) {
             if (!userManagementClient.roleNameExists(role)) {
@@ -138,7 +155,8 @@ public class UserPopulator {
 
     private void addTenantUsers(String tenantType, String tenant,
                                 UserManagementClient userManagementClient,
-                                RemovableData removableData) throws Exception {
+                                RemovableData removableData)
+            throws XPathExpressionException, RemoteException, UserAdminUserAdminException {
 
         List<String> userList = getUserList(tenant);
         for (String tenantUser : userList) {
@@ -168,9 +186,10 @@ public class UserPopulator {
                     }
                 }
 
-                userManagementClient
-                    .addUser(tenantUserUsername, String.valueOf(getTenantUserPassword(tenantType, tenant, tenantUser)),
-                             rolesToBeAdded, null);
+                userManagementClient.addUser(tenantUserUsername,
+                                             String.valueOf(getTenantUserPassword(tenantType, tenant, tenantUser)),
+                                             rolesToBeAdded, null);
+
                 log.info("User - " + tenantUser + " created in tenant domain of " + " " + tenant);
 
                 // if new user added for existing tenant -> need to remove from the system at the
@@ -189,80 +208,79 @@ public class UserPopulator {
     /**
      * Delete Tenants, Users and Roles
      *
-     * @throws Exception
+     * @throws AutomationExtensionException - throws if user deletion fails
      */
-    public void deleteUsers() throws Exception {
-        String backendURL = automationContext.getContextUrls().getBackEndUrl();
-        for (RemovableData removableData : removableDataList) {
-            if (removableData.isNewTenant()) {
-                LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(automationContext);
-                String sessionCookie = loginLogoutUtil.login();
+    public void deleteUsers()
+            throws AutomationExtensionException {
+        try {
+            String backendURL = automationContext.getContextUrls().getBackEndUrl();
+            for (RemovableData removableData : removableDataList) {
+                if (removableData.isNewTenant()) {
+                    LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(automationContext);
+                    String sessionCookie = loginLogoutUtil.login();
 
-                // remove tenant
-                TenantManagementServiceClient tenantManagementServiceClient =
-                        new TenantManagementServiceClient(backendURL, sessionCookie);
-                tenantManagementServiceClient.deleteTenant(removableData.getTenant());
+                    // remove tenant
+                    TenantManagementServiceClient tenantManagementServiceClient =
+                            new TenantManagementServiceClient(backendURL, sessionCookie);
+                    tenantManagementServiceClient.deleteTenant(removableData.getTenant());
 
-                log.info("Tenant was deleted successfully - " + removableData.getTenant());
-            } else {
-                String sessionCookie = login(
-                        getTenantAdminUsername(removableData.getTenantType(),
-                                               removableData.getTenant()),
-                        removableData.getTenant(),
-                        getTenantAdminPassword(removableData.getTenantType(),
-                                               removableData.getTenant()),
-                        backendURL,
-                        UrlGenerationUtil.getManagerHost(automationContext.getInstance()));
+                    log.info("Tenant was deleted successfully - " + removableData.getTenant());
+                } else {
+                    String sessionCookie = login(
+                            getTenantAdminUsername(removableData.getTenantType(),
+                                                   removableData.getTenant()), removableData.getTenant(),
+                            getTenantAdminPassword(removableData.getTenantType(),
+                                                   removableData.getTenant()), backendURL,
+                            UrlGenerationUtil.getManagerHost(automationContext.getInstance()));
 
-                UserManagementClient userManagementClient =
-                        new UserManagementClient(backendURL, sessionCookie);
+                    UserManagementClient userManagementClient =
+                            new UserManagementClient(backendURL, sessionCookie);
 
-                for (String user : removableData.getNewUsers()) {
-                    // remove users
-                    boolean isTenantUserExist = userManagementClient.getUserList().contains(user);
-                    if (isTenantUserExist) {
-                        userManagementClient.deleteUser(user);
-                        log.info("User was deleted successfully - " + user);
+                    for (String user : removableData.getNewUsers()) {
+                        // remove users
+                        boolean isTenantUserExist = userManagementClient.getUserList().contains(user);
+                        if (isTenantUserExist) {
+                            userManagementClient.deleteUser(user);
+                            log.info("User was deleted successfully - " + user);
+                        }
                     }
-                }
 
-                for (String role : removableData.getNewRoles()) {
-                    // remove roles
-                    if (userManagementClient.roleNameExists(role)) {
-                        userManagementClient.deleteRole(role);
-                        log.info("Role was deleted successfully - " + role);
+                    for (String role : removableData.getNewRoles()) {
+                        // remove roles
+                        if (userManagementClient.roleNameExists(role)) {
+                            userManagementClient.deleteRole(role);
+                            log.info("Role was deleted successfully - " + role);
+                        }
                     }
                 }
             }
+        } catch (Exception e) {
+            throw new AutomationExtensionException("Error while deleting users ", e);
         }
     }
 
     private String getTenantAdminUsername(String tenantType, String tenant)
             throws XPathExpressionException {
-        return automationContext
-                .getConfigurationValue(
-                        String.format(AutomationXpathConstants.ADMIN_USER_USERNAME, tenantType,
-                                      tenant));
+        return automationContext.getConfigurationValue(
+                String.format(AutomationXpathConstants.ADMIN_USER_USERNAME, tenantType, tenant));
     }
 
     private char[] getTenantAdminPassword(String tenantType, String tenant)
-        throws XPathExpressionException {
+            throws XPathExpressionException {
         return automationContext.getConfigurationValue(
-            String.format(AutomationXpathConstants.ADMIN_USER_PASSWORD, tenantType, tenant)).toCharArray();
+                String.format(AutomationXpathConstants.ADMIN_USER_PASSWORD, tenantType, tenant)).toCharArray();
     }
 
     private String getTenantUserUsername(String tenantType, String tenant, String tenantUser)
             throws XPathExpressionException {
         return automationContext.getConfigurationValue(
-                String.format(AutomationXpathConstants.TENANT_USER_USERNAME, tenantType, tenant,
-                              tenantUser));
+                String.format(AutomationXpathConstants.TENANT_USER_USERNAME, tenantType, tenant, tenantUser));
     }
 
     private char[] getTenantUserPassword(String tenantType, String tenant, String tenantUser)
             throws XPathExpressionException {
         return automationContext.getConfigurationValue(
-                String.format(AutomationXpathConstants.TENANT_USER_PASSWORD, tenantType, tenant,
-                              tenantUser)).toCharArray();
+                String.format(AutomationXpathConstants.TENANT_USER_PASSWORD, tenantType, tenant, tenantUser)).toCharArray();
     }
 
     private String login(String userName, String domain, char[] password, String backendUrl,
@@ -271,9 +289,8 @@ public class UserPopulator {
                                           LoginAuthenticationExceptionException,
                                           XPathExpressionException {
         AuthenticatorClient loginClient = new AuthenticatorClient(backendUrl);
-        if (!domain.equals(AutomationConfiguration
-                                   .getConfigurationValue(
-                                           ExtensionCommonConstants.SUPER_TENANT_DOMAIN_NAME))) {
+        if (!domain.equals(AutomationConfiguration.getConfigurationValue(
+                ExtensionCommonConstants.SUPER_TENANT_DOMAIN_NAME))) {
             userName += "@" + domain;
         }
         return loginClient.login(userName, String.valueOf(password), hostName);
@@ -286,13 +303,12 @@ public class UserPopulator {
 
         // add other tenants
         NodeList tenantNodeList =
-                automationContext.getConfigurationNodeList(AutomationXpathConstants.TENANTS_NODE)
-                        .item(0)
-                        .getChildNodes();
+                automationContext.getConfigurationNodeList(
+                        AutomationXpathConstants.TENANTS_NODE).item(0).getChildNodes();
+
         for (int i = 0; i < tenantNodeList.getLength(); i++) {
             tenantList.add(
-                    tenantNodeList.item(i).getAttributes()
-                            .getNamedItem(AutomationXpathConstants.DOMAIN).getNodeValue()
+                    tenantNodeList.item(i).getAttributes().getNamedItem(AutomationXpathConstants.DOMAIN).getNodeValue()
             );
         }
         return tenantList;
@@ -307,10 +323,8 @@ public class UserPopulator {
             tenantType = AutomationXpathConstants.SUPER_TENANT;
         }
 
-        NodeList userNodeList = automationContext
-                .getConfigurationNodeList(
-                        String.format(AutomationXpathConstants.USER_NODE, tenantType,
-                                      tenantDomain));
+        NodeList userNodeList = automationContext.getConfigurationNodeList(
+                String.format(AutomationXpathConstants.USER_NODE, tenantType, tenantDomain));
 
         for (int i = 0; i < userNodeList.getLength(); i++) {
             userList.add(userNodeList.item(i).getAttributes().getNamedItem("key").getNodeValue());
@@ -353,7 +367,7 @@ public class UserPopulator {
     /**
      * Class to store data to be removed at the end of the test execution
      */
-    private class RemovableData {
+    private static class RemovableData {
 
         private String tenant;
         private String tenantType;

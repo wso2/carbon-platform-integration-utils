@@ -17,6 +17,7 @@
 */
 package org.wso2.carbon.integration.common.tests;
 
+import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.parser.JSONParser;
@@ -25,6 +26,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.test.utils.http.client.HttpsResponse;
 import org.wso2.carbon.integration.common.admin.client.AuthenticatorClient;
@@ -69,7 +71,9 @@ public class JaggeryServerTest {
     private String port;
 
     @BeforeClass(alwaysRun = true)
-    public void init() throws Exception {
+    public void init()
+            throws XPathExpressionException, IOException,
+                   LoginAuthenticationExceptionException {
 
         AutomationContext automationContext = new AutomationContext();
         ip = automationContext.getDefaultInstance().getHosts().get("default");
@@ -90,8 +94,7 @@ public class JaggeryServerTest {
     }
 
     @AfterClass(alwaysRun = true)
-    public void destroy() throws Exception {
-
+    public void destroy()   {
         appList = null;
         testList = null;
         moduleMap = null;
@@ -114,7 +117,7 @@ public class JaggeryServerTest {
 
     @Test(groups = "wso2.all", dataProvider = "endpointNameDataProvider",
             description = "Run Jaggery tests")
-    public void testRunJaggeryTests(String endpointName) throws Exception {
+    public void testRunJaggeryTests(String endpointName) throws IOException, ParseException {
 
         String testExecutionResults = getRequest("https://" + ip
                 + ":" + port + File.separator + moduleMap.get(endpointName) +

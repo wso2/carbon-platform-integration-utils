@@ -31,7 +31,7 @@ import java.rmi.RemoteException;
 public class CarbonAppUploaderClient {
     private static final Log log = LogFactory.getLog(CarbonAppUploader.class);
     private CarbonAppUploaderStub carbonAppUploaderStub;
-    private final String serviceName = "CarbonAppUploader";
+    private static final String serviceName = "CarbonAppUploader";
 
     public CarbonAppUploaderClient(String backendUrl, String sessionCookie) throws AxisFault {
         String endPoint = backendUrl + serviceName;
