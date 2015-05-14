@@ -227,9 +227,6 @@ public class CarbonServerManager {
             // wait until server shutdown is completed
         }
         Thread.sleep(5000);//wait for port to close
-        if (isCoverageEnable) {
-            CodeCoverageUtils.renameCoverageDataFile(carbonHome);
-        }
         ClientConnectionUtil.waitForPort(Integer.parseInt(automationContext.getInstance().getPorts().get("https")),
                                          automationContext.getInstance().getHosts().get("default"));
         ClientConnectionUtil.waitForLogin(automationContext);
