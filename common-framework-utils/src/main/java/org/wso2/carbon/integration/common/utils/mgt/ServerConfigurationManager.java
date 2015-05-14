@@ -17,7 +17,6 @@
 */
 package org.wso2.carbon.integration.common.utils.mgt;
 
-import org.apache.axis2.AxisFault;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
@@ -368,16 +367,6 @@ public class ServerConfigurationManager {
      *
      * @throws AutomationUtilException - throws if server restart fails
      */
-<<<<<<< Updated upstream
-    public void restartGracefully() throws Exception {
-        //todo use ServerUtils class restart
-        sessionCookie = loginLogoutClient.login();
-        ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
-        serverAdmin.restartGracefully();
-        ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
-        Thread.sleep(5000); //forceful wait until server is ready to be served
-        ClientConnectionUtil.waitForLogin(autoCtx);
-=======
     public void restartGracefully() throws AutomationUtilException {
         try {
             sessionCookie = loginLogoutClient.login();
@@ -401,7 +390,6 @@ public class ServerConfigurationManager {
         } catch (LoginAuthenticationExceptionException e) {
             throw new AutomationUtilException("Error while gracefully restarting the server ", e);
         }
->>>>>>> Stashed changes
     }
 
     /**
@@ -410,15 +398,6 @@ public class ServerConfigurationManager {
      * @param sessionCookie session cookie
      * @throws AutomationUtilException - throws if server restart fails
      */
-<<<<<<< Updated upstream
-    public void restartGracefully(String sessionCookie) throws Exception {
-        //todo use ServerUtils class restart
-        ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
-        serverAdmin.restartGracefully();
-        ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
-        Thread.sleep(5000); //forceful wait until server is ready to be served
-        ClientConnectionUtil.waitForLogin(autoCtx);
-=======
     public void restartGracefully(String sessionCookie) throws AutomationUtilException {
         try {
             ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
@@ -440,7 +419,6 @@ public class ServerConfigurationManager {
         } catch (LoginAuthenticationExceptionException e) {
             throw new AutomationUtilException("Error while gracefully restarting the server ", e);
         }
->>>>>>> Stashed changes
     }
 
     /**
@@ -448,16 +426,6 @@ public class ServerConfigurationManager {
      *
      * @throws AutomationUtilException - throws if forceful restart fails
      */
-<<<<<<< Updated upstream
-    public void restartForcefully() throws Exception {
-        //todo use ServerUtils class restart
-        sessionCookie = loginLogoutClient.login();
-        ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
-        serverAdmin.restart();
-        ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
-        Thread.sleep(5000); //forceful wait until server is ready to be served
-        ClientConnectionUtil.waitForLogin(autoCtx);
-=======
     public void restartForcefully() throws AutomationUtilException {
         try {
             sessionCookie = loginLogoutClient.login();
@@ -480,7 +448,6 @@ public class ServerConfigurationManager {
         } catch (LoginAuthenticationExceptionException e) {
             throw new AutomationUtilException("Error while forcefully restarting the server ", e);
         }
->>>>>>> Stashed changes
     }
 
     /**
