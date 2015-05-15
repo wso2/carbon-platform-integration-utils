@@ -246,6 +246,6 @@
         <commons-net.version>3.2</commons-net.version>
         <htmlparser.version>2.1</htmlparser.version>
         <json.version>1.1</json.version>
-        <project.scm.id>my-scm-server</project.scm.id>
+        <project.scm.id>scm-server</project.scm.id>
     </properties>
 </project>
