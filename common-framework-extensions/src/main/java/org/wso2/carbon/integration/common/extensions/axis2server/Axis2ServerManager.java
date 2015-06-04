@@ -42,12 +42,12 @@ public class Axis2ServerManager implements BackendServer {
     public Axis2ServerManager() {
         this("test_axis2_server_9000.xml");
         repositoryPath = System.getProperty(ServerConstants.CARBON_HOME) + File.separator +
-                "samples" + File.separator + "axis2Server" + File.separator + "repository";
+                         "samples" + File.separator + "axis2Server" + File.separator + "repository";
     }
 
     public Axis2ServerManager(String axis2xmlFile) {
         repositoryPath = System.getProperty(ServerConstants.CARBON_HOME) + File.separator +
-                "samples" + File.separator + "axis2Server" + File.separator + "repository";
+                         "samples" + File.separator + "axis2Server" + File.separator + "repository";
         File repository = new File(repositoryPath);
         log.info("Using the Axis2 repository path: " + repository.getAbsolutePath());
         try {
@@ -112,58 +112,95 @@ public class Axis2ServerManager implements BackendServer {
 
     private File copyResourceToFileSystem(String resourceName, String fileName) throws IOException {
         File file = new File(System.getProperty("basedir") + File.separator + "target" +
-                File.separator + fileName);
+                             File.separator + fileName);
         if (file.exists()) {
             FileUtils.deleteQuietly(file);
         }
-        FileUtils.touch(file);
-        OutputStream os = FileUtils.openOutputStream(file);
-        InputStream is;
-        if (resourceName.contains(".aar")) {
-            is = new FileInputStream(FrameworkPathUtil.getSystemResourceLocation() +
-                    File.separator + "artifacts" + File.separator + "AXIS2" +
-                    File.separator + "aar" +
-                    File.separator + resourceName);
-        } else {
-            is = new FileInputStream(FrameworkPathUtil.getSystemResourceLocation() +
-                    File.separator + "artifacts" + File.separator + "AXIS2" +
-                    File.separator + "config" +
-                    File.separator + resourceName);
-        }
-        if (is != null) {
-            byte[] data = new byte[1024];
-            int len;
-            while ((len = is.read(data)) != -1) {
-                os.write(data, 0, len);
+
+        OutputStream os = null;
+        InputStream is = null;
+
+        try {
+            FileUtils.touch(file);
+            os = FileUtils.openOutputStream(file);
+
+            if (resourceName.contains(".aar")) {
+                is = new FileInputStream(FrameworkPathUtil.getSystemResourceLocation() +
+                                         File.separator + "artifacts" + File.separator + "AXIS2" +
+                                         File.separator + "aar" +
+                                         File.separator + resourceName);
+            } else {
+                is = new FileInputStream(FrameworkPathUtil.getSystemResourceLocation() +
+                                         File.separator + "artifacts" + File.separator + "AXIS2" +
+                                         File.separator + "config" +
+                                         File.separator + resourceName);
+            }
+            if (is != null) {
+                byte[] data = new byte[1024];
+                int len;
+                while ((len = is.read(data)) != -1) {
+                    os.write(data, 0, len);
+                }
+            }
+
+        } finally {
+            if (os != null) {
+                try {
+                    os.flush();
+                    os.close();
+                } catch (IOException e) {
+                    log.warn("Unable to close the stream");
+                }
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    log.warn("Unable to close the stream");
+                }
             }
         }
-        os.flush();
-        os.close();
-        is.close();
         return file;
     }
 
     private File copyServiceToFileSystem(String resourceName, String fileName) throws IOException {
         File file = new File(System.getProperty("basedir") + File.separator + "target" +
-                File.separator + fileName);
+                             File.separator + fileName);
         if (file.exists()) {
             FileUtils.deleteQuietly(file);
         }
-        FileUtils.touch(file);
-        OutputStream os = FileUtils.openOutputStream(file);
-        InputStream is = new FileInputStream(FrameworkPathUtil.getSystemResourceLocation() +
-                File.separator + "artifacts" + File.separator + "AXIS2" +
-                File.separator + "config" +
-                File.separator + resourceName);
-        if (is != null) {
-            byte[] data = new byte[1024];
-            int len;
-            while ((len = is.read(data)) != -1) {
-                os.write(data, 0, len);
+        OutputStream os = null;
+        InputStream is = null;
+        try {
+            FileUtils.touch(file);
+            os = FileUtils.openOutputStream(file);
+            is = new FileInputStream(FrameworkPathUtil.getSystemResourceLocation() +
+                                     File.separator + "artifacts" + File.separator + "AXIS2" +
+                                     File.separator + "config" +
+                                     File.separator + resourceName);
+            if (is != null) {
+                byte[] data = new byte[1024];
+                int len;
+                while ((len = is.read(data)) != -1) {
+                    os.write(data, 0, len);
+                }
             }
-            os.flush();
-            os.close();
-            is.close();
+        } finally {
+            if (os != null) {
+                try {
+                    os.flush();
+                    os.close();
+                } catch (IOException e) {
+                    log.warn("Unable to close the stream");
+                }
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    log.warn("Unable to close the stream");
+                }
+            }
         }
         return file;
     }

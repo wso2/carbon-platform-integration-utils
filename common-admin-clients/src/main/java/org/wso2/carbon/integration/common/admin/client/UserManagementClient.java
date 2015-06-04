@@ -55,7 +55,7 @@ public class UserManagementClient {
         AuthenticateStubUtil.authenticateStub(userName, password, userAdminStub);
     }
 
-    public Stub getServiceStub(){
+    public Stub getServiceStub() {
         return this.userAdminStub;
     }
 
@@ -74,7 +74,8 @@ public class UserManagementClient {
     }
 
     public void addRole(String roleName, String[] userList, String[] permissions) throws
-            RemoteException, UserAdminUserAdminException {
+                                                                                  RemoteException,
+                                                                                  UserAdminUserAdminException {
         userAdminStub.addRole(roleName, userList, permissions, false);
     }
 
@@ -97,7 +98,7 @@ public class UserManagementClient {
     }
 
     private void addRoleWithUser(String roleName, String userName, String[] permission)
-            throws Exception {
+            throws RemoteException, UserAdminUserAdminException {
         userAdminStub.addRole(roleName, new String[]{userName}, null, false);
         FlaggedName[] roles = userAdminStub.getAllRolesNames(roleName, 100);
         for (FlaggedName role : roles) {
@@ -111,7 +112,7 @@ public class UserManagementClient {
     }
 
     private void addRoleWithUser(String roleName, String userName, boolean isSharedRole)
-            throws Exception {
+            throws RemoteException, UserAdminUserAdminException {
         userAdminStub.addRole(roleName, new String[]{userName}, null, isSharedRole);
         FlaggedName[] roles = userAdminStub.getAllRolesNames(roleName, 100);
         for (FlaggedName role : roles) {
@@ -124,13 +125,9 @@ public class UserManagementClient {
         }
     }
 
-    protected void handleException(String msg, Exception e) throws Exception {
-        log.error(msg, e);
-        throw new Exception(msg + ": " + e);
-    }
-
     public void updateUserListOfRole(String roleName, String[] addingUsers,
-                                     String[] deletingUsers) throws Exception {
+                                     String[] deletingUsers)
+            throws UserAdminUserAdminException, RemoteException {
         List<FlaggedName> updatedUserList = new ArrayList<FlaggedName>();
         if (addingUsers != null) {
             for (String addUser : addingUsers) {
@@ -150,39 +147,31 @@ public class UserManagementClient {
             }
         }
         //call userAdminStub to update user list of role
-        try {
-            userAdminStub.updateUsersOfRole(roleName, updatedUserList.toArray(
-                    new FlaggedName[updatedUserList.size()]));
-            //if delete users in retrieved list, fail
-            if (deletingUsers != null) {
-                for (String deletedUser : deletingUsers) {
-                    FlaggedName[] verifyingList;
-                    verifyingList = userAdminStub.getUsersOfRole(roleName, deletedUser, LIMIT);
-                    assert (!verifyingList[0].getSelected());
-                }
+
+        userAdminStub.updateUsersOfRole(roleName, updatedUserList.toArray(
+                new FlaggedName[updatedUserList.size()]));
+        //if delete users in retrieved list, fail
+        if (deletingUsers != null) {
+            for (String deletedUser : deletingUsers) {
+                FlaggedName[] verifyingList;
+                verifyingList = userAdminStub.getUsersOfRole(roleName, deletedUser, LIMIT);
+                assert (!verifyingList[0].getSelected());
             }
-            if (addingUsers != null) {
-                //if all added users are not in list fail
-                for (String addingUser : addingUsers) {
-                    FlaggedName[] verifyingList = userAdminStub.getUsersOfRole(roleName, addingUser, LIMIT);
-                    assert (verifyingList[0].getSelected());
-                }
-            }
-        } catch (RemoteException e1) {
-            handleException("Failed to update role", e1);
         }
+        if (addingUsers != null) {
+            //if all added users are not in list fail
+            for (String addingUser : addingUsers) {
+                FlaggedName[] verifyingList = userAdminStub.getUsersOfRole(roleName, addingUser, LIMIT);
+                assert (verifyingList[0].getSelected());
+            }
+        }
+
     }
 
     public boolean roleNameExists(String roleName)
-            throws Exception {
-        FlaggedName[] roles = new FlaggedName[0];
-        try {
-            roles = userAdminStub.getAllRolesNames(roleName, LIMIT);
-        } catch (RemoteException e) {
-            handleException("Unable to get role names list", e);
-        } catch (UserAdminUserAdminException e) {
-            handleException("Faile to get all roles", e);
-        }
+            throws RemoteException, UserAdminUserAdminException {
+        FlaggedName[] roles;
+        roles = userAdminStub.getAllRolesNames(roleName, LIMIT);
         for (FlaggedName role : roles) {
             if (role.getItemName().equals(roleName)) {
                 log.info("Role name " + roleName + " already exists");
@@ -194,46 +183,31 @@ public class UserManagementClient {
 
     /**
      * Lists all roles caught by wither with in limit
-     *
-     * @param filter
-     * @param limit
-     * @return
-     * @throws Exception
      */
     public FlaggedName[] listRoles(String filter, int limit)
-            throws Exception {
+            throws RemoteException, UserAdminUserAdminException {
         return userAdminStub.getAllRolesNames(filter, limit);
     }
 
     /**
      * Lists all users with in filter and limit
-     *
-     * @param filter
-     * @param limit
-     * @return FlaggedName[]
-     * @throws Exception
      */
     public String[] listUsers(String filter, int limit)
-            throws Exception {
+            throws RemoteException, UserAdminUserAdminException {
         return userAdminStub.listUsers(filter, limit);
     }
 
     public FlaggedName[] listAllUsers(String filter, int limit) throws RemoteException,
-            UserAdminUserAdminException {
+                                                                       UserAdminUserAdminException {
         return userAdminStub.listAllUsers(filter, limit);
     }
 
     public boolean userNameExists(String roleName, String userName)
-            throws Exception {
-        FlaggedName[] users = new FlaggedName[0];
-        try {
-            users = userAdminStub.getUsersOfRole(roleName, "*", LIMIT);
-        } catch (RemoteException e) {
-            log.error("Unable to get user names list");
-            throw new RemoteException("Unable to get user names list");
-        } catch (UserAdminUserAdminException e) {
-            handleException("Unable to get user name list", e);
-        }
+            throws RemoteException, UserAdminUserAdminException {
+
+        FlaggedName[] users;
+        users = userAdminStub.getUsersOfRole(roleName, "*", LIMIT);
+
         for (FlaggedName user : users) {
             if (user.getItemName().equals(userName)) {
                 log.info("User name " + userName + " already exists");
@@ -242,17 +216,6 @@ public class UserManagementClient {
         }
         return false;
     }
-//    public FlaggedName[] getRolesOfUser(String userName, String filter, int limit){
-//        FlaggedName[] flaggedNames =  new FlaggedName[0];
-//        try {
-//          flaggedNames =   userAdminStub.getRolesOfUser(userName,filter,limit);
-//        } catch (RemoteException e) {
-//            log.error("Unable to get  role  list of user : "+ userName ,e);
-//        } catch (UserAdminUserAdminException e) {
-//            log.error("Unable to get role list of  user : "+userName ,e);
-//        }
-//        return flaggedNames;
-//    }
 
     public Boolean hasMultipleUserStores() throws RemoteException, UserAdminUserAdminException {
         return userAdminStub.hasMultipleUserStores();

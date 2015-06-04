@@ -24,20 +24,23 @@ import org.wso2.carbon.integration.common.admin.client.ServerAdminClient;
 import org.wso2.carbon.integration.common.utils.ClientConnectionUtil;
 import org.wso2.carbon.integration.common.utils.FileManager;
 import org.wso2.carbon.integration.common.utils.LoginLogoutClient;
+import org.wso2.carbon.integration.common.utils.exceptions.AutomationUtilException;
+import org.wso2.carbon.server.admin.stub.ServerAdminException;
 import org.wso2.carbon.utils.ServerConstants;
-import org.xml.sax.SAXException;
 
-import javax.xml.stream.XMLStreamException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class can be used to configure server by  replacing axis2.xml or carbon.xml
+ * This class can be used to replace configuration files at carbon server
  */
 public class ServerConfigurationManager {
 
@@ -55,19 +58,11 @@ public class ServerConfigurationManager {
     /**
      * Create a ServerConfigurationManager
      *
-     * @param productGroup product group
+     * @param productGroup product group name
      * @param userMode     user mode
-     * @throws IOException
-     * @throws XPathExpressionException
-     * @throws LoginAuthenticationExceptionException
-     * @throws URISyntaxException
-     * @throws SAXException
-     * @throws XMLStreamException
      */
     public ServerConfigurationManager(String productGroup, TestUserMode userMode)
-            throws IOException, XPathExpressionException, LoginAuthenticationExceptionException,
-                   URISyntaxException,
-                   SAXException, XMLStreamException {
+            throws AutomationUtilException, XPathExpressionException, MalformedURLException {
         this.autoCtx = new AutomationContext(productGroup, userMode);
         this.loginLogoutClient = new LoginLogoutClient(autoCtx);
         this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
@@ -79,17 +74,11 @@ public class ServerConfigurationManager {
      * Create a ServerConfigurationManager
      *
      * @param autoCtx automation context
-     * @throws IOException
      * @throws XPathExpressionException
-     * @throws LoginAuthenticationExceptionException
-     * @throws URISyntaxException
-     * @throws SAXException
-     * @throws XMLStreamException
      */
     public ServerConfigurationManager(AutomationContext autoCtx)
-            throws IOException, XPathExpressionException, LoginAuthenticationExceptionException,
-                   URISyntaxException,
-                   SAXException, XMLStreamException {
+            throws
+            AutomationUtilException, XPathExpressionException, MalformedURLException {
         this.loginLogoutClient = new LoginLogoutClient(autoCtx);
         this.autoCtx = autoCtx;
         this.backEndUrl = autoCtx.getContextUrls().getBackEndUrl();
@@ -103,7 +92,7 @@ public class ServerConfigurationManager {
      *
      * @param fileName file name
      */
-    private void backupConfiguration(String fileName) {
+    private void backupConfiguration(String fileName) throws IOException {
         //restore backup configuration
         String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
         String confDir = carbonHome + File.separator + "repository" + File.separator + "conf"
@@ -114,7 +103,11 @@ public class ServerConfigurationManager {
         }
         originalConfig = new File(confDir + fileName);
         backUpConfig = new File(confDir + fileName + ".backup");
-        originalConfig.renameTo(backUpConfig);
+        Boolean renameStatus = originalConfig.renameTo(backUpConfig);
+
+        if (!renameStatus) {
+            throw new IOException("Failed to rename file from " + originalConfig.getName() + "to" + backUpConfig.getName());
+        }
 
         configDatas.add(new ConfigData(backUpConfig, originalConfig));
     }
@@ -124,11 +117,15 @@ public class ServerConfigurationManager {
      *
      * @param file file residing in server to backup.
      */
-    private void backupConfiguration(File file) {
+    private void backupConfiguration(File file) throws IOException {
         //restore backup configuration
         originalConfig = file;
         backUpConfig = new File(file.getAbsolutePath() + ".backup");
-        originalConfig.renameTo(backUpConfig);
+        Boolean status = originalConfig.renameTo(backUpConfig);
+
+        if (!status) {
+            throw new IOException("Failed to rename file from " + originalConfig.getName() + "to" + backUpConfig.getName());
+        }
 
         configDatas.add(new ConfigData(backUpConfig, originalConfig));
     }
@@ -146,11 +143,12 @@ public class ServerConfigurationManager {
      * @param sourceFile Source file to copy.
      * @param targetFile Target file that is to be backed up and replaced.
      * @param backup     boolean value, set this to true if you want to backup the original file.
-     * @throws Exception
+     * @throws IOException - throws if apply configuration fails
      */
     public void applyConfigurationWithoutRestart(File sourceFile, File targetFile, boolean backup)
-            throws Exception {
-        // Using inputstreams to copy bytes instead of Readers that copy chars. Otherwise things like JKS files get corrupted during copy.
+            throws IOException {
+        // Using InputStreams to copy bytes instead of Readers that copy chars.
+        // Otherwise things like JKS files get corrupted during copy.
         FileChannel source = null;
         FileChannel destination = null;
         if (backup) {
@@ -159,7 +157,9 @@ public class ServerConfigurationManager {
             destination = new FileOutputStream(originalConfig).getChannel();
         } else {
             if (!targetFile.exists()) {
-                targetFile.createNewFile();
+                if (!targetFile.createNewFile()) {
+                    throw new IOException("File " + targetFile + "creation fails");
+                }
             }
             source = new FileInputStream(sourceFile).getChannel();
             destination = new FileOutputStream(targetFile).getChannel();
@@ -179,53 +179,72 @@ public class ServerConfigurationManager {
      *                         with the absolute path.
      * @param backupConfigFile require to back the existing file
      * @param restartServer    require to restart the server after replacing the config file
-     * @throws Exception
      */
     public void applyConfiguration(File sourceFile, File targetFile, boolean backupConfigFile,
-                                   boolean restartServer) throws Exception {
-        // Using inputstreams to copy bytes instead of Readers that copy chars. Otherwise things like JKS files get corrupted during copy.
+                                   boolean restartServer)
+            throws AutomationUtilException, IOException {
+
+        // Using InputStreams to copy bytes instead of Readers that copy chars.
+        // Otherwise things like JKS files get corrupted during copy.
         FileChannel source = null;
         FileChannel destination = null;
-        if (backupConfigFile) {
-            backupConfiguration(targetFile);
-            source = new FileInputStream(sourceFile).getChannel();
-            destination = new FileOutputStream(originalConfig).getChannel();
-        } else {
-            if (!targetFile.exists()) {
-                targetFile.createNewFile();
+        try {
+            if (backupConfigFile) {
+                backupConfiguration(targetFile);
+                source = new FileInputStream(sourceFile).getChannel();
+                destination = new FileOutputStream(originalConfig).getChannel();
+            } else {
+                if (!targetFile.exists()) {
+                    if (!targetFile.createNewFile()) {
+                        throw new IOException("File " + targetFile + "creation fails");
+                    }
+                }
+                source = new FileInputStream(sourceFile).getChannel();
+                destination = new FileOutputStream(targetFile).getChannel();
             }
-            source = new FileInputStream(sourceFile).getChannel();
-            destination = new FileOutputStream(targetFile).getChannel();
-        }
-        destination.transferFrom(source, 0, source.size());
-        if (source != null) {
-            source.close();
-        }
-        if (destination != null) {
-            destination.close();
-        }
-        if (restartServer) {
-            restartGracefully();
+            destination.transferFrom(source, 0, source.size());
+            if (restartServer) {
+                restartGracefully();
+            }
+        } finally {
+            if (source != null) {
+                try {
+                    source.close();
+                } catch (IOException e) {
+                    //ignored
+                }
+            }
+            if (destination != null) {
+                try {
+                    destination.close();
+                } catch (IOException e) {
+                    //ignored
+                }
+            }
         }
     }
 
     /**
      * restore to a last configuration and restart the server
-     *
-     * @throws Exception
      */
-    public void restoreToLastConfiguration() throws Exception {
+    public void restoreToLastConfiguration() throws IOException, AutomationUtilException {
         restoreToLastConfiguration(true);
     }
 
     /**
      * restore all files to last configuration and restart the server
      *
-     * @throws Exception
+     * @throws AutomationUtilException - throws if restore to last configuration fails
+     * @throws IOException             - throws if restore to last configuration fails
      */
-    public void restoreToLastConfiguration(boolean isRestartRequired) throws Exception {
+    public void restoreToLastConfiguration(boolean isRestartRequired) throws
+                                                                      AutomationUtilException,
+                                                                      IOException {
         for (ConfigData data : configDatas) {
-            data.getBackupConfig().renameTo(data.getOriginalConfig());
+            if (!data.getBackupConfig().renameTo(data.getOriginalConfig())) {
+                throw new IOException("File rename from " + data.getBackupConfig() + "to " +
+                                      data.getOriginalConfig() + "fails");
+            }
         }
         if (isRestartRequired) {
             restartGracefully();
@@ -236,19 +255,36 @@ public class ServerConfigurationManager {
      * apply configuration file and restart server to take effect the configuration
      *
      * @param newConfig configuration file
-     * @throws Exception
+     * @throws AutomationUtilException - throws if apply configuration fails
+     * @throws IOException             - throws if apply configuration fails
      */
-    public void applyConfiguration(File newConfig) throws Exception {
+    public void applyConfiguration(File newConfig) throws AutomationUtilException, IOException {
         //to backup existing configuration
         backupConfiguration(newConfig.getName());
-        FileReader in = new FileReader(newConfig);
-        FileWriter out = new FileWriter(originalConfig);
-        int c;
-        while ((c = in.read()) != -1) {
-            out.write(c);
+        InputStreamReader in = new InputStreamReader(new FileInputStream(newConfig), StandardCharsets.UTF_8);
+        OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(originalConfig), StandardCharsets.UTF_8);
+        try {
+            int c;
+            while ((c = in.read()) != -1) {
+                out.write(c);
+            }
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    //ignore
+                }
+
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    //ignore
+                }
+            }
         }
-        in.close();
-        out.close();
         restartGracefully();
     }
 
@@ -256,19 +292,35 @@ public class ServerConfigurationManager {
      * apply configuration file and restart server to take effect the configuration
      *
      * @param newConfig configuration file
-     * @throws Exception
+     * @throws IOException - throws if apply configuration fails
      */
-    public void applyConfigurationWithoutRestart(File newConfig) throws Exception {
+    public void applyConfigurationWithoutRestart(File newConfig) throws IOException {
         //to backup existing configuration
         backupConfiguration(newConfig.getName());
-        FileReader in = new FileReader(newConfig);
-        FileWriter out = new FileWriter(originalConfig);
-        int c;
-        while ((c = in.read()) != -1) {
-            out.write(c);
+        InputStreamReader in = new InputStreamReader(new FileInputStream(newConfig), StandardCharsets.UTF_8);
+        OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(originalConfig), StandardCharsets.UTF_8);
+        try {
+            int c;
+            while ((c = in.read()) != -1) {
+                out.write(c);
+            }
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    //ignore
+                }
+
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    //ignore
+                }
+            }
         }
-        in.close();
-        out.close();
     }
 
     /**
@@ -276,65 +328,126 @@ public class ServerConfigurationManager {
      *
      * @param sourceFile - configuration file to be copied for your local machine or carbon server it self.
      * @param targetFile - configuration file in carbon server. e.g - path to axis2.xml in config directory
-     * @throws Exception - if file IO error
      */
-    public void applyConfiguration(File sourceFile, File targetFile) throws Exception {
+    public void applyConfiguration(File sourceFile, File targetFile) throws
+                                                                     AutomationUtilException,
+                                                                     IOException {
         //to backup existing configuration
         backupConfiguration(targetFile.getName());
-        FileReader in = new FileReader(sourceFile);
-        FileWriter out = new FileWriter(originalConfig);
-        int c;
-        while ((c = in.read()) != -1) {
-            out.write(c);
+        InputStreamReader in = new InputStreamReader(new FileInputStream(sourceFile), StandardCharsets.UTF_8);
+        OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(originalConfig), StandardCharsets.UTF_8);
+
+        try {
+            int c;
+            while ((c = in.read()) != -1) {
+                out.write(c);
+            }
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    //ignore
+                }
+
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    //ignore
+                }
+            }
         }
-        in.close();
-        out.close();
         restartGracefully();
     }
 
     /**
      * Restart Server Gracefully  from admin user
      *
-     * @throws Exception
+     * @throws AutomationUtilException - throws if server restart fails
      */
-    public void restartGracefully() throws Exception {
-        //todo use ServerUtils class restart
-        sessionCookie = loginLogoutClient.login();
-        ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
-        serverAdmin.restartGracefully();
-        ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
-        Thread.sleep(5000); //forceful wait until server is ready to be served
-        ClientConnectionUtil.waitForLogin(autoCtx);
+    public void restartGracefully() throws AutomationUtilException {
+        try {
+            sessionCookie = loginLogoutClient.login();
+            ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
+            serverAdmin.restartGracefully();
+            try {
+                Thread.sleep(20000); //force wait until server gracefully restarts
+                ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
+                Thread.sleep(5000); //forceful wait until server is ready to be served
+            } catch (InterruptedException e) {
+                //ignored
+            }
+            ClientConnectionUtil.waitForLogin(autoCtx);
+
+        } catch (RemoteException e) {
+            throw new AutomationUtilException("Error while gracefully restarting the server ", e);
+        } catch (ServerAdminException e) {
+            throw new AutomationUtilException("Error while gracefully restarting the server ", e);
+        } catch (MalformedURLException e) {
+            throw new AutomationUtilException("Error while gracefully restarting the server ", e);
+        } catch (LoginAuthenticationExceptionException e) {
+            throw new AutomationUtilException("Error while gracefully restarting the server ", e);
+        }
     }
 
     /**
      * Restart server gracefully from current user session
      *
      * @param sessionCookie session cookie
-     * @throws Exception
+     * @throws AutomationUtilException - throws if server restart fails
      */
-    public void restartGracefully(String sessionCookie) throws Exception {
-        //todo use ServerUtils class restart
-        ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
-        serverAdmin.restartGracefully();
-        ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
-        Thread.sleep(5000); //forceful wait until server is ready to be served
-        ClientConnectionUtil.waitForLogin(autoCtx);
+    public void restartGracefully(String sessionCookie) throws AutomationUtilException {
+        try {
+            ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
+            serverAdmin.restartGracefully();
+            try {
+                Thread.sleep(20000); //force wait until server gracefully restarts
+                ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
+                Thread.sleep(5000); //forceful wait until server is ready to be served
+            } catch (InterruptedException e) {
+                //ignored
+            }
+            ClientConnectionUtil.waitForLogin(autoCtx);
+        } catch (RemoteException e) {
+            throw new AutomationUtilException("Error while gracefully restarting the server ", e);
+        } catch (ServerAdminException e) {
+            throw new AutomationUtilException("Error while gracefully restarting the server ", e);
+        } catch (MalformedURLException e) {
+            throw new AutomationUtilException("Error while gracefully restarting the server ", e);
+        } catch (LoginAuthenticationExceptionException e) {
+            throw new AutomationUtilException("Error while gracefully restarting the server ", e);
+        }
     }
 
     /**
-     * Restart Server forcefully  from admin user
+     * Restart Server forcefully from admin user
      *
-     * @throws Exception
+     * @throws AutomationUtilException - throws if forceful restart fails
      */
-    public void restartForcefully() throws Exception {
-        //todo use ServerUtils class restart
-        sessionCookie = loginLogoutClient.login();
-        ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
-        serverAdmin.restart();
-        ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
-        Thread.sleep(5000); //forceful wait until server is ready to be served
-        ClientConnectionUtil.waitForLogin(autoCtx);
+    public void restartForcefully() throws AutomationUtilException {
+        try {
+            sessionCookie = loginLogoutClient.login();
+            ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
+            serverAdmin.restart();
+            try {
+                Thread.sleep(20000); //force wait until server gracefully restarts
+                ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
+                Thread.sleep(5000); //forceful wait until server is ready to be served
+            } catch (InterruptedException e) {
+                //ignored
+            }
+            ClientConnectionUtil.waitForLogin(autoCtx);
+        } catch (RemoteException e) {
+            throw new AutomationUtilException("Error while forcefully restarting the server ", e);
+        } catch (ServerAdminException e) {
+            throw new AutomationUtilException("Error while forcefully restarting the server ", e);
+        } catch (MalformedURLException e) {
+            throw new AutomationUtilException("Error while forcefully restarting the server ", e);
+        } catch (LoginAuthenticationExceptionException e) {
+            throw new AutomationUtilException("Error while forcefully restarting the server ", e);
+        }
     }
 
     /**
@@ -389,15 +502,18 @@ public class ServerConfigurationManager {
      */
     public void removeFromComponentDropins(String fileName) throws IOException, URISyntaxException {
         String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
-        String filePath = carbonHome + File.separator + "repository" + File.separator + "components" + File.separator
-                          + "dropins" + File.separator + fileName;
-        FileManager.deleteFile(filePath);
+        File file = new File(carbonHome + File.separator + "repository" + File.separator + "components" +
+                             File.separator + "dropins" + File.separator + fileName);
+
+        if (file.exists()) {
+            FileManager.deleteFile(file.getAbsolutePath());
+        }
     }
 
     /**
      * Private class to hold config data
      */
-    private class ConfigData {
+    private static class ConfigData {
 
         private File backupConfig;
         private File originalConfig;

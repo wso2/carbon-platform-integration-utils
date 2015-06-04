@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.*;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -37,7 +38,7 @@ public class FileManager {
         String line;
         String ls;
         log.debug("Path to file : " + filePath);
-        reader = new BufferedReader(new FileReader(filePath));
+        reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8));
         stringBuilder = new StringBuilder();
         ls = System.getProperty("line.separator");
         while ((line = reader.readLine()) != null) {
@@ -53,7 +54,7 @@ public class FileManager {
         StringBuilder stringBuilder;
         String line;
         String ls;
-        reader = new BufferedReader(new FileReader(file));
+        reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
         stringBuilder = new StringBuilder();
         ls = System.getProperty("line.separator");
         while ((line = reader.readLine()) != null) {
@@ -65,7 +66,7 @@ public class FileManager {
     }
 
     public static void writeToFile(String filePath, String content) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), StandardCharsets.UTF_8));
         try {
             writer.write(content);
             writer.newLine();
@@ -81,21 +82,27 @@ public class FileManager {
 
     public static void copyFile(File sourceFile, String destinationPath) throws IOException {
         File destinationFile = new File(destinationPath);
-        FileReader in = new FileReader(sourceFile);
-        FileWriter out = new FileWriter(destinationFile);
+        InputStreamReader in = null;
+        OutputStreamWriter out = null;
         int c;
         try {
+            in = new InputStreamReader(new FileInputStream(sourceFile), StandardCharsets.UTF_8);
+            out = new OutputStreamWriter(new FileOutputStream(destinationFile), StandardCharsets.UTF_8);
             while ((c = in.read()) != -1) {
                 out.write(c);
             }
         } finally {
             try {
-                in.close();
+                if (in != null) {
+                    in.close();
+                }
             } catch (IOException e) {
                 //ignore
             }
             try {
-                out.close();
+                if (out != null) {
+                    out.close();
+                }
             } catch (IOException e) {
                 //ignore
             }
@@ -109,35 +116,57 @@ public class FileManager {
         if (file.exists()) {
             FileUtils.deleteQuietly(file);
         }
-        FileUtils.touch(file);
-        OutputStream os = FileUtils.openOutputStream(file);
-        InputStream is = new FileInputStream(sourcePath);
-        if (is != null) {
-            byte[] data = new byte[1024];
-            int len;
-            while ((len = is.read(data)) != -1) {
-                os.write(data, 0, len);
+        OutputStream os = null;
+        InputStream is = null;
+
+        try {
+            FileUtils.touch(file);
+            os = FileUtils.openOutputStream(file);
+            is = new FileInputStream(sourcePath);
+
+            if (is != null) {
+                byte[] data = new byte[1024];
+                int len;
+                while ((len = is.read(data)) != -1) {
+                    os.write(data, 0, len);
+                }
             }
-            os.flush();
-            os.close();
-            is.close();
+        } finally {
+            if (os != null) {
+                try {
+                    os.flush();
+                    os.close();
+                } catch (IOException e) {
+                    log.warn("Unable to close steam");
+                }
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    log.warn("Unable to close steam");
+                }
+            }
         }
         return file;
     }
 
     public void copyJarFile(String sourceFileLocationWithFileName, String destinationDirectory)
-            throws IOException, URISyntaxException {
+            throws URISyntaxException, IOException  {
         File sourceFile = new File(getClass().getResource(sourceFileLocationWithFileName).toURI());
         File destinationFileDirectory = new File(destinationDirectory);
-        JarFile jarFile = new JarFile(sourceFile);
-        String fileName = jarFile.getName();
-        String fileNameLastPart = fileName.substring(fileName.lastIndexOf(File.separator));
-        File destinationFile = new File(destinationFileDirectory, fileNameLastPart);
         JarOutputStream jarOutputStream = null;
+        InputStream inputStream = null;
+
         try {
+            JarFile jarFile = new JarFile(sourceFile);
+            String fileName = jarFile.getName();
+            String fileNameLastPart = fileName.substring(fileName.lastIndexOf(File.separator));
+            File destinationFile = new File(destinationFileDirectory, fileNameLastPart);
             jarOutputStream = new JarOutputStream(new FileOutputStream(destinationFile));
             Enumeration<JarEntry> entries = jarFile.entries();
-            InputStream inputStream = null;
+
+
             while (entries.hasMoreElements()) {
                 try {
                     JarEntry jarEntry = entries.nextElement();
@@ -152,15 +181,43 @@ public class FileManager {
                     }
                 } finally {
                     if (inputStream != null) {
-                        inputStream.close();
-                        jarOutputStream.flush();
-                        jarOutputStream.closeEntry();
+                        try {
+                            inputStream.close();
+                        } catch (IOException e) {
+                            log.warn("Fail to close jarOutStream");
+                        }
+                    }
+                    if (jarOutputStream != null) {
+                        try {
+                            jarOutputStream.flush();
+                            jarOutputStream.closeEntry();
+                        } catch (IOException e) {
+                            log.warn("Error while closing jar out stream");
+                        }
+                    }
+                    if (jarFile != null) {
+                        try {
+                            jarFile.close();
+                        } catch (IOException e) {
+                            log.warn("Error while closing jar file");
+                        }
                     }
                 }
             }
         } finally {
             if (jarOutputStream != null) {
-                jarOutputStream.close();
+                try {
+                    jarOutputStream.close();
+                } catch (IOException e) {
+                    log.warn("Fail to close jarOutStream");
+                }
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    log.warn("Error while closing input stream");
+                }
             }
         }
     }
@@ -196,6 +253,7 @@ public class FileManager {
                 try {
                     jarOutputStream.close();
                 } catch (IOException e) {
+                    //ignore
                 }
             }
         }

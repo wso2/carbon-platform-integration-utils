@@ -87,7 +87,7 @@ public class DistributionValidationTestUtils {
 
     public static void validateXml(HashMap<String, Exception> xsdValidateMap,
                                    String distributionXml, String xsdFile)
-            throws Exception {
+            throws IOException {
         Source schemaFile = new StreamSource(new File(xsdFile));
         Source xmlFile = new StreamSource(new File(distributionXml));
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
