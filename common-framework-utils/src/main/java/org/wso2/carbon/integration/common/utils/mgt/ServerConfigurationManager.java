@@ -35,6 +35,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,9 +105,10 @@ public class ServerConfigurationManager {
         }
         originalConfig = new File(confDir + fileName);
         backUpConfig = new File(confDir + fileName + ".backup");
-        Boolean renameStatus = originalConfig.renameTo(backUpConfig);
 
-        if (!renameStatus) {
+        Files.move(originalConfig.toPath(), backUpConfig.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+        if (originalConfig.exists()) {
             throw new IOException("Failed to rename file from " + originalConfig.getName() + "to" + backUpConfig.getName());
         }
 
@@ -121,9 +124,10 @@ public class ServerConfigurationManager {
         //restore backup configuration
         originalConfig = file;
         backUpConfig = new File(file.getAbsolutePath() + ".backup");
-        Boolean status = originalConfig.renameTo(backUpConfig);
 
-        if (!status) {
+        Files.move(originalConfig.toPath(), backUpConfig.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+        if (originalConfig.exists()) {
             throw new IOException("Failed to rename file from " + originalConfig.getName() + "to" + backUpConfig.getName());
         }
 
@@ -241,7 +245,10 @@ public class ServerConfigurationManager {
                                                                       AutomationUtilException,
                                                                       IOException {
         for (ConfigData data : configDatas) {
-            if (!data.getBackupConfig().renameTo(data.getOriginalConfig())) {
+            Files.move(data.getBackupConfig().toPath(), data.getOriginalConfig().toPath(),
+                       StandardCopyOption.REPLACE_EXISTING);
+
+            if (!data.getBackupConfig().exists()) {
                 throw new IOException("File rename from " + data.getBackupConfig() + "to " +
                                       data.getOriginalConfig() + "fails");
             }
