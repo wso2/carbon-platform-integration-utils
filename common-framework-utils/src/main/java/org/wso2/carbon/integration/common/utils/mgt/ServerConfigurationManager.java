@@ -248,7 +248,7 @@ public class ServerConfigurationManager {
             Files.move(data.getBackupConfig().toPath(), data.getOriginalConfig().toPath(),
                        StandardCopyOption.REPLACE_EXISTING);
 
-            if (!data.getBackupConfig().exists()) {
+            if (data.getBackupConfig().exists()) {
                 throw new IOException("File rename from " + data.getBackupConfig() + "to " +
                                       data.getOriginalConfig() + "fails");
             }
