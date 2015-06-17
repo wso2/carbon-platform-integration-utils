@@ -124,7 +124,6 @@ public class TenantManagementServiceClient {
         TenantInfoBean getTenantBean;
         try {
             getTenantBean = tenantMgtAdminServiceStub.getTenant(tenantDomain);
-            assert getTenantBean == null : "Domain Name not found";
         } catch (RemoteException e) {
             log.error("RemoteException thrown while retrieving user/tenants : ", e);
             throw new RemoteException("RemoteException thrown while retrieving user/tenants : ", e);
