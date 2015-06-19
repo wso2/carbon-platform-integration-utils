@@ -223,7 +223,7 @@
         <carbon.commons.imp.pkg.version>[4.4.0, 4.5.0)</carbon.commons.imp.pkg.version>
 
         <!-- Carbon Identity version-->
-        <carbon.identity.version>4.5.0</carbon.identity.version>
+        <carbon.identity.version>4.5.1</carbon.identity.version>
         <carbon.identity.imp.pkg.version>[4.5.0, 4.6.0)</carbon.identity.imp.pkg.version>
 
         <!-- Carbon deployment version-->
@@ -241,7 +241,7 @@
         <slf4j.wso2.version>1.5.10.wso2v1</slf4j.wso2.version>
 
         <!-- Automation Framework version-->
-        <test.framework.version>4.4.0</test.framework.version>
+        <test.framework.version>4.4.1</test.framework.version>
         <zip4j.version>1.2.3</zip4j.version>
         <commons-lang3>3.0</commons-lang3>
         <htmlparser.version>2.1</htmlparser.version>
