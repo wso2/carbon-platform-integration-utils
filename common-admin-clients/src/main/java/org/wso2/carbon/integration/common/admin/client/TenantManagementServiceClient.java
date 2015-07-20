@@ -48,7 +48,6 @@ public class TenantManagementServiceClient {
      * @param usagePlan  Usage plan of the tenant
      * @throws RemoteException
      * @throws TenantMgtAdminServiceExceptionException
-     *
      */
     public void addTenant(String domainName, String password, String firstName, String usagePlan)
             throws RemoteException, TenantMgtAdminServiceExceptionException {
@@ -86,6 +85,30 @@ public class TenantManagementServiceClient {
     }
 
     /**
+     * Adding tenant
+     *
+     * @param tenantInfoBean - TenantInfoBean
+     * @throws RemoteException
+     * @throws TenantMgtAdminServiceExceptionException
+     */
+    public void addTenant(TenantInfoBean tenantInfoBean)
+            throws RemoteException, TenantMgtAdminServiceExceptionException {
+        tenantMgtAdminServiceStub.addTenant(tenantInfoBean);
+    }
+
+    /**
+     * Activate the tenant by tenant domain
+     *
+     * @param tenantDomain tenant domain
+     * @throws RemoteException
+     * @throws TenantMgtAdminServiceExceptionException
+     */
+    public void activateTenant(String tenantDomain)
+            throws RemoteException, TenantMgtAdminServiceExceptionException {
+        tenantMgtAdminServiceStub.activateTenant(tenantDomain);
+    }
+
+    /**
      * @param domainName domain name of the tenant
      */
     public void deleteTenant(String domainName) {
@@ -102,11 +125,13 @@ public class TenantManagementServiceClient {
 
     /**
      * deactivate tenant
+     *
      * @param domainName
      * @throws RemoteException
      * @throws TenantMgtAdminServiceExceptionException
      */
-    public void deactivateTenant(String domainName) throws RemoteException, TenantMgtAdminServiceExceptionException {
+    public void deactivateTenant(String domainName)
+            throws RemoteException, TenantMgtAdminServiceExceptionException {
         try {
             tenantMgtAdminServiceStub.deactivateTenant(domainName);
         } catch (RemoteException e) {
@@ -115,7 +140,7 @@ public class TenantManagementServiceClient {
         } catch (TenantMgtAdminServiceExceptionException e) {
             log.error("No such tenant found");
             throw new TenantMgtAdminServiceExceptionException("RemoteException thrown while" +
-                    " deactivating tenant : ", e);
+                                                              " deactivating tenant : ", e);
         }
     }
 
