@@ -24,7 +24,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.automation.engine.configurations.AutomationConfiguration;
 import org.wso2.carbon.automation.engine.context.InstanceType;
+import org.wso2.carbon.automation.engine.exceptions.AutomationFrameworkException;
 import org.wso2.carbon.automation.engine.extensions.ExecutionListenerExtension;
+import org.wso2.carbon.integration.common.extensions.exceptions.AutomationExtensionException;
 import org.wso2.carbon.integration.common.extensions.utils.AutomationXpathConstants;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -32,9 +34,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Pluggable class - This performs the user population
+ * Test automation extension class to populate users before test suite execution
+ * This class will remove all populated users at the end of test suites.
+ * And users/tenants to be populated is taken from automation.xml.
  */
-
 public class UserPopulateExtension extends ExecutionListenerExtension {
     private static final Log log = LogFactory.getLog(UserPopulateExtension.class);
 
@@ -42,37 +45,53 @@ public class UserPopulateExtension extends ExecutionListenerExtension {
     private List<Node> productGroupsList;
     private List<UserPopulator> userPopulatorList = new ArrayList<UserPopulator>();
 
-    public void initiate() throws Exception {
-        productGroupsList = getAllProductNodes();
+    public void initiate() throws AutomationFrameworkException {
+        try {
+            productGroupsList = getAllProductNodes();
+        } catch (XPathExpressionException e) {
+            throw new AutomationFrameworkException("Error while retrieving product groups ", e);
+        }
     }
 
     /**
      * Populate all tenants, users, roles and permissions on execution start of the test
-     * @throws Exception
+     *
+     * @throws AutomationFrameworkException - throws if user population fails
      */
-    public void onExecutionStart() throws Exception {
+    public void onExecutionStart() throws AutomationFrameworkException {
         for (Node aProductGroupsList : productGroupsList) {
             String productGroupName = aProductGroupsList.getAttributes().
                     getNamedItem(AutomationXpathConstants.NAME).getNodeValue();
             String instanceName = getProductGroupInstance(aProductGroupsList);
-            UserPopulator userPopulator = new UserPopulator(productGroupName, instanceName);
-            userPopulator.populateUsers();
-            userPopulatorList.add(userPopulator);
+            try {
+                UserPopulator userPopulator = new UserPopulator(productGroupName, instanceName);
+                userPopulator.populateUsers();
+                userPopulatorList.add(userPopulator);
+            } catch (AutomationExtensionException e) {
+                throw new AutomationFrameworkException("Error while populating users ", e);
+            } catch (XPathExpressionException e) {
+                throw new AutomationFrameworkException("Error while populating users ", e);
+            }
         }
     }
 
     /**
      * Remove the populated tenants, users, roles and permissions on execution finish of the test
-     * @throws Exception
+     *
+     * @throws AutomationFrameworkException - throws if users cannot be deleted
      */
-    public void onExecutionFinish() throws Exception {
+    public void onExecutionFinish() throws AutomationFrameworkException {
         for (UserPopulator userPopulator : userPopulatorList) {
-            userPopulator.deleteUsers();
+            try {
+                userPopulator.deleteUsers();
+            } catch (AutomationExtensionException e) {
+                throw new AutomationFrameworkException("Error while deleting users ", e);
+            }
         }
     }
 
     //get the instance which can call admin services for provided product group
-    private String getProductGroupInstance(Node productGroup) throws Exception {
+    private String getProductGroupInstance(Node productGroup) {
         String instanceName = "";
         Boolean isClusteringEnabled = Boolean.parseBoolean(productGroup.getAttributes().
                 getNamedItem(AutomationXpathConstants.CLUSTERING_ENABLED).getNodeValue());

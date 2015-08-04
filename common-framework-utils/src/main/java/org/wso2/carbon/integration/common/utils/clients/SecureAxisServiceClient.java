@@ -36,42 +36,44 @@ import org.testng.Assert;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.frameworkutils.FrameworkPathUtil;
 import org.wso2.carbon.automation.test.utils.axis2client.ConfigurationContextProvider;
+import org.wso2.carbon.integration.common.utils.exceptions.AutomationUtilException;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * Security service client for invoking secured services
+ */
 public class SecureAxisServiceClient implements CallbackHandler {
     private static final Log log = LogFactory.getLog(SecureAxisServiceClient.class);
 
-    /**
-     * This will send request by getting keyStore wso2carbon.jks
-     *
-     * @param userName
-     * @param password
-     * @param endpointReference
-     * @param operation
-     * @param payload
-     * @param securityScenarioNo
-     * @return
-     * @throws Exception
-     */
+
     public OMElement sendReceive(String userName, String password, String endpointReference,
                                  String operation, OMElement payload, int securityScenarioNo)
-            throws Exception {
+            throws FileNotFoundException, AxisFault, XMLStreamException, XPathExpressionException {
+
         if (securityScenarioNo == 1) {
             Assert.assertTrue(endpointReference.startsWith("https:"), "Endpoint reference should be https");
         }
+
         AutomationContext autoContext = new AutomationContext();
-        String keyPath = FrameworkPathUtil.getSystemResourceLocation() + File.separator +
-                         autoContext.getConfigurationValue("//keystore/fileName/text()");
-        String securityPolicyPath = FrameworkPathUtil.getSystemResourceLocation() + File.separator + "security" + File.separator
-                                    + "policies" + File.separator + "scenario" + securityScenarioNo + "-policy.xml";
-        ServiceClient sc = getServiceClient(userName, password, endpointReference, operation,
-                                            securityPolicyPath, "wso2carbon", "wso2carbon", keyPath, "wso2carbon");
+
+        String keyPath =
+                FrameworkPathUtil.getSystemResourceLocation() + File.separator +
+                autoContext.getConfigurationValue("//keystore/fileName/text()");
+        String securityPolicyPath =
+                FrameworkPathUtil.getSystemResourceLocation() + File.separator + "security" + File.separator
+                + "policies" + File.separator + "scenario" + securityScenarioNo + "-policy.xml";
+        ServiceClient sc =
+                getServiceClient(userName, password, endpointReference, operation,
+                                 securityPolicyPath, "wso2carbon", "wso2carbon", keyPath, "wso2carbon");
         OMElement result;
         if (log.isDebugEnabled()) {
             log.debug("payload :" + payload);
@@ -96,27 +98,14 @@ public class SecureAxisServiceClient implements CallbackHandler {
         return result;
     }
 
-    /**
-     * @param userName
-     * @param password
-     * @param endpointReference
-     * @param operation
-     * @param payload
-     * @param securityPolicyPath
-     * @param userCertAlias
-     * @param encryptionUser
-     * @param keyStorePath
-     * @param keyStorePassword
-     * @return
-     * @throws Exception
-     */
     public OMElement sendReceive(String userName, String password, String endpointReference,
                                  String operation, OMElement payload, String securityPolicyPath,
                                  String userCertAlias, String encryptionUser, String keyStorePath,
                                  String keyStorePassword)
-            throws Exception {
-        ServiceClient sc = getServiceClient(userName, password, endpointReference, operation,
-                                            securityPolicyPath, userCertAlias, encryptionUser, keyStorePath, keyStorePassword);
+            throws AxisFault, FileNotFoundException, XMLStreamException {
+        ServiceClient sc =
+                getServiceClient(userName, password, endpointReference, operation,
+                                 securityPolicyPath, userCertAlias, encryptionUser, keyStorePath, keyStorePassword);
         OMElement result;
         if (log.isDebugEnabled()) {
             log.debug("payload :" + payload);
@@ -141,59 +130,38 @@ public class SecureAxisServiceClient implements CallbackHandler {
         return result;
     }
 
-    /**
-     * This will send request by getting keyStore wso2carbon.jks
-     *
-     * @param userName
-     * @param password
-     * @param endpointReference
-     * @param operation
-     * @param payload
-     * @param securityScenarioNo
-     * @throws Exception
-     */
     public void sendRobust(String userName, String password, String endpointReference,
                            String operation, OMElement payload, int securityScenarioNo)
-            throws Exception {
+            throws AxisFault, XPathExpressionException, FileNotFoundException, XMLStreamException {
+
         if (securityScenarioNo == 1) {
             Assert.assertTrue(endpointReference.startsWith("https:"), "Endpoint reference should be https");
         }
         AutomationContext autoContext = new AutomationContext();
         String keyPath = FrameworkPathUtil.getSystemResourceLocation() + File.separator +
                          autoContext.getConfigurationValue("//keystore/fileName/text()");
-        String securityPolicyPath = FrameworkPathUtil.getSystemResourceLocation() + File.separator + "security" + File.separator
-                                    + "policies" + File.separator + "scenario" + securityScenarioNo + "-policy.xml";
-        ServiceClient sc = getServiceClient(userName, password, endpointReference, operation,
-                                            securityPolicyPath, "wso2carbon", "wso2carbon", keyPath, "wso2carbon");
+
+        String securityPolicyPath =
+                FrameworkPathUtil.getSystemResourceLocation() + File.separator + "security" + File.separator
+                + "policies" + File.separator + "scenario" + securityScenarioNo + "-policy.xml";
+
+        ServiceClient sc =
+                getServiceClient(userName, password, endpointReference, operation,
+                                 securityPolicyPath, "wso2carbon", "wso2carbon", keyPath, "wso2carbon");
         try {
             sc.sendRobust(payload);
             log.info("Request Sent");
-        } catch (AxisFault axisFault) {
-            log.error("AxisFault : " + axisFault.getMessage());
-            throw axisFault;
         } finally {
             sc.cleanupTransport();
         }
     }
 
-    /**
-     * @param userName
-     * @param password
-     * @param endpointReference
-     * @param operation
-     * @param payload
-     * @param securityPolicyPath
-     * @param userCertAlias
-     * @param encryptionUser
-     * @param keyStorePath
-     * @param keyStorePassword
-     * @throws Exception
-     */
+
     public void sendRobust(String userName, String password, String endpointReference,
                            String operation, OMElement payload, String securityPolicyPath,
                            String userCertAlias, String encryptionUser, String keyStorePath,
                            String keyStorePassword)
-            throws Exception {
+            throws FileNotFoundException, AxisFault, XMLStreamException {
         ServiceClient sc = getServiceClient(userName, password, endpointReference, operation,
                                             securityPolicyPath, userCertAlias, encryptionUser, keyStorePath, keyStorePassword);
         if (log.isDebugEnabled()) {
@@ -216,7 +184,7 @@ public class SecureAxisServiceClient implements CallbackHandler {
 
     private Policy loadPolicy(String userName, String securityPolicyPath, String keyStorePath,
                               String keyStorePassword, String userCertAlias, String encryptionUser)
-            throws Exception {
+            throws FileNotFoundException, XMLStreamException {
         Policy policy = null;
         StAXOMBuilder builder = null;
         try {
@@ -258,7 +226,7 @@ public class SecureAxisServiceClient implements CallbackHandler {
                                            String securityPolicyPath, String userCertAlias,
                                            String encryptionUser, String keyStorePath,
                                            String keyStorePassword)
-            throws Exception {
+            throws AxisFault, FileNotFoundException, XMLStreamException {
         if (log.isDebugEnabled()) {
             log.debug("Key_Path :" + keyStorePath);
             log.debug("securityPolicyPath :" + securityPolicyPath);
@@ -277,13 +245,10 @@ public class SecureAxisServiceClient implements CallbackHandler {
             sc.engageModule("rampart");
             sc.engageModule("addressing");
             Options opts = new Options();
-            try {
-                opts.setProperty(RampartMessageData.KEY_RAMPART_POLICY,
-                                 loadPolicy(userName, securityPolicyPath, keyStorePath, keyStorePassword, userCertAlias, encryptionUser));
-            } catch (Exception e) {
-                log.error(e);
-                throw new Exception(e.getMessage(), e);
-            }
+            opts.setProperty(
+                    RampartMessageData.KEY_RAMPART_POLICY,
+                    loadPolicy(userName, securityPolicyPath, keyStorePath, keyStorePassword,
+                               userCertAlias, encryptionUser));
             opts.setTo(new EndpointReference(endpointReference));
             opts.setAction("urn:" + operation);
             //setting user credential
@@ -292,7 +257,7 @@ public class SecureAxisServiceClient implements CallbackHandler {
             sc.setOptions(opts);
         } catch (AxisFault axisFault) {
             log.error("AxisFault : " + axisFault.getMessage());
-            throw axisFault;
+            throw new AxisFault("Axis fault ", axisFault);
         } finally {
             if (sc != null) {
                 sc.cleanupTransport();
@@ -304,7 +269,7 @@ public class SecureAxisServiceClient implements CallbackHandler {
 
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
         WSPasswordCallback pwcb = (WSPasswordCallback) callbacks[0];
-        String id = pwcb.getIdentifer();
+        String id = pwcb.getIdentifier();
         int usage = pwcb.getUsage();
         if (usage == WSPasswordCallback.SIGNATURE || usage == WSPasswordCallback.DECRYPT) {
             // Logic to get the private key password for signture or decryption

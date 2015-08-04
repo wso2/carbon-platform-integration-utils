@@ -61,7 +61,8 @@ public class LogViewerClient {
      * @return logMessage array
      * @throws java.rmi.RemoteException Exception
      */
-    public LogEvent[] getRemoteLogs(String logType, String searchKey, String domain, String serverKey)
+    public LogEvent[] getRemoteLogs(String logType, String searchKey, String domain,
+                                    String serverKey)
             throws RemoteException, LogViewerLogViewerException {
         return logViewerStub.getLogs(logType, searchKey, domain, serverKey);
     }
@@ -78,6 +79,7 @@ public class LogViewerClient {
 
     /**
      * Provide all remote system logs
+     *
      * @return
      * @throws RemoteException
      * @throws LogViewerLogViewerException
@@ -108,12 +110,12 @@ public class LogViewerClient {
     @Deprecated
     public LogEvent[] getLogs(String logType, String searchKey, String domain, String serverKey)
             throws RemoteException {
-        LogEvent[] logEvents = new LogEvent[0];
+        LogEvent[] logEvents;
         try {
             logEvents = logViewerStub.getLogs(logType, searchKey, domain, serverKey);
         } catch (LogViewerLogViewerException e) {
-            log.error("LogViewerException occurred" + e.getStackTrace());
-            throw new RemoteException("Logviewer Exception Occurred" + e);
+            log.error("LogViewerException occurred", e);
+            throw new RemoteException("Logviewer Exception Occurred", e);
         }
         return logEvents;
     }
@@ -127,15 +129,15 @@ public class LogViewerClient {
      */
     @Deprecated
     public LogEvent[] getAllSystemLogs() throws RemoteException {
-        LogEvent[] logEvents = new LogEvent[0];
+        LogEvent[] logEvents;
         try {
             logEvents = logViewerStub.getAllSystemLogs();
         } catch (RemoteException e) {
             log.error("Fail to get all logs ", e);
             throw new RemoteException("Fail to get all system logs ", e);
         } catch (LogViewerLogViewerException e) {
-            log.error("LogViewerException occurred" + e.getStackTrace());
-            throw new RemoteException("Logviewer Exception Occurred" + e);
+            log.error("LogViewerException occurred", e);
+            throw new RemoteException("Logviewer Exception Occurred", e);
         }
         return logEvents;
     }
