@@ -46,7 +46,7 @@ import java.util.List;
  */
 public class ServerConfigurationManager {
 
-    private static final long TIME_OUT = 240000;
+    private static final long TIME_OUT = 600000;
     private File originalConfig;
     private File backUpConfig;
     private int port;
@@ -375,28 +375,7 @@ public class ServerConfigurationManager {
      * @throws AutomationUtilException - throws if server restart fails
      */
     public void restartGracefully() throws AutomationUtilException {
-        try {
-            sessionCookie = loginLogoutClient.login();
-            ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
-            serverAdmin.restartGracefully();
-            try {
-                Thread.sleep(20000); //force wait until server gracefully restarts
-                ClientConnectionUtil.waitForPort(port, TIME_OUT, true, hostname);
-                Thread.sleep(5000); //forceful wait until server is ready to be served
-            } catch (InterruptedException e) {
-                //ignored
-            }
-            ClientConnectionUtil.waitForLogin(autoCtx);
-
-        } catch (RemoteException e) {
-            throw new AutomationUtilException("Error while gracefully restarting the server ", e);
-        } catch (ServerAdminException e) {
-            throw new AutomationUtilException("Error while gracefully restarting the server ", e);
-        } catch (MalformedURLException e) {
-            throw new AutomationUtilException("Error while gracefully restarting the server ", e);
-        } catch (LoginAuthenticationExceptionException e) {
-            throw new AutomationUtilException("Error while gracefully restarting the server ", e);
-        }
+        restartGracefully(TIME_OUT);
     }
 
     /**
