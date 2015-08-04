@@ -400,6 +400,31 @@ public class ServerConfigurationManager {
     }
 
     /**
+     * Restart Server Gracefully  from admin user
+     *
+     * @param timeout - Server startup waiting time
+     * @throws AutomationUtilException - throws if server restart fails
+     */
+    public void restartGracefully(long timeout) throws AutomationUtilException {
+        try {
+            sessionCookie = loginLogoutClient.login();
+            ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
+            serverAdmin.restartGracefully();
+            try {
+                Thread.sleep(25000); //force wait until server gracefully shutdown
+                ClientConnectionUtil.waitForPort(port, timeout, true, hostname);
+                Thread.sleep(5000); //forceful wait until server is ready to be served
+            } catch (InterruptedException e) {
+                /* ignored */
+            }
+            ClientConnectionUtil.waitForLogin(autoCtx);
+
+        } catch (RemoteException|ServerAdminException|MalformedURLException|LoginAuthenticationExceptionException e) {
+            throw new AutomationUtilException("Error while gracefully restarting the server ", e);
+        }
+    }
+
+    /**
      * Restart server gracefully from current user session
      *
      * @param sessionCookie session cookie
