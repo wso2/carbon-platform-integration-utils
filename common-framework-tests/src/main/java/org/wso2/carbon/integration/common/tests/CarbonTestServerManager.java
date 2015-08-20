@@ -37,7 +37,8 @@ public class CarbonTestServerManager extends TestServerManager {
         super(autoCtx, portOffset);
     }
 
-    public String startServer() throws IOException, AutomationFrameworkException {
+    public String startServer()
+            throws IOException, AutomationFrameworkException, XPathExpressionException {
         return super.startServer();
     }
 

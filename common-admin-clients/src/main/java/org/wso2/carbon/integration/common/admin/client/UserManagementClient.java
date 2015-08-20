@@ -271,9 +271,9 @@ public class UserManagementClient {
         userAdminStub.updateRoleName(roleName, newRoleName);
     }
 
-    public void changePasswordByUser(String oldPassword, String newPassword)
+    public void changePasswordByUser(String userName, String oldPassword, String newPassword)
             throws RemoteException, UserAdminUserAdminException {
-        userAdminStub.changePasswordByUser(oldPassword, newPassword);
+        userAdminStub.changePasswordByUser(userName, oldPassword, newPassword);
     }
 
     public FlaggedName[] getAllSharedRoleNames(String filter, int limit)
