@@ -55,7 +55,7 @@ public class ServerConfigurationManager {
     private AutomationContext autoCtx;
     private String sessionCookie;
     private LoginLogoutClient loginLogoutClient;
-    private List<ConfigData> configDatas = new ArrayList<ConfigData>();
+    private static List<ConfigData> configDatas = new ArrayList<ConfigData>();
 
     /**
      * Create a ServerConfigurationManager
@@ -256,6 +256,7 @@ public class ServerConfigurationManager {
         if (isRestartRequired) {
             restartGracefully();
         }
+        configDatas.clear();
     }
 
     /**
