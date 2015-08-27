@@ -25,6 +25,7 @@ import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -255,6 +256,22 @@ public class FileManager {
                 } catch (IOException e) {
                     //ignore
                 }
+            }
+        }
+    }
+
+
+    public static void copyJarFiles(List<File> jarListSelected, File destinationDirectory)
+    {
+        for(File jarFile : jarListSelected){
+            try {
+                if (!destinationDirectory.exists())
+                    destinationDirectory.mkdir();
+                FileUtils.copyFileToDirectory(jarFile,destinationDirectory);
+
+            } catch (IOException ex) {
+                log.warn("Error while copying jar files");
+
             }
         }
     }
