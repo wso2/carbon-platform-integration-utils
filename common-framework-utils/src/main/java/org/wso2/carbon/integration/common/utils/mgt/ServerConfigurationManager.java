@@ -477,6 +477,20 @@ public class ServerConfigurationManager {
     }
 
     /**
+     * Copy Jar files to server component/lib
+     *
+     * @param listOfJarFiles jar file list
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public void copyBulkFilesToComponentLib(List<File> listOfJarFiles) throws IOException, URISyntaxException {
+        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
+        String lib = carbonHome + File.separator + "repository" + File.separator + "components" + File.separator
+                     + "lib";
+        FileManager.copyJarFiles(listOfJarFiles, new File(lib));
+    }
+
+    /**
      * @param fileName file name
      * @throws IOException
      * @throws URISyntaxException
