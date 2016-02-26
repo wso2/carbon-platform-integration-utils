@@ -1,5 +1,5 @@
 <!--
-  ~  Copyright (c) 2005-2015, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+  ~  Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
   ~
   ~  WSO2 Inc. licenses this file to you under the Apache License,
   ~  Version 2.0 (the "License"); you may not use this file except
@@ -27,7 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon.automationutils</groupId>
     <artifactId>carbon-platform-integration-utils</artifactId>
-    <version>4.4.2-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
     <name>WSO2 Carbon Platform Integration Utils - Aggregator POM</name>
     <url>http://wso2.org</url>
     <packaging>pom</packaging>
@@ -240,7 +240,7 @@
         <slf4j.wso2.version>1.5.10.wso2v1</slf4j.wso2.version>
 
         <!-- Automation Framework version-->
-        <test.framework.version>4.4.2</test.framework.version>
+        <test.framework.version>5.0.0-SNAPSHOT</test.framework.version>
         <zip4j.version>1.2.3</zip4j.version>
         <commons-lang3>3.0</commons-lang3>
         <htmlparser.version>2.1</htmlparser.version>

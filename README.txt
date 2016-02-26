@@ -46,4 +46,4 @@ Thank you for your interest in WSO2 Test Automation Framework.We value your patr
 - The WSO2 Test Automation Framework Team - 
 
 
-(c) Copyright 2015 WSO2 Inc.
+(c) Copyright 2016 WSO2 Inc.
