@@ -19,7 +19,7 @@ package org.wso2.carbon.integration.common.extensions.utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
+//import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
 
 import java.io.File;
 
@@ -31,7 +31,7 @@ public class CommonExtensionUtils {
     public static String getSystemResourceLocation() {
         String resourceLocation;
         if (System.getProperty(ExtensionCommonConstants.SYSTEM_PROPERTY_OS_NAME)
-                .toLowerCase().contains(OperatingSystems.WINDOWS.name())) {
+                .toLowerCase().contains("WINDOWS")) {
             resourceLocation = System.getProperty
                     (SYSTEM_ARTIFACT_RESOURCE_LOCATION).replace("/", "\\");
         } else {
@@ -46,7 +46,7 @@ public class CommonExtensionUtils {
         if (System.getProperty
                 (ExtensionCommonConstants.SYSTEM_PROPERTY_SETTINGS_LOCATION) != null) {
             if (System.getProperty(ExtensionCommonConstants.SYSTEM_PROPERTY_OS_NAME)
-                    .toLowerCase().contains(OperatingSystems.WINDOWS.name())) {
+                    .toLowerCase().contains("WINDOWS")) {
                 settingsLocation = System.getProperty
                         (ExtensionCommonConstants.SYSTEM_PROPERTY_SETTINGS_LOCATION).replace("/", "\\");
             } else {

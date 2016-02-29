@@ -33,10 +33,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>common-admin-clients</module>
         <module>common-framework-utils</module>
         <module>common-framework-extensions</module>
-        <module>common-framework-tests</module>
     </modules>
 
     <scm>
@@ -142,18 +140,6 @@
                 <artifactId>org.wso2.carbon.tenant.mgt.stub</artifactId>
                 <version>${carbon.multitenancy.version}</version>
             </dependency>
-
-            <!-- Automation Framework version-->
-            <dependency>
-                <groupId>org.wso2.carbon.automation</groupId>
-                <artifactId>org.wso2.carbon.automation.engine</artifactId>
-                <version>${test.framework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.automation</groupId>
-                <artifactId>org.wso2.carbon.automation.extensions</artifactId>
-                <version>${test.framework.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
@@ -169,12 +155,6 @@
                 <artifactId>org.wso2.carbon.integration.common.utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.automationutils</groupId>
-                <artifactId>org.wso2.carbon.integration.common.admin.client</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>net.lingala.zip4j</groupId>
                 <artifactId>zip4j</artifactId>
