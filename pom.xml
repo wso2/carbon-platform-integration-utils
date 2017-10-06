@@ -37,6 +37,7 @@
         <module>common-framework-utils</module>
         <module>common-framework-extensions</module>
         <module>common-framework-tests</module>
+        <module>emulator</module>
     </modules>
 
     <scm>

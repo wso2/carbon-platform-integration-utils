@@ -1,0 +1,16 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="GWTestSuite" parallel="false">
+
+    <test name="Basic-Test" preserve-order="true" verbose="2">
+        <classes>
+            <class name="org.wso2.carbon.integration.emulator.http.context.path.validation.EmulatorWithContextValidationTestCase"/>
+            <class name="org.wso2.carbon.integration.emulator.http.context.path.validation.EmulatorWithPathValidationTestCase"/>
+            <class name="org.wso2.carbon.integration.emulator.http.custom.processor.validation.CustomProcessorValidationTestCase"/>
+            <class name="org.wso2.carbon.integration.emulator.http.EmulatorHeaderValidationTestCase"/>
+            <class name="org.wso2.carbon.integration.emulator.http.EmulatorQueryParameterValidationTestCase"/>
+        </classes>
+    </test>
+</suite>
+
+
