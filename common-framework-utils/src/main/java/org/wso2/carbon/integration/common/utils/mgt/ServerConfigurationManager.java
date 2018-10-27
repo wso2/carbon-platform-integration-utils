@@ -391,9 +391,9 @@ public class ServerConfigurationManager {
             ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
             serverAdmin.restartGracefully();
             try {
-                Thread.sleep(25000); //force wait until server gracefully shutdown
+                Thread.sleep(60000); //force wait until server gracefully shutdown
                 ClientConnectionUtil.waitForPort(port, timeout, true, hostname);
-                Thread.sleep(5000); //forceful wait until server is ready to be served
+                Thread.sleep(120000); //forceful wait until server is ready to be served
             } catch (InterruptedException e) {
                 /* ignored */
             }
