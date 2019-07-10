@@ -522,6 +522,21 @@ public class ServerConfigurationManager {
     }
 
     /**
+     * /**
+     * Copy Jar file to server component/dropins when carbonHome provided
+     *
+     * @param jar jar file
+     * @param carbonHome resident carbon home
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public void copyToComponentDropins(File jar,String carbonHome) throws IOException, URISyntaxException {
+        String lib = carbonHome + File.separator + "repository" + File.separator + "components" + File.separator
+                + "dropins";
+        FileManager.copyJarFile(jar, lib);
+    }
+
+    /**
      * @param fileName file name
      * @throws IOException
      * @throws URISyntaxException
