@@ -55,7 +55,7 @@ public class ServerConfigurationManager {
     private AutomationContext autoCtx;
     private String sessionCookie;
     private LoginLogoutClient loginLogoutClient;
-    private static List<ConfigData> configDatas = new ArrayList<ConfigData>();
+    private List<ConfigData> configDatas = new ArrayList<ConfigData>();
 
     /**
      * Create a ServerConfigurationManager
@@ -256,7 +256,6 @@ public class ServerConfigurationManager {
         if (isRestartRequired) {
             restartGracefully();
         }
-        configDatas.clear();
     }
 
     /**
@@ -474,20 +473,6 @@ public class ServerConfigurationManager {
         String lib = carbonHome + File.separator + "repository" + File.separator + "components" + File.separator
                      + "lib";
         FileManager.copyJarFile(jar, lib);
-    }
-
-    /**
-     * Copy Jar files to server component/lib
-     *
-     * @param listOfJarFiles jar file list
-     * @throws IOException
-     * @throws URISyntaxException
-     */
-    public void copyBulkFilesToComponentLib(List<File> listOfJarFiles) throws IOException, URISyntaxException {
-        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
-        String lib = carbonHome + File.separator + "repository" + File.separator + "components" + File.separator
-                     + "lib";
-        FileManager.copyJarFiles(listOfJarFiles, new File(lib));
     }
 
     /**
