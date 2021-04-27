@@ -27,7 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon.automationutils</groupId>
     <artifactId>carbon-platform-integration-utils</artifactId>
-    <version>4.5.4-SNAPSHOT</version>
+    <version>4.5.4</version>
     <name>WSO2 Carbon Platform Integration Utils - Aggregator POM</name>
     <url>http://wso2.org</url>
     <packaging>pom</packaging>
@@ -45,7 +45,7 @@
         <developerConnection>scm:git:https://github.com/wso2/carbon-platform-integration-utils.git
         </developerConnection>
         <url>https://github.com/wso2/carbon-platform-integration-utils.git</url>
-        <tag>HEAD</tag>
+        <tag>v4.5.4</tag>
     </scm>
     <build>
         <pluginManagement>
