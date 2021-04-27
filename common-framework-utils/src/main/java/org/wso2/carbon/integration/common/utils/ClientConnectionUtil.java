@@ -30,6 +30,7 @@ import java.net.Socket;
 public class ClientConnectionUtil {
     private static final Log log = LogFactory.getLog(ClientConnectionUtil.class);
     private static final long TIMEOUT = 180000;
+    private static final long LOGIN_TIMEOUT = 300000;
 
     /**
      * Wait for sometime until it is possible to login to the Carbon server
@@ -38,7 +39,7 @@ public class ClientConnectionUtil {
             throws MalformedURLException, LoginAuthenticationExceptionException {
         long startTime = System.currentTimeMillis();
         boolean loginFailed = true;
-        while (((System.currentTimeMillis() - startTime) < TIMEOUT) && loginFailed) {
+        while (((System.currentTimeMillis() - startTime) < LOGIN_TIMEOUT) && loginFailed) {
             log.info("Waiting to login  user...");
             try {
                 LoginLogoutClient loginClient = new LoginLogoutClient(context);
