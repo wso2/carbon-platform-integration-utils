@@ -102,6 +102,48 @@ public class ClientConnectionUtil {
     }
 
     /**
+     * @param port    The port that needs to be checked
+     * @param timeout The timeout waiting for the port to close
+     * @param verbose if verbose is set to true,
+     * @throws RuntimeException if the port is not closed within the {@link #TIMEOUT}
+     */
+    public static void waitForPortClose(int port, long timeout, boolean verbose, String hostName)
+            throws RuntimeException {
+        long startTime = System.currentTimeMillis();
+        while ((System.currentTimeMillis() - startTime) < timeout) {
+            Socket socket = null;
+            try {
+                InetAddress address = InetAddress.getByName(hostName);
+                socket = new Socket(address, port);
+                if (socket.isConnected()) {
+                    if (verbose) {
+                        log.info("Waiting until server shutdown and close port " + port);
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+            } catch (IOException e) {
+                // IO exception means the endpoint is not reachable.
+                if (verbose) {
+                    log.info("Server port " + port + " is no longer open.");
+                }
+                return;
+            } finally {
+                try {
+                    if ((socket != null) && (socket.isConnected())) {
+                        socket.close();
+                    }
+                } catch (IOException e) {
+                    log.error("Can not close the socket with is used to check the server status ", e);
+                }
+            }
+        }
+        throw new RuntimeException("Port " + port + " is not closed");
+    }
+
+    /**
      * Checks whether the given <code>port</code> is open, and waits for sometime until the port is
      * open. If the port is not open within {@link #TIMEOUT}, throws RuntimeException.
      *
