@@ -30,6 +30,7 @@ import java.net.Socket;
 public class ClientConnectionUtil {
     private static final Log log = LogFactory.getLog(ClientConnectionUtil.class);
     private static final long TIMEOUT = 180000;
+    private static final long LOGIN_TIMEOUT = 300000;
 
     /**
      * Wait for sometime until it is possible to login to the Carbon server
@@ -38,7 +39,7 @@ public class ClientConnectionUtil {
             throws MalformedURLException, LoginAuthenticationExceptionException {
         long startTime = System.currentTimeMillis();
         boolean loginFailed = true;
-        while (((System.currentTimeMillis() - startTime) < TIMEOUT) && loginFailed) {
+        while (((System.currentTimeMillis() - startTime) < LOGIN_TIMEOUT) && loginFailed) {
             log.info("Waiting to login  user...");
             try {
                 LoginLogoutClient loginClient = new LoginLogoutClient(context);
@@ -99,6 +100,48 @@ public class ClientConnectionUtil {
             }
         }
         throw new RuntimeException("Port " + port + " is not open");
+    }
+
+    /**
+     * @param port    The port that needs to be checked
+     * @param timeout The timeout waiting for the port to close
+     * @param verbose if verbose is set to true,
+     * @throws RuntimeException if the port is not closed within the {@link #TIMEOUT}
+     */
+    public static void waitForPortClose(int port, long timeout, boolean verbose, String hostName)
+            throws RuntimeException {
+        long startTime = System.currentTimeMillis();
+        while ((System.currentTimeMillis() - startTime) < timeout) {
+            Socket socket = null;
+            try {
+                InetAddress address = InetAddress.getByName(hostName);
+                socket = new Socket(address, port);
+                if (socket.isConnected()) {
+                    if (verbose) {
+                        log.info("Waiting until server shutdown and close port " + port);
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+            } catch (IOException e) {
+                // IO exception means the endpoint is not reachable.
+                if (verbose) {
+                    log.info("Server port " + port + " is no longer open.");
+                }
+                return;
+            } finally {
+                try {
+                    if ((socket != null) && (socket.isConnected())) {
+                        socket.close();
+                    }
+                } catch (IOException e) {
+                    log.error("Can not close the socket with is used to check the server status ", e);
+                }
+            }
+        }
+        throw new RuntimeException("Port " + port + " is not closed");
     }
 
     /**

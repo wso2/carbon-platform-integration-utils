@@ -390,9 +390,13 @@ public class ServerConfigurationManager {
             ServerAdminClient serverAdmin = new ServerAdminClient(backEndUrl, sessionCookie);
             serverAdmin.restartGracefully();
             try {
-                Thread.sleep(60000); //force wait until server gracefully shutdown
+                // Waiting for the port closure since it can take time to close the port if there server is serving
+                // traffic. Hence after the next thread sleep when it's trying to check the port availability after
+                // server restart, it might be seeing the open port which is not yet closed. So tests needs to wait
+                // until it is confirmed that the server is successfully shut down.
+                ClientConnectionUtil.waitForPortClose(port, timeout, true, hostname);
+                Thread.sleep(40000); //force wait until server gracefully shutdown
                 ClientConnectionUtil.waitForPort(port, timeout, true, hostname);
-                Thread.sleep(120000); //forceful wait until server is ready to be served
             } catch (InterruptedException e) {
                 /* ignored */
             }
